@@ -10,7 +10,6 @@ st.set_page_config(page_title="Autodoc Review Dashboard", layout="wide")
 # 2. Data Loading Function
 @st.cache_data
 def load_data():
-    # Path to your cleaned CSV
     file_path = Path("src/data/clean/reviews_clean.csv")
     
     if not file_path.exists():
@@ -19,12 +18,19 @@ def load_data():
 
     df = pd.read_csv(file_path)
     
-    # Standardizing date format
+    # Date conversion
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df = df.dropna(subset=['date'])
     
-    # Extracting numeric rating (1-5) from SVG strings
-    df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
+    # 1. Extract the rating from the SVG (or existing column)
+    # We'll just call it 'rating' and keep it clean
+    df['rating'] = df['rating_svg'].str.extract('(\d+)').astype(int)
+    
+    # 2. DROP duplicate or unnecessary columns
+    # We remove 'rating_numeric' and 'rating_svg' to keep the table slim
+    columns_to_drop = ['rating_numeric', 'rating_svg']
+    df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+    
     return df
 
 # Initialize Data
