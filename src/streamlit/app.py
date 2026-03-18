@@ -15,6 +15,7 @@ def load_data():
     df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
     return df
 
+df = load_data() 
 
 # 3. Titel & Header
 st.title("📊 Analyse der Autodoc Kundenbewertungen")
