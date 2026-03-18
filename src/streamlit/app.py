@@ -48,8 +48,28 @@ if not df.empty:
     st.subheader("📄 Raw Data Preview")
     st.info("Direct preview of the filtered dataset:")
     st.dataframe(df_filtered.head(15), use_container_width=True)
+    
+        # --- NEU: COMPANY VALUE COUNTS (Direkt unter der Tabelle) ---
+    st.markdown("#### 🏢 Company Distribution")
+    if 'company' in df_filtered.columns:
+        company_counts = df_filtered['company'].value_counts().reset_index()
+        company_counts.columns = ['Company Name', 'Review Count']
+        
+        # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
+        c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
+        with c1:
+            st.dataframe(company_counts, use_container_width=True, hide_index=True)
+        with c2:
+            fig_comp = px.bar(company_counts, x='Review Count', y='Company Name', 
+                              orientation='h', height=250, title="Reviews per Company")
+            st.plotly_chart(fig_comp, use_container_width=True)
+    else:
+        st.warning("Column 'company' not found in data.")
+        
     st.markdown("---")
     
+
+
     # --- POSITION 2: KPIs (Jetzt UNTER der Preview) ---
     avg_rating = df_filtered['rating'].mean()
     response_rate = df_filtered['supplier_response'].notna().mean() * 100
