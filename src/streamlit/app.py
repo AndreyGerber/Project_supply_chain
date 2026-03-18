@@ -179,7 +179,7 @@ if not df.empty:
     st.markdown(footer_html, unsafe_allow_html=True)
     
     # Der Ausblick-Satz bleibt in der Info-Box darunter
-       st.markdown("""
+ st.markdown("""
         <div style="
             text-align: center; 
             padding: 15px; 
@@ -190,7 +190,7 @@ if not df.empty:
             border: 1px solid #b8daff;">
             🚀 More detailed analysis will appear soon—with better visuals, emojis, and machine learning algorithms.
         </div>
-    """, unsafe_allow_html=True))
+    """, unsafe_allow_html=True)
 
 else:
     st.warning("Data could not be loaded. Please check the source file.")
