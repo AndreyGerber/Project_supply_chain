@@ -11,4 +11,6 @@ Liebe {olga_robert_style}Olga</span> und cooler noch junger (aber auch nicht meh
 {olga_robert_style}Robert</span>. 
 Das ist unsere Streamlit Oberfläche. Hier können wir unsere Daten visualisieren und interaktiv mit ihnen arbeiten. 
 Ich freue mich schon darauf, gemeinsam mit dir die nächsten Schritte zu gehen und unsere App weiterzuentwickeln!
+
+Hi, ich habs auch geschafft! lg Olga
 ''', unsafe_allow_html=True)
