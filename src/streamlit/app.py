@@ -19,7 +19,6 @@ def load_data():
     return df
 
 
-df = load_data() 
 
 # 3. Titel & Header
 st.title("📊 Analyse der Autodoc Kundenbewertungen")
