@@ -58,7 +58,7 @@ if not df.empty:
     
     # 5. Key Performance Indicators (KPIs)
     # Calculation of metrics
-    avg_rating = df_filtered['rating_numeric'].mean()
+    avg_rating = df_filtered['rating'].mean()
     response_rate = df_filtered['supplier_response'].notna().mean() * 100
 
     col1, col2, col3 = st.columns(3)
@@ -77,8 +77,8 @@ if not df.empty:
         
         fig = px.histogram(
             df_filtered,
-            x="rating_numeric",
-            color="rating_numeric",
+            x="rating",
+            color="rating",
             title="Frequency of Ratings",
             labels={'rating_numeric': 'Star Rating', 'count': 'Number of Reviews'},
             nbins=5,
