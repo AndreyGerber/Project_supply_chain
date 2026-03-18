@@ -63,8 +63,16 @@ if not df.empty:
             fig_comp = px.bar(company_counts, x='Review Count', y='Company Name', 
                               orientation='h', height=250, title="Reviews per Company")
             st.plotly_chart(fig_comp, use_container_width=True)
+     
+       #ZEITPERIODE  ---
+    st.markdown("#### 📅 Analysis Period")
+    if not df_filtered.empty and 'date' in df_filtered.columns:
+        first_date = df_filtered['date'].min().strftime('%d.%m.%Y')
+        last_date = df_filtered['date'].max().strftime('%d.%m.%Y')
+        
+        st.success(f"This dataset covers reviews from **{first_date}** to **{last_date}**.")
     else:
-        st.warning("Column 'company' not found in data.")
+        st.warning("No date information available for the selected filters.")
         
     st.markdown("---")
     
