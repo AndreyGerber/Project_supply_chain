@@ -15,12 +15,6 @@ def load_data():
     df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
     return df
 
-# Daten tatsächlich in Variable laden
-try:
-    df = load_data()
-except Exception as e:
-    st.error(f"Fehler beim Laden der Daten: {e}")
-    st.stop()
 
 # 3. Titel & Header
 st.title("📊 Analyse der Autodoc Kundenbewertungen")
