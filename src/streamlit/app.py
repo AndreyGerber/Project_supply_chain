@@ -64,13 +64,42 @@ if not df.empty:
                               orientation='h', height=250, title="Reviews per Company")
             st.plotly_chart(fig_comp, use_container_width=True)
      
-       #ZEITPERIODE  ---
+      # --- ZEITPERIODE MIT ZEITACHSE ---
     st.markdown("#### 📅 Analysis Period")
     if not df_filtered.empty and 'date' in df_filtered.columns:
-        first_date = df_filtered['date'].min().strftime('%d.%m.%Y')
-        last_date = df_filtered['date'].max().strftime('%d.%m.%Y')
+        # 1. Daten für die Achse vorbereiten
+        first_date = df_filtered['date'].min()
+        last_date = df_filtered['date'].max()
         
-        st.success(f"This dataset covers reviews from **{first_date}** to **{last_date}**.")
+        st.success(f"This dataset covers reviews from **{first_date.strftime('%d.%m.%Y')}** to **{last_date.strftime('%d.%m.%Y')}**.")
+
+        # 2. Zeitachse als Plotly-Grafik erstellen
+        timeline_df = pd.DataFrame({
+            'date': [first_date, last_date],
+            'label': ['Start', 'End'],
+            'y': [0, 0] # Alle Punkte auf einer horizontalen Linie
+        })
+
+        fig_timeline = px.line(timeline_df, x='date', y='y', markers=True, text='label')
+        
+        # Styling der Zeitachse (Minimalistisches Design)
+        fig_timeline.update_traces(
+            line_color='#2E7D32', 
+            marker=dict(size=12, symbol='diamond'),
+            textposition='top center'
+        )
+        
+        fig_timeline.update_layout(
+            height=120,
+            margin=dict(l=20, r=20, t=30, b=20),
+            xaxis=dict(showgrid=False, title=""),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False, title=""),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)'
+        )
+
+        st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
+        
     else:
         st.warning("No date information available for the selected filters.")
         
