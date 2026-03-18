@@ -74,8 +74,7 @@ with tab1:
 
         st.plotly_chart(fig, use_container_width=True)
     
-    # Das Diagramm in Streamlit anzeigen
-    st.plotly_chart(fig, use_container_width=True)
+
 
 with tab2:
     st.subheader("💬 Einblick in die Kundenkommentare")
