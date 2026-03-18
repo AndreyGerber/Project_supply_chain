@@ -170,10 +170,7 @@ if not df.empty:
     
     # Dein persönlicher Gruß
     st.markdown(f'''
-    Dear {highlight}Olga</span> and cool {highlight}Robert</span>, 
-    this is our English Streamlit interface for the Supply Chain Analysis project!
-    ''', unsafe_allow_html=True)
-    
+      {highlight}Thank you for exploring the Autodoc Review Dashboard!{highlight}    
     # Der neue Ausblick-Satz
     st.info("🚀 More detailed analysis will appear soon—with better visuals, emojis, and machine learning algorithms.")
 
