@@ -76,7 +76,7 @@ if not df.empty:
         # 2. Zeitachse als Plotly-Grafik erstellen
         timeline_df = pd.DataFrame({
             'date': [first_date, last_date],
-            'label': ['Start', 'End'],
+            'label': ['first comment', 'last comment'],
             'y': [0, 0] # Alle Punkte auf einer horizontalen Linie
         })
 
@@ -99,7 +99,7 @@ if not df.empty:
         )
 
         st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
-        
+
     else:
         st.warning("No date information available for the selected filters.")
         
