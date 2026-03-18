@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import os
+from pathlib import Path
+
 
 # 1. Konfiguration (Muss ganz oben stehen)
 st.set_page_config(page_title="Autodoc Review Analyse", layout="wide")
@@ -8,14 +11,25 @@ st.set_page_config(page_title="Autodoc Review Analyse", layout="wide")
 # 2. Daten laden
 @st.cache_data
 def load_data():
-    # Pfad angepasst auf deine Struktur
-    df = pd.read_csv("src/data/clean/reviews_clean.csv")
+    # Dieser Befehl findet den Ordner, in dem app.py liegt
+    current_dir = Path(__file__).parent if "__file__" in locals() else Path.cwd()
+    
+    # Wir gehen einen Ordner hoch (aus 'streamlit' raus) 
+    # und dann in 'data/clean/reviews_clean.csv'
+    # Falls deine Struktur anders ist, passen wir das hier an:
+    data_path = current_dir.parent / "data" / "clean" / "reviews_clean.csv"
+    
+    # Falls das nicht klappt, versuchen wir den absoluten Pfad vom Root:
+    if not data_path.exists():
+        data_path = Path("src/data/clean/reviews_clean.csv")
+
+    df = pd.read_csv(data_path)
     df['date'] = pd.to_datetime(df['date'])
     # Rating aus SVG-Namen extrahieren
     df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
     return df
 
-df = load_data() 
+df = load_data()
 
 # 3. Titel & Header
 st.title("📊 Analyse der Autodoc Kundenbewertungen")
