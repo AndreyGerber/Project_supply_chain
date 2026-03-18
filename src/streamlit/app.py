@@ -6,25 +6,18 @@ from pathlib import Path
 
 @st.cache_data
 def load_data():
-    # Wir bauen den Pfad ausgehend vom Hauptverzeichnis zusammen
-    base_path = Path(__file__).resolve().parent.parent.parent # Geht von app.py hoch zu 'project_supply_chain'
-    file_path = base_path / "src" / "data" / "clean" / "reviews_clean.csv"
-
-    # Falls der Pfad oben nicht stimmt, probieren wir es direkt (relativ zum Root)
-    if not file_path.exists():
-        file_path = Path("src/data/clean/reviews_clean.csv")
+    # Sucht im selben Ordner, in dem app.py liegt
+    current_dir = Path(__file__).parent
+    file_path = current_dir / "reviews_clean.csv"
 
     if not file_path.exists():
-        st.error(f"❌ Datei immer noch nicht gefunden!")
-        st.info(f"Gesuchter Pfad: {file_path.absolute()}")
-        # Checke, was IM 'src' Ordner ist
-        if os.path.exists("src"):
-            st.write("Inhalt von 'src':", os.listdir("src"))
+        st.error(f"Datei '{file_path.name}' nicht in {current_dir} gefunden!")
+        # Zeige zur Sicherheit an, welche Dateien GitHub in diesem Ordner sieht:
+        st.write("Dateien in diesem Ordner:", os.listdir(current_dir))
         return pd.DataFrame()
 
     df = pd.read_csv(file_path)
-    df['date'] = pd.to_datetime(df['date'])
-    df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
+    # ... Rest deines Codes (Date-Konvertierung etc.)
     return df
 
 df = load_data()
