@@ -19,9 +19,12 @@ def load_data():
     return df
 
 
+df = load_data() 
 
 # 3. Titel & Header
 st.title("📊 Analyse der Autodoc Kundenbewertungen")
 st.markdown("---")
 
-print(df.head(10))
+# Nutze st.dataframe statt print, um es in der App zu sehen
+st.subheader("Vorschau der Daten")
+st.dataframe(df.head(10))
