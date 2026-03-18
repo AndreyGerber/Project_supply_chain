@@ -59,8 +59,20 @@ st.markdown("---")
 tab1, tab2, tab3 = st.tabs(["📈 Trends", "💬 Kommentare", "📍 Support"])
 
 with tab1:
-    st.subheader("Verteilung der Sterne-Bewertungen")
-    fig = px.histogram(df, x="rating_numeric", color="rating_numeric", title="Häufigkeit der Sterne")
+    if not df.empty:
+        st.subheader("Verteilung der Sterne-Bewertungen")
+
+        fig = px.histogram(
+            df,
+            x="rating_numeric",
+            color="rating_numeric",
+            title="Häufigkeit der Sterne",
+            nbins=5
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+    
+    # Das Diagramm in Streamlit anzeigen
     st.plotly_chart(fig, use_container_width=True)
 
 with tab2:
