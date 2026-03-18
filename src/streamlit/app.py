@@ -148,7 +148,7 @@ if not df.empty:
         st.info("Search through individual comments or use the quick-filters below.")
     
         # 1. Schnellauswahl vordefinierter Schlagwörter
-         st.write("**Quick-Filters (Common Topics):**")
+        st.write("**Quick-Filters (Common Topics):**")
         predefined_keywords = ["All", "shipping", "quality", "price", "support", "delivery", "service"]
     
         # Eine Selectbox für die vordefinierten Wörter
