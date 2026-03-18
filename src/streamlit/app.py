@@ -4,28 +4,30 @@ import plotly.express as px
 import os
 from pathlib import Path
 
-
-# 1. Konfiguration (Muss ganz oben stehen)
-st.set_page_config(page_title="Autodoc Review Analyse", layout="wide")
-
-# 2. Daten laden
 @st.cache_data
 def load_data():
-    # Ermittelt das Verzeichnis, in dem app.py liegt
-    base_path = Path(__file__).parent.parent # Geht von 'streamlit/' ein Verzeichnis hoch zu 'src/'
-    file_path = base_path / "data" / "clean" / "reviews_clean.csv"
+    # 1. Wir ermitteln den absoluten Pfad zu diesem Skript (app.py)
+    current_dir = Path(__file__).parent 
     
+    # 2. Wir gehen einen Ordner höher (zu 'src/') und dann in 'data/clean/'
+    # Struktur: src/streamlit/app.py -> src/data/clean/reviews_clean.csv
+    file_path = current_dir.parent / "data" / "clean" / "reviews_clean.csv"
+    
+    # Check, ob die Datei wirklich da ist (hilft beim Debuggen)
+    if not file_path.exists():
+        st.error(f"Datei nicht gefunden! Gesucht unter: {file_path}")
+        return pd.DataFrame() # Gibt leeres Set zurück, damit App nicht abstürzt
+
     df = pd.read_csv(file_path)
     df['date'] = pd.to_datetime(df['date'])
+    # Rating aus SVG-Namen extrahieren
     df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
     return df
 
+# Danach nicht vergessen, die Funktion auch aufzurufen:
 df = load_data()
 
-
-st.title("📊 Analyse der Autodoc Kundenbewertungen")
-st.markdown("---")
-
-st.subheader("Vorschau der Daten")
-# Jetzt kennt Streamlit 'df' und kann es anzeigen:
-st.dataframe(df.head(10)) 
+# Nur anzeigen, wenn Daten geladen wurden
+if not df.empty:
+    st.title("📊 Analyse der Autodoc Kundenbewertungen")
+    st.dataframe(df.head(10))
