@@ -11,12 +11,17 @@ st.set_page_config(page_title="Autodoc Review Analyse", layout="wide")
 # 2. Daten laden
 @st.cache_data
 def load_data():
-    df = pd.read_csv("src/data/clean/reviews_clean.csv")
-    # ... restliche Logik in der Funktion
+    # Ermittelt das Verzeichnis, in dem app.py liegt
+    base_path = Path(__file__).parent.parent # Geht von 'streamlit/' ein Verzeichnis hoch zu 'src/'
+    file_path = base_path / "data" / "clean" / "reviews_clean.csv"
+    
+    df = pd.read_csv(file_path)
+    df['date'] = pd.to_datetime(df['date'])
+    df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
     return df
 
-# --- DIESE ZEILE IST DER SCHLÜSSEL ---
-df = load_data() 
+df = load_data()
+
 
 st.title("📊 Analyse der Autodoc Kundenbewertungen")
 st.markdown("---")
