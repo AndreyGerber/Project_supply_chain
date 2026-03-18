@@ -9,7 +9,7 @@ st.set_page_config(page_title="Autodoc Review Analyse", layout="wide")
 @st.cache_data
 def load_data():
     # Pfad angepasst auf deine Struktur
-    df = pd.read_csv("data/clean/reviews_clean.csv")
+    df = pd.read_csv("src/data/clean/reviews_clean.csv")
     df['date'] = pd.to_datetime(df['date'])
     # Rating aus SVG-Namen extrahieren
     df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
@@ -57,34 +57,9 @@ with tab2:
         results = df[df['review_text'].str.contains(search, case=False, na=False)]
         st.success(f"Gefundene Kommentare: {len(results)}")
         st.dataframe(results[['rating_numeric', 'review_text', 'date']], use_container_width=True)
-    
-    st.markdown("---")
-    st.subheader("🔝 Häufigste Begriffe")
-    all_text = " ".join(df['review_text'].fillna("").astype(str)).lower()
-    words = pd.Series(all_text.split())
-    stopwords = ['ich', 'die', 'der', 'und', 'ist', 'das', 'für', 'zu', 'mit', 'auf', 'von', 'man']
-    top_words = words[~words.isin(stopwords)].value_counts().head(10)
-    
-    fig_words = px.bar(top_words, x=top_words.values, y=top_words.index, orientation='h', title="Top 10 Schlagworte")
-    st.plotly_chart(fig_words, use_container_width=True)
 
 with tab3:
-    st.header("📍 Support-Analyse")
-    col_a, col_b = st.columns(2)
-    with col_a:
-        top_loc = df['location'].value_counts().head(10)
-        fig_loc = px.pie(values=top_loc.values, names=top_loc.index, title="Top Standorte", hole=0.4)
-        st.plotly_chart(fig_loc, use_container_width=True)
-    with col_b:
-        df['hat_antwort'] = df['supplier_response'].notna()
-        antwort_counts = df['hat_antwort'].value_counts().rename({True: 'Beantwortet', False: 'Offen'})
-        fig_resp = px.bar(x=antwort_counts.index, y=antwort_counts.values, title="Antwortstatus")
-        st.plotly_chart(fig_resp, use_container_width=True)
+    st.subheader("📍 Support-Antworten")
+    support_df = df[df['supplier_response'].notna()]
+    st.dataframe(support_df[['rating_numeric', 'review_text', 'supplier_response', 'date']], use_container_width=True)
 
-# 7. Dein persönlicher Gruß (unten fixiert)
-st.markdown("---")
-olga_robert_style = '<span style="font-weight: bold; color: #ff4b4b; font-size: 1.2em;">'
-st.markdown(f'''
-Liebe {olga_robert_style}Olga</span> und cooler {olga_robert_style}Robert</span>. 
-Das ist unsere Streamlit Oberfläche für die Supply Chain Analyse!
-''', unsafe_allow_html=True)
