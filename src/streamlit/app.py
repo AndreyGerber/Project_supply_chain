@@ -164,13 +164,18 @@ if not df.empty:
             fig_resp = px.bar(x=resp_counts.index, y=resp_counts.values, title="Response Status", color=resp_counts.index)
             st.plotly_chart(fig_resp, use_container_width=True)
 
-    # 7. Personalized Footer
+   # 7. Personalized Footer
     st.markdown("---")
     highlight = '<span style="font-weight: bold; color: #ff4b4b; font-size: 1.1em;">'
+    
+    # Dein persönlicher Gruß
     st.markdown(f'''
     Dear {highlight}Olga</span> and cool {highlight}Robert</span>, 
     this is our English Streamlit interface for the Supply Chain Analysis project!
     ''', unsafe_allow_html=True)
+    
+    # Der neue Ausblick-Satz
+    st.info("🚀 More detailed analysis will appear soon—with better visuals, emojis, and machine learning algorithms.")
 
 else:
     st.warning("Data could not be loaded. Please check the source file.")
