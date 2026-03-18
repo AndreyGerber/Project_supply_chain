@@ -9,8 +9,11 @@ import time
 # web-scrape 
 ###
 
-BASE_DIR = "../data/raw/"
-os.makedirs(BASE_DIR, exist_ok=True)
+BASE_RAW = "../data/raw/"
+os.makedirs(BASE_RAW, exist_ok=True)
+
+BASE_CLEAN = "../data/clean/"
+os.makedirs(BASE_CLEAN, exist_ok=True)
 
 headers = {
     "User-Agent": "Mozilla/5.0"
@@ -18,10 +21,21 @@ headers = {
 # OB 17.03.26
 # ToDo: erweitern der Url um weitere companies -done
 companies = {
-    "autodoc": "https://www.trustpilot.com/review/autodoc.de",
+    "autodoc-de": "https://www.trustpilot.com/review/autodoc.de",
     "mister-auto": "https://www.trustpilot.com/review/mister-auto.de",
     "atp-autoteile": "https://www.trustpilot.com/review/www.atp-autoteile.de",
-    "motointegrator": "https://www.trustpilot.com/review/motointegrator.de"}
+    "motointegrator": "https://www.trustpilot.com/review/motointegrator.de",
+    "stabilo-fachmarkt": "https://www.trustpilot.com/review/www.stabilo-fachmarkt.de",
+    "autodoc-pt": "https://www.trustpilot.com/review/auto-doc.pt",
+    "pkwteile": "https://www.trustpilot.com/review/pkwteile.de",
+    "autodoc-be": "https://www.trustpilot.com/review/autodoc.be",
+    "daparto": "https://www.trustpilot.com/review/www.daparto.de",
+    "motointegrator-fr": "https://www.trustpilot.com/review/www.motointegrator.fr",
+    "kfzteile24": "https://www.trustpilot.com/review/www.kfzteile24.de",
+    "autoteile-markt": "https://www.trustpilot.com/review/autoteile-markt.de",
+    "autoteiledirekt": "https://www.trustpilot.com/review/autoteiledirekt.de"
+}
+
 
 all_reviews = []
 # rating 
@@ -152,7 +166,7 @@ for company, url in companies.items():
 
 df = pd.DataFrame(all_reviews)
 
-df.to_json(BASE_DIR + "trustpilot_raw_reviews.json", orient="records")
+df.to_json(BASE_RAW + "trustpilot_raw_reviews.json", orient="records")
 
 print("Saved:", len(df), "reviews")
 
@@ -160,7 +174,7 @@ print("Saved:", len(df), "reviews")
 # OB 17.03.26
 # clean json Dataset
 ###
-df = pd.read_json("../data/raw/trustpilot_raw_reviews.json")
+df = pd.read_json(BASE_RAW +"trustpilot_raw_reviews.json")
 
 #zerlegt in numerisches rating
 def extract_numeric_rating(svg):
@@ -182,13 +196,11 @@ df = df.dropna(subset=["review_text"])
 
 
 #speichern unter -> wichtig zum später aufrufen
-df.to_csv("../data/clean/reviews_clean.csv", index=False)
+df.to_csv(BASE_CLEAN + "reviews_clean.csv", index=False)
 
 print("Clean dataset:", len(df))
 
 #df.head(20)
-df_csv = pd.read_csv("../data/raw/reviews_clean.csv")
+df_csv = pd.read_csv(BASE_CLEAN + "reviews_clean.csv")
 
 df_csv.head(20)
-
-
