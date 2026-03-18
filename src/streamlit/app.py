@@ -6,22 +6,22 @@ from pathlib import Path
 
 @st.cache_data
 def load_data():
-    # 1. Wir ermitteln den absoluten Pfad zu diesem Skript (app.py)
-    current_dir = Path(__file__).parent 
+    # Wir suchen direkt ab dem Hauptverzeichnis des Repos
+    # Streamlit Cloud setzt das Arbeitsverzeichnis meist auf das Root-Level
+    file_path = Path("src/data/clean/reviews_clean.csv")
     
-    # 2. Wir gehen einen Ordner höher (zu 'src/') und dann in 'data/clean/'
-    # Struktur: src/streamlit/app.py -> src/data/clean/reviews_clean.csv
-    file_path = current_dir.parent / "data" / "clean" / "reviews_clean.csv"
-    
-    # Check, ob die Datei wirklich da ist (hilft beim Debuggen)
+    # Falls das nicht klappt, probieren wir den Pfad ohne 'src/' am Anfang
     if not file_path.exists():
-        st.error(f"Datei nicht gefunden! Gesucht unter: {file_path}")
-        return pd.DataFrame() # Gibt leeres Set zurück, damit App nicht abstürzt
+        file_path = Path("data/clean/reviews_clean.csv")
+
+    if not file_path.exists():
+        # Zeige alle Dateien im aktuellen Verzeichnis an, um den Fehler zu finden
+        st.error(f"Datei nicht gefunden! Aktuelles Verzeichnis: {os.getcwd()}")
+        st.write("Vorhandene Dateien:", os.listdir("."))
+        return pd.DataFrame()
 
     df = pd.read_csv(file_path)
-    df['date'] = pd.to_datetime(df['date'])
-    # Rating aus SVG-Namen extrahieren
-    df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
+    # ... Rest deines Codes
     return df
 
 # Danach nicht vergessen, die Funktion auch aufzurufen:
