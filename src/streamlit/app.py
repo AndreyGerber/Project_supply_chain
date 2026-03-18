@@ -144,12 +144,18 @@ if not df.empty:
         st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-        st.subheader("💬 Sentiment & Keyword Discovery")
+     st.subheader("💬 Sentiment & Keyword Discovery")
         search = st.text_input("Filter comments by keyword", "")
+    
         if search:
             results = df_filtered[df_filtered['review_text'].str.contains(search, case=False, na=False)]
             st.success(f"Matches found: {len(results)}")
             st.dataframe(results[['rating', 'review_text', 'date']], use_container_width=True)
+        else:
+            # Zeige alle Kommentare an, wenn das Suchfeld leer ist
+            st.info("Showing all reviews. Enter a keyword above to filter.")
+            st.dataframe(df_filtered[['rating', 'review_text', 'date']].head(50), use_container_width=True)
+
 
     with tab3:
         st.header("📍 Geographic & Support Performance")
