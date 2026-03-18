@@ -167,19 +167,17 @@ if not df.empty:
     # 7. Personalized Footer
     st.markdown("---")
     
-    # Text-Styling: Zentriert, Doppelte Größe (2.2em), Fett und in Autodoc-Rot
-    footer_html = """
-    <div style="text-align: center;">
-        <span style="font-weight: bold; color: #ff4b4b; font-size: 2.2em;">
-            Thank you for exploring the Autodoc Review Dashboard!
-        </span>
-    </div>
-    """
+    # 1. Großer Dankeschön-Text (Zentriert & Doppelte Größe)
+    st.markdown("""
+        <div style="text-align: center; margin-bottom: 20px;">
+            <span style="font-weight: bold; color: #ff4b4b; font-size: 2.2em;">
+                Thank you for exploring the Autodoc Review Dashboard!
+            </span>
+        </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown(footer_html, unsafe_allow_html=True)
-    
-    # Der Ausblick-Satz bleibt in der Info-Box darunter
- st.markdown("""
+    # 2. Zentrierter Ausblick-Satz
+    st.markdown("""
         <div style="
             text-align: center; 
             padding: 15px; 
@@ -192,5 +190,6 @@ if not df.empty:
         </div>
     """, unsafe_allow_html=True)
 
+# Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
 else:
     st.warning("Data could not be loaded. Please check the source file.")
