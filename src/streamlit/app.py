@@ -143,58 +143,33 @@ if not df.empty:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    with tab2:
+   with tab2:
         st.subheader("💬 Sentiment & Keyword Discovery")
         st.info("Search through individual comments or use the quick-filters below.")
-    
+        
         # 1. Schnellauswahl vordefinierter Schlagwörter
         st.write("**Quick-Filters (Common Topics):**")
         predefined_keywords = ["All", "shipping", "quality", "price", "support", "delivery", "service"]
-    
-        # Eine Selectbox für die vordefinierten Wörter
+        
+        # Diese Zeilen müssen EXAKT bündig untereinander stehen:
         selected_quick_filter = st.selectbox("Choose a topic:", predefined_keywords)
-    
-         # Ein freies Textfeld für die manuelle Suche
-         manual_search = st.text_input("...or type your own keyword:", "")
+        manual_search = st.text_input("...or type your own keyword:", "")
 
-        # Logik: Welches Wort soll gesucht werden?
-        # Wenn im Textfeld etwas steht, hat das Vorrang, sonst der Quick-Filter
+        # Logik für die Suche
         search_query = manual_search if manual_search else (None if selected_quick_filter == "All" else selected_quick_filter)
 
         st.markdown("---")
 
-        # 2. Suchergebnisse anzeigen
         if search_query:
-             results = df_filtered[df_filtered['review_text'].str.contains(search_query, case=False, na=False)]
-        
+            results = df_filtered[df_filtered['review_text'].str.contains(search_query, case=False, na=False)]
             if not results.empty:
-            st.success(f"Found {len(results)} reviews containing '{search_query}':")
-            # Wir zeigen Rating, Text und Datum
-            st.dataframe(results[['rating', 'review_text', 'date']], use_container_width=True)
+                st.success(f"Found {len(results)} reviews containing '{search_query}':")
+                st.dataframe(results[['rating', 'review_text', 'date']], use_container_width=True)
             else:
-            st.warning(f"No reviews found containing '{search_query}'.")
+                st.warning(f"No reviews found containing '{search_query}'.")
         else:
-             # Wenn nichts gesucht wird, zeigen wir eine kleine Vorschau der neuesten Kommentare
             st.write("Showing latest reviews:")
             st.dataframe(df_filtered[['rating', 'review_text', 'date']].head(10), use_container_width=True)
-
-        st.markdown("---")
-    
-        # 3. Bonus: Top 10 Keywords (Balkendiagramm von vorhin)
-        st.subheader("🔝 Top 10 Keywords (Overall)")
-        all_text = " ".join(df_filtered['review_text'].fillna("").astype(str)).lower()
-        words = pd.Series(all_text.split())
-        # Stopwords erweitern
-        stop_words = ['the', 'and', 'to', 'for', 'is', 'it', 'with', 'a', 'in', 'of', 'die', 'der', 'und', 'ist', 'das', 'für', 'i', 'was']
-        top_words = words[~words.isin(stop_words)].value_counts().head(10)
-    
-        fig_words = px.bar(
-            top_words, x=top_words.values, y=top_words.index, 
-            orientation='h', title="Most frequent words",
-            color=top_words.values, color_continuous_scale='Blues'
-            )
-        fig_words.update_layout(showlegend=False, coloraxis_showscale=False)
-        st.plotly_chart(fig_words, use_container_width=True)
 
 
     with tab3:
