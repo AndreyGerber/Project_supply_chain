@@ -38,15 +38,21 @@ df = load_data()
 
 # Main Application Logic
 if not df.empty:
-    # 3. Sidebar Filtering (bleibt gleich)
-    st.sidebar.header("Filter Options")
-    # ... (dein Filter Code)
-    df_filtered = df[df['rating'].isin(selected_rating)]
+    # 3. Sidebar Filtering (Muss VOR der Filterung stehen!)
+st.sidebar.header("Filter Options")
 
-    # 4. Main Header
-    st.title("📊 Autodoc Customer Insights Dashboard")
-    st.markdown("This dashboard provides a comprehensive analysis of customer feedback and supplier performance.")
-    st.markdown("---")
+# Zuerst die Auswahl erstellen
+selected_rating = st.sidebar.multiselect(
+    "Select Rating", 
+    options=sorted(df['rating'].unique()), 
+    default=sorted(df['rating'].unique())
+)
+
+# JETZT kannst du selected_rating nutzen, um zu filtern
+df_filtered = df[df['rating'].isin(selected_rating)]
+
+# 4. Main Header & KPIs (danach wie gewohnt weiter)
+st.title("📊 Autodoc Customer Insights Dashboard")
     
     # 5. Key Performance Indicators (KPIs)
     avg_rating = df_filtered['rating'].mean()
