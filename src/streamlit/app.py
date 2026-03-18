@@ -168,10 +168,19 @@ if not df.empty:
     st.markdown("---")
     highlight = '<span style="font-weight: bold; color: #ff4b4b; font-size: 1.1em;">'
     
-    # Dein persönlicher Gruß
+     # 7. Personalized Footer
+    st.markdown("---")
+    
+    # Definition für die Hervorhebung (falls nicht schon oben definiert)
+    highlight = '<span style="font-weight: bold; color: #ff4b4b; font-size: 1.1em;">'
+    end_tag = '</span>'
+
+    # Dein persönlicher Gruß mit schließenden Tags
     st.markdown(f'''
-      {highlight}Thank you for exploring the Autodoc Review Dashboard!{highlight}    
-    # Der neue Ausblick-Satz
+    {highlight}Thank you for exploring the Autodoc Review Dashboard!{end_tag}
+    ''', unsafe_allow_html=True)
+    
+    # Der Ausblick-Satz in einer schicken Info-Box
     st.info("🚀 More detailed analysis will appear soon—with better visuals, emojis, and machine learning algorithms.")
 
 else:
