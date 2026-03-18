@@ -6,16 +6,18 @@ from pathlib import Path
 
 @st.cache_data
 def load_data():
-    # Dieser Pfad funktioniert jetzt, da 'src' im Hauptverzeichnis auf GitHub liegt
     file_path = Path("src/data/clean/reviews_clean.csv")
     
-    if not file_path.exists():
-        st.error(f"Datei nicht gefunden! Pfad: {file_path.absolute()}")
-        return pd.DataFrame()
-
     df = pd.read_csv(file_path)
-    df['date'] = pd.to_datetime(df['date'])
-    # Rating aus SVG-Namen extrahieren
+    
+    # Lösung 1: 'errors=coerce' wandelt ungültige Daten in 'NaT' (Not a Time) um,
+    # statt das Programm mit einem Fehler abzubrechen.
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    
+    # Zeilen löschen, bei denen das Datum nicht gelesen werden konnte
+    df = df.dropna(subset=['date'])
+    
+    # Rating extrahieren
     df['rating_numeric'] = df['rating_svg'].str.extract('(\d+)').astype(float)
     return df
 
