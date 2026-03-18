@@ -66,7 +66,7 @@ if not df.empty:
     st.markdown("---")
 
     # 6. Analysis Tabs (jetzt ohne die Data Preview in Tab 1)
-    tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis",
+    tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis", "📍 Operations & Support"])
 
     with tab1:
         st.subheader("Customer Satisfaction Distribution")
