@@ -130,31 +130,32 @@ if not df.empty:
     tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis", "📍 Operations & Support"])
 
     with tab1:
-        st.subheader("Customer Satisfaction Distribution")
-        color_map = {1: "#2E7D32", 2: "#311B92", 3: "#FBC02D", 4: "#81D4FA", 5: "#C62828"}
-        fig = px.histogram(
-            df_filtered,
-            x="rating",
-            color="rating",
-            title="Frequency of Ratings",
-            labels={'rating': 'Star Rating', 'count': 'Number of Reviews'},
-            nbins=5,
-            color_discrete_map=color_map
-        )
-        st.plotly_chart(fig, use_container_width=True)
+    st.subheader("Customer Satisfaction Distribution")
+    color_map = {1: "#2E7D32", 2: "#311B92", 3: "#FBC02D", 4: "#81D4FA", 5: "#C62828"}
+    fig = px.histogram(
+        df_filtered,
+        x="rating",
+        color="rating",
+        title="Frequency of Ratings",
+        labels={'rating': 'Star Rating', 'count': 'Number of Reviews'},
+        nbins=5,
+        color_discrete_map=color_map
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-     st.subheader("💬 Sentiment & Keyword Discovery")
-        search = st.text_input("Filter comments by keyword", "")
+    st.subheader("💬 Sentiment & Keyword Discovery")
+    search = st.text_input("Filter comments by keyword", "")
     
-        if search:
-            results = df_filtered[df_filtered['review_text'].str.contains(search, case=False, na=False)]
-            st.success(f"Matches found: {len(results)}")
-            st.dataframe(results[['rating', 'review_text', 'date']], use_container_width=True)
-        else:
-            # Zeige alle Kommentare an, wenn das Suchfeld leer ist
-            st.info("Showing all reviews. Enter a keyword above to filter.")
-            st.dataframe(df_filtered[['rating', 'review_text', 'date']].head(50), use_container_width=True)
+    if search:
+        results = df_filtered[df_filtered['review_text'].str.contains(search, case=False, na=False)]
+        st.success(f"Matches found: {len(results)}")
+        st.dataframe(results[['rating', 'review_text', 'date']], use_container_width=True)
+    else:
+        # Zeige alle Kommentare an, wenn das Suchfeld leer ist
+        st.info("Showing all reviews. Enter a keyword above to filter.")
+        st.dataframe(df_filtered[['rating', 'review_text', 'date']].head(50), use_container_width=True)
+
 
 
     with tab3:
