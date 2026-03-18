@@ -164,23 +164,21 @@ if not df.empty:
             fig_resp = px.bar(x=resp_counts.index, y=resp_counts.values, title="Response Status", color=resp_counts.index)
             st.plotly_chart(fig_resp, use_container_width=True)
 
-   # 7. Personalized Footer
-    st.markdown("---")
-    highlight = '<span style="font-weight: bold; color: #ff4b4b; font-size: 1.1em;">'
-    
-     # 7. Personalized Footer
+    # 7. Personalized Footer
     st.markdown("---")
     
-        footer_html = """
+    # Text-Styling: Zentriert, Doppelte Größe (2.2em), Fett und in Autodoc-Rot
+    footer_html = """
     <div style="text-align: center;">
         <span style="font-weight: bold; color: #ff4b4b; font-size: 2.2em;">
             Thank you for exploring the Autodoc Review Dashboard!
         </span>
     </div>
     """
+    
     st.markdown(footer_html, unsafe_allow_html=True)
     
-    # Der Ausblick-Satz in einer schicken Info-Box
+    # Der Ausblick-Satz bleibt in der Info-Box darunter
     st.info("🚀 More detailed analysis will appear soon—with better visuals, emojis, and machine learning algorithms.")
 
 else:
