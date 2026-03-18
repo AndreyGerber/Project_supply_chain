@@ -151,7 +151,6 @@ if not df.empty:
         st.write("**Quick-Filters (Common Topics):**")
         predefined_keywords = ["All", "shipping", "quality", "price", "support", "delivery", "service"]
         
-        # Die Eingabefelder müssen exakt bündig untereinander stehen
         selected_quick_filter = st.selectbox("Choose a topic:", predefined_keywords, key="sb_quick")
         manual_search = st.text_input("...or type your own keyword:", "", key="ti_manual")
 
@@ -162,7 +161,6 @@ if not df.empty:
 
         # 2. Ergebnisse der Suche anzeigen
         if search_query:
-            # Wir suchen im Review-Text nach dem Begriff (Groß-/Kleinschreibung egal)
             results = df_filtered[df_filtered['review_text'].str.contains(search_query, case=False, na=False)]
             
             if not results.empty:
@@ -176,20 +174,19 @@ if not df.empty:
 
         st.markdown("---")
         
-        # 3. Keyword-Analyse (Balkendiagramm der häufigsten Wörter)
+        # 3. Keyword-Analyse
         st.subheader("🔝 Top 10 Keywords (Overall Sentiment)")
         
-        # Textvorbereitung: Alle Texte zusammenfügen und in Kleinbuchstaben wandeln
         all_text = " ".join(df_filtered['review_text'].fillna("").astype(str)).lower()
+        # Sonderzeichen entfernen für sauberere Wörter
+        all_text = ''.join(e for e in all_text if e.isalnum() or e.isspace())
         words = pd.Series(all_text.split())
         
-        # Liste der Stopwords (Wörter, die ignoriert werden sollen)
         stop_words = [
-            'the', 'and', 'to', 'for', 'is', 'it', 'with', 'a', 'in', 'of', 'i', 'was', 'on', 'at',
-            'die', 'der', 'und', 'ist', 'das', 'für', 'ein', 'eine', 'mit', 'auf', 'zu', 'den'
+            'the', 'and', 'to', 'for', 'is', 'it', 'with', 'a', 'in', 'of', 'i', 'was', 'on', 'at', 'as', 'be',
+            'die', 'der', 'und', 'ist', 'das', 'für', 'ein', 'eine', 'mit', 'auf', 'zu', 'den', 'im', 'dem', 'es'
         ]
         
-        # Wörter zählen, die NICHT in den Stopwords sind
         top_words = words[~words.isin(stop_words)].value_counts().head(10)
         
         if not top_words.empty:
@@ -198,7 +195,6 @@ if not df.empty:
                 x=top_words.values, 
                 y=top_words.index, 
                 orientation='h', 
-                title="Most Frequent Words in Filtered Reviews",
                 labels={'x': 'Frequency', 'y': 'Keyword'},
                 color=top_words.values,
                 color_continuous_scale='Blues'
@@ -207,8 +203,9 @@ if not df.empty:
             fig_words.update_layout(
                 showlegend=False, 
                 coloraxis_showscale=False,
-                yaxis={'categoryorder':'total ascending'}, # Häufigstes Wort ganz oben
-                plot_bgcolor='rgba(0,0,0,0)'
+                yaxis={'categoryorder':'total ascending'},
+                plot_bgcolor='rgba(0,0,0,0)',
+                margin=dict(l=0, r=0, t=30, b=0)
             )
             
             st.plotly_chart(fig_words, use_container_width=True)
