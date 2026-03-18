@@ -64,47 +64,56 @@ if not df.empty:
                               orientation='h', height=250, title="Reviews per Company")
             st.plotly_chart(fig_comp, use_container_width=True)
      
-      # --- ZEITPERIODE MIT ZEITACHSE ---
+       # --- 📅 Analysis Period & Timeline ---
     st.markdown("#### 📅 Analysis Period")
     if not df_filtered.empty and 'date' in df_filtered.columns:
-        # 1. Daten für die Achse vorbereiten
         first_date = df_filtered['date'].min()
         last_date = df_filtered['date'].max()
         
         st.success(f"This dataset covers reviews from **{first_date.strftime('%d.%m.%Y')}** to **{last_date.strftime('%d.%m.%Y')}**.")
 
-        # 2. Zeitachse als Plotly-Grafik erstellen
-        timeline_df = pd.DataFrame({
-            'date': [first_date, last_date],
-            'label': ['first comment', 'last comment'],
-            'y': [0, 0] # Alle Punkte auf einer horizontalen Linie
-        })
-
+        # 1. Die Zeitachse (Linie)
+        timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['Start', 'End'], 'y': [0, 0]})
         fig_timeline = px.line(timeline_df, x='date', y='y', markers=True, text='label')
-        
-        # Styling der Zeitachse (Minimalistisches Design)
-        fig_timeline.update_traces(
-            line_color='#2E7D32', 
-            marker=dict(size=12, symbol='diamond'),
-            textposition='top center'
-        )
-        
-        fig_timeline.update_layout(
-            height=120,
-            margin=dict(l=20, r=20, t=30, b=20),
-            xaxis=dict(showgrid=False, title=""),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False, title=""),
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)'
-        )
-
+        fig_timeline.update_traces(line_color='#2E7D32', marker=dict(size=12, symbol='diamond'), textposition='top center')
+        fig_timeline.update_layout(height=120, margin=dict(l=20, r=20, t=30, b=20), xaxis=dict(showgrid=False, title=""),
+                                   yaxis=dict(showgrid=False, showticklabels=False, title=""), plot_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
 
-    else:
-        st.warning("No date information available for the selected filters.")
+        # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN ---
+        st.markdown("#### 📊 Review Volume by Year")
         
+        # Daten vorbereiten (Jahre extrahieren und zählen)
+        df_filtered['Year'] = df_filtered['date'].dt.year
+        yearly_counts = df_filtered['Year'].value_counts().sort_index().reset_index()
+        yearly_counts.columns = ['Year', 'Number of Reviews']
+
+        # Plotly Bar Chart erstellen
+        fig_years = px.bar(
+            yearly_counts, 
+            x='Year', 
+            y='Number of Reviews',
+            text='Number of Reviews',
+            color='Number of Reviews',
+            color_continuous_scale='Greens'
+        )
+
+        fig_years.update_layout(
+            xaxis_type='category', 
+            plot_bgcolor='rgba(0,0,0,0)',
+            showlegend=False,
+            coloraxis_showscale=False
+        )
+
+        st.plotly_chart(fig_years, use_container_width=True)
+        # --- ENDE DES NEUEN ABSCHNITTS ---
+
     st.markdown("---")
     
+
+
+
+
 
 
     # --- POSITION 2: KPIs (Jetzt UNTER der Preview) ---
