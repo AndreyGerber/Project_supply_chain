@@ -43,13 +43,13 @@ if not df.empty:
     st.sidebar.write("Refine the data shown in the charts below:")
     
     selected_rating = st.sidebar.multiselect(
-        "Select Star Rating", 
-        options=sorted(df['rating_numeric'].unique()), 
-        default=sorted(df['rating_numeric'].unique())
+        "Select Rating", 
+        options=sorted(df['rating'].unique()), 
+        default=sorted(df['rating'].unique())
     )
     
     # Filter DataFrame based on selection
-    df_filtered = df[df['rating_numeric'].isin(selected_rating)]
+    df_filtered = df[df['rating'].isin(selected_rating)]
 
     # 4. Main Header
     st.title("📊 Autodoc Customer Insights Dashboard")
