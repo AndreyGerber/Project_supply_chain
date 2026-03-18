@@ -38,17 +38,9 @@ df = load_data()
 
 # Main Application Logic
 if not df.empty:
-    # 3. Sidebar Filtering
+    # 3. Sidebar Filtering (bleibt gleich)
     st.sidebar.header("Filter Options")
-    st.sidebar.write("Refine the data shown in the charts below:")
-    
-    selected_rating = st.sidebar.multiselect(
-        "Select Rating", 
-        options=sorted(df['rating'].unique()), 
-        default=sorted(df['rating'].unique())
-    )
-    
-    # Filter DataFrame based on selection
+    # ... (dein Filter Code)
     df_filtered = df[df['rating'].isin(selected_rating)]
 
     # 4. Main Header
@@ -57,19 +49,24 @@ if not df.empty:
     st.markdown("---")
     
     # 5. Key Performance Indicators (KPIs)
-    # Calculation of metrics
     avg_rating = df_filtered['rating'].mean()
     response_rate = df_filtered['supplier_response'].notna().mean() * 100
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Reviews", len(df_filtered), help="Total number of reviews in the selected range.")
-    col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0", help="The arithmetic mean of all star ratings.")
-    col3.metric("Supplier Response Rate", f"{response_rate:.1f}%", help="Percentage of reviews answered by Autodoc.")
+    col1.metric("Total Reviews", len(df_filtered))
+    col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0")
+    col3.metric("Supplier Response Rate", f"{response_rate:.1f}%")
 
+    # --- NEU: RAW DATA PREVIEW DIREKT HIER OBEN ---
+    st.markdown("---")
+    st.subheader("📄 Raw Data Preview")
+    st.info("Below is a preview of the filtered dataset. Use the sidebar to refine the results.")
+    # Wir zeigen die ersten 15 Zeilen der gefilterten Daten
+    st.dataframe(df_filtered.head(15), use_container_width=True)
     st.markdown("---")
 
-    # 6. Analysis Tabs
-    tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis", "📍 Operations & Support"])
+    # 6. Analysis Tabs (jetzt ohne die Data Preview in Tab 1)
+    tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis",
 
     with tab1:
         st.subheader("Customer Satisfaction Distribution")
