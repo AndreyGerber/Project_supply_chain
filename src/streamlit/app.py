@@ -386,12 +386,27 @@ if not df.empty:
             3. Extracting key topics from comments: For example delivery issues, defective items, etc., using an unsupervised approach.
             4.Analyzing supplier responses: Extracting relevant words and patterns from responses in order 
             to predict them based solely on the original comment.
-            
+        <div style=" 
+            text-align: left; 
+            padding: 15px; 
+            background-color: #e8f4f8; 
+            border-radius: 10px; 
+            color: #004085;
+            font-size: 1.1em;
+            border: 1px solid #b8daff;">
             Our focus is on German companies in the “Auto Parts Store” category on Trustpilot. The dataset was scraped from Trustpilot. 
             The initial analytics are presented below—enjoy exploring!
-            
+        </div>
+        <div style="   
+                    text-align: left; 
+            padding: 15px; 
+            background-color: #e8f4f8; 
+            border-radius: 10px; 
+            color: #004085;
+            font-size: 1.2em;
+            border: 1px solid #b8daff;">
             Next Steps will be:
-
+        </div>  
             Machine Learning (Regression) → Predicting the number of stars
             Named Entity Recognition (NER) / Information Extraction → Identifying important entities
             Unsupervised Topic Modeling → Extracting common issues from comments
