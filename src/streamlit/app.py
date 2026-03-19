@@ -55,11 +55,12 @@ if not df.empty:
     
     # Fügt eine Leerzeile ein
     st.markdown("<br>", unsafe_allow_html=True)
-    # Für einen wirklich großen Abstand
+    # Für einen wirklich großen Abstand zwischen der Tabelle und den nächsten Abschnitten
     st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
 
 
-    # --- NEU: COMPANY VALUE COUNTS (Direkt unter der Tabelle) ---
+    # COMPANY VALUE COUNTS (Direkt unter der Tabelle) ---
+    with st.container(border=True):
     st.markdown("#### 🏢 Company Distribution")
     if 'company' in df_filtered.columns:
         company_counts = df_filtered['company'].value_counts().reset_index()
@@ -88,7 +89,8 @@ if not df.empty:
             )
         
             st.plotly_chart(fig_comp, use_container_width=True)
-     
+     st.markdown("<br>", unsafe_allow_html=True)
+
        # --- 📅 Analysis Period & Timeline ---
     st.markdown("#### 📅 Analysis Period")
     if not df_filtered.empty and 'date' in df_filtered.columns:
