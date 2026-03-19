@@ -349,7 +349,7 @@ if not df.empty:
                     dtick=1,
                     title_font=dict(size=font_size_axis_title),
                     tickfont=dict(size=font_size_ticks),
-                    title="Durchschnittliche Sterne",
+                    title="Rating (Ø Stars)",
                     showgrid=True
                 ),
                 legend=dict(
