@@ -99,15 +99,22 @@ if not df.empty:
         first_date = df_filtered['date'].min()
         last_date = df_filtered['date'].max()
         
-        st.success(
+    st.markdown(
         f"""
-        <span style='font-size: 20px;'>
-            This dataset covers reviews from **{first_date.strftime('%d.%m.%Y')}** 
-            to **{last_date.strftime('%d.%m.%Y')}**.
-        </span>
+        <div style="
+            background-color: #d4edda; 
+            color: #155724; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-size: 20px;
+            border: 1px solid #c3e6cb;">
+            ✅ This dataset covers reviews from <b>{first_date.strftime('%d.%m.%Y')}</b> 
+            to <b>{last_date.strftime('%d.%m.%Y')}</b>.
+        </div>
         """, 
-        icon="✅"
+        unsafe_allow_html=True   
         )
+
 
         # 1. Die Zeitachse (als Linie in Form eines kleinen Diagramms)
         timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['first comment', 'last comment'], 'y': [0, 0]})
