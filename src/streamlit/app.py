@@ -401,23 +401,23 @@ if not df.empty:
     <div style="text-align: left; padding: 20px; background-color: #e8f4f8; border-radius: 10px; color: #004085; font-size: 1.1em; border: 1px solid #b8daff; line-height: 1.8;">
         
         <span style="font-size: 1.4em; font-weight: bold; display: block; margin-bottom: 12px;">
-            Next Steps will be:
+        Next Steps will be:
         </span>
 
         <div style="margin-bottom: 8px;">
-            <strong style="color: black;">Machine Learning (Regression)</strong> → Predicting the number of stars
+        <strong style="color: black;">Machine Learning (Regression)</strong> → Predicting the number of stars
         </div>
         
         <div style="margin-bottom: 8px;">
-            <strong style="color: black;">Named Entity Recognition (NER) / Information Extraction</strong> → Identifying important entities
+         <strong style="color: black;">Named Entity Recognition (NER) / Information Extraction</strong> → Identifying important entities
         </div>
         
         <div style="margin-bottom: 8px;">
-            <strong style="color: black;">Unsupervised Topic Modeling</strong> → Extracting common issues from comments
+        <strong style="color: black;">Unsupervised Topic Modeling</strong> → Extracting common issues from comments
         </div>
         
         <div>
-            <strong style="color: black;">Information Extraction / Text Matching</strong> → Generating automated supplier responses
+        <strong style="color: black;">Information Extraction / Text Matching</strong> → Generating automated supplier responses
         </div>
         </div>""", unsafe_allow_html=True)
 # Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
