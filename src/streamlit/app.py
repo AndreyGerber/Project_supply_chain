@@ -253,7 +253,7 @@ if not df.empty:
         st.markdown("#### 📈 Average Rating Trends by Company")
 
         # --- NEU: Parameter für Mindestanzahl an Kommentaren ---
-        min_reviews = st.slider("choose the number of comments per year:", 5, 25, 10)
+        min_reviews = st.slider("choose the number of comments per year:", 5, 55, 7)
 
         # 1. Daten vorbereiten
         df_filtered['date'] = pd.to_datetime(df_filtered['date'])
@@ -312,7 +312,7 @@ if not df.empty:
         col_a, col_b = st.columns(2)
         with col_a:
             top_loc = df_filtered['location'].value_counts().head(8)
-            fig_loc = px.pie(values=top_loc.values, names=top_loc.index, title="Top Regions", hole=0.4)
+            fig_loc = px.pie(values=top_loc.values, names=top_loc.index, title="Top regions of comments", hole=0.4)
             st.plotly_chart(fig_loc, use_container_width=True)
         with col_b:
             df_filtered['has_response'] = df_filtered['supplier_response'].notna()
