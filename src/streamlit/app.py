@@ -250,62 +250,72 @@ if not df.empty:
         st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-        st.markdown("#### 📈 Average Rating Trends by Company")
+        st.header("📍 Geographic & Support Performance")
 
-        # --- NEU: Parameter für Mindestanzahl an Kommentaren ---
-        min_reviews = st.slider("choose the number of comments per year:", 5, 55, 7)
+        # --- Parameter für die Diagrammhöhe ---
+        chart_height = st.slider("Diagrammhöhe anpassen (Pixel):", 300, 1000, 500)
 
-        # 1. Daten vorbereiten
-        df_filtered['date'] = pd.to_datetime(df_filtered['date'])
-        df_filtered['Year'] = df_filtered['date'].dt.year
+        # --- Aufteilung 70% zu 30% ---
+        col_a, col_b = st.columns([7, 3]) 
+    
+        with col_a:
+            # 1. Daten für Regionen (Top 9 + Others)
+            loc_counts = df_filtered['location'].value_counts()
+            top_9 = loc_counts.head(9)
+            others_count = loc_counts.iloc[9:].sum()
+        
+            if others_count > 0:
+                others_series = pd.Series([others_count], index=['Others'])
+                final_loc_data = pd.concat([top_9, others_series])
+            else:
+                final_loc_data = top_9
 
-        # 2. Gruppieren: Mittelwert UND Anzahl berechnen
-        df_trend = df_filtered.groupby(['Year', 'company'])['rating'].agg(['mean', 'count']).reset_index()
-        df_trend.columns = ['Year', 'company', 'rating', 'review_count']
+            # 2. Donut-Diagramm
+            fig_loc = px.pie(
+                values=final_loc_data.values, 
+                names=final_loc_data.index, 
+                title="Top 9 Regions & Others", 
+                hole=0.4,
+                color_discrete_sequence=px.colors.qualitative.Pastel,
+                height=chart_height  # <--- Dynamische Höhe
+            )
+        
+            # Legende rechts positionieren wie im Screenshot
+            fig_loc.update_layout(
+                legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.05),
+                margin=dict(t=50, b=50, l=20, r=100) # Platz für Legende schaffen
+            )
+            fig_loc.update_traces(textinfo='percent')
+            
+            st.plotly_chart(fig_loc, use_container_width=True)
 
-        # --- NEU: Filtern basierend auf dem Parameter ---
-        df_trend = df_trend[df_trend['review_count'] >= min_reviews]
-
-        # 3. Sortieren für korrekte Linienführung
-        df_trend['Year'] = df_trend['Year'].astype(int)
-        df_trend = df_trend.sort_values(by='Year')
-
-        # 4. Das Diagramm erstellen
-        fig_trend = px.line(
-            df_trend, 
-            x='Year', 
-            y='rating', 
-            color='company',
-            markers=True,
-            height=600,
-            # Zeige im Hover zusätzlich die Anzahl der Reviews an
-            hover_data={'review_count': True, 'Year': False, 'rating': ':.2f'}
-        )
-
-        # 5. Layout-Einstellungen (wie gehabt)
-        fig_trend.update_layout(
-            xaxis=dict(
-                type='linear',
-                dtick=1,
-                tickmode='linear',
-                title_font=dict(size=18),
-                tickfont=dict(size=14),
-                showgrid=True,
-                gridcolor='LightGray'
-            ),
-            yaxis=dict(title="Average Rating",
-                range=[1, 5.1], 
-                title_font=dict(size=18),
-                tickfont=dict(size=14),
-                showgrid=True,
-                gridcolor='LightGray'
-            ),
-            plot_bgcolor='rgba(0,0,0,0)',
-            legend=dict(x=1.02, y=1),
-            margin=dict(r=150)
-        )
-
-        st.plotly_chart(fig_trend, use_container_width=True)
+         with col_b:
+            # 3. Response Status vorbereiten
+            df_filtered['has_response'] = df_filtered['supplier_response'].notna()
+            resp_counts = df_filtered['has_response'].value_counts().rename({True: 'Responded', False: 'Pending'})
+            
+            # 4. Balkendiagramm
+            fig_resp = px.bar(
+                x=resp_counts.index, 
+                y=resp_counts.values, 
+                title="Response Status", 
+                color=resp_counts.index,
+                # Farben exakt wie im Bild
+                color_discrete_map={'Responded': '#2E6AD1', 'Pending': '#89C6FF'},
+                height=chart_height # <--- Dynamische Höhe
+            )
+        
+            fig_resp.update_layout(
+                showlegend=False,
+                xaxis_title=None,
+                yaxis_title="Anzahl",
+                margin=dict(t=50, b=50, l=20, r=20)
+            )
+        
+            # Zahlen über den Balken anzeigen
+            fig_resp.update_traces(texttemplate='%{y}', textposition='outside')
+            
+            st.plotly_chart(fig_resp, use_container_width=True)
 
     with tab3:
         st.header("📍 Geographic & Support Performance")
