@@ -244,79 +244,57 @@ if not df.empty:
         st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-        st.subheader("💬 Sentiment & Keyword Discovery")
-        st.info("Search through individual comments or use the quick-filters below to find specific topics.")
-        
-        # 1. Such-Bereich
-        st.write("**Quick-Filters (Common Topics):**")
-        predefined_keywords = ["All", "shipping", "quality", "price", "support", "delivery", "service"]
-        
-        selected_quick_filter = st.selectbox("Choose a topic:", predefined_keywords, key="sb_quick")
-        manual_search = st.text_input("...or type your own keyword:", "", key="ti_manual")
+        # --- LINIENDIAGRAMM: DURCHSCHNITTS-RATING PRO JAHR ---
+        st.markdown("#### 📈 Average Rating Trends by Company")
 
-        # Logik für die Suchanfrage
-        search_query = manual_search if manual_search else (None if selected_quick_filter == "All" else selected_quick_filter)
+        # 1. Daten vorbereiten (Datum konvertieren & Jahr extrahieren)
+        df_filtered['date'] = pd.to_datetime(df_filtered['date'])
+        df_filtered['Year'] = df_filtered['date'].dt.year
 
-        st.markdown("---")
+        # 2. Gruppieren: Durchschnittliches Rating pro Jahr und Firma
+        df_trend = df_filtered.groupby(['Year', 'company'])['rating'].mean().reset_index()
 
-        # 2. Ergebnisse der Suche anzeigen
-        if search_query:
-            results = df_filtered[df_filtered['review_text'].str.contains(search_query, case=False, na=False)]
-            
-            if not results.empty:
-                st.success(f"Found {len(results)} reviews containing '{search_query}':")
-                st.dataframe(results[['rating', 'review_text', 'date']], use_container_width=True)
-            else:
-                st.warning(f"No reviews found containing '{search_query}'.")
-        else:
-            st.write("Showing latest reviews (All):")
-            st.dataframe(df_filtered[['rating', 'review_text', 'date']].head(15), use_container_width=True)
-
-        st.markdown("---")
-        
-        # 3. Keyword-Analyse (Optimiert)
-    st.subheader("🔝 Top 10 Keywords (Overall Sentiment)")
-
-    # Textvorbereitung: Alles klein, Sonderzeichen raus
-    all_text = " ".join(df_filtered['review_text'].fillna("").astype(str)).lower()
-    all_text = ''.join(e for e in all_text if e.isalnum() or e.isspace())
-    words = pd.Series(all_text.split())
-
-    # ERWEITERTE STOPWORD-LISTE (Hier liegt die Lösung)
-    stop_words = [
-        'the', 'and', 'to', 'for', 'is', 'it', 'with', 'a', 'in', 'of', 'i', 'was', 'on', 'at', 'as', 'be',
-        'from', 'my', 'they', 'you', 'not', 'that', 'have', 'this', 'are', 'it', 'me', 'so', 'but', # Hinzugefügt
-        'die', 'der', 'und', 'ist', 'das', 'für', 'ein', 'eine', 'mit', 'auf', 'zu', 'den', 'im', 'dem', 'es',
-        'ich', 'sie', 'nicht', 'war', 'haben', 'habe', 'einer', 'einen', 'einem' # Deutsche Erweiterung
-    ]
-
-    # Filtern der Stopwords
-    top_words = words[~words.isin(stop_words)].value_counts().head(20) # Top 20 Keywords
-
-    if not top_words.empty:
-        # Plotly Bar Chart (Horizontal)
-        fig_words = px.bar(
-            top_words, 
-            x=top_words.values, 
-            y=top_words.index, 
-            orientation='h', 
-            labels={'x': 'Frequency', 'index': 'Keyword'},
-            color=top_words.values,
-            color_continuous_scale='Blues' # Autodoc-Style
+        # 3. Plotly Liniendiagramm erstellen
+        fig_trend = px.line(
+            df_trend, 
+            x='Year', 
+            y='rating', 
+            color='company',       # Erzeugt eine Linie pro Firma (und die Legende rechts)
+            markers=True,          # Zeigt Punkte auf der Linie an
+            labels={'rating': 'Average Rating', 'Year': 'Year'},
+            height=500             # Gewünschte Diagrammhöhe
         )
-        
-        # Layout-Feinschliff
-        fig_words.update_layout(
-            yaxis={'categoryorder':'total ascending'}, # Höchster Wert oben
+
+        # 4. Design-Anpassungen (Achsen, Legende, Schrift)
+        fig_trend.update_layout(
+            xaxis_type='category', 
             plot_bgcolor='rgba(0,0,0,0)',
-            showlegend=False,
-            coloraxis_showscale=False,
-            margin=dict(l=20, r=20, t=30, b=20)
+            font=dict(size=14),
+            xaxis=dict(
+                title_font=dict(size=16),
+                tickfont=dict(size=13),
+                showgrid=True, 
+                gridcolor='LightGray'
+            ),
+            yaxis=dict(
+                title_font=dict(size=16),
+                tickfont=dict(size=13),
+                range=[1, 5.1],     # Fixiert die Skala auf 1 bis 5 Sterne
+                showgrid=True, 
+                gridcolor='LightGray'
+            ),
+            legend=dict(
+                title="Companies (click to toggle):",
+                orientation="v",
+                yanchor="top",
+                y=1,
+                xanchor="left",
+                x=1.02
+            ),
+            margin=dict(r=150)     # Platz für die Legende rechts
         )
-        
-        st.plotly_chart(fig_words, use_container_width=True)
-    else:
-        st.info("No relevant keywords found with the current filters.")
+
+        st.plotly_chart(fig_trend, use_container_width=True)
 
     with tab3:
         st.header("📍 Geographic & Support Performance")
