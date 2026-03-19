@@ -159,8 +159,8 @@ if not df.empty:
         yearly_counts.columns = ['Year', 'Number of Reviews']
         yearly_counts['Year'] = yearly_counts['Year'].astype(str)
 
-                # Plotly Bar Chart erstellen
-                fig_years = px.bar(
+            # Plotly Bar Chart erstellen
+        fig_years = px.bar(
             yearly_counts, 
             x='Year', 
             y='Number of Reviews',
