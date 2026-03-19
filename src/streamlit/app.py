@@ -28,6 +28,10 @@ def load_data():
 # Initialize Data
 df = load_data()
 
+
+
+
+
 # Main Application Logic
 if not df.empty:
     # 3. Sidebar Filtering
@@ -49,7 +53,13 @@ if not df.empty:
     st.info("Direct preview of the filtered dataset:")
     st.dataframe(df_filtered.head(15), use_container_width=True)
     
-        # --- NEU: COMPANY VALUE COUNTS (Direkt unter der Tabelle) ---
+    # Fügt eine Leerzeile ein
+    st.markdown("<br>", unsafe_allow_html=True)
+    # Für einen wirklich großen Abstand
+    st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
+
+
+    # --- NEU: COMPANY VALUE COUNTS (Direkt unter der Tabelle) ---
     st.markdown("#### 🏢 Company Distribution")
     if 'company' in df_filtered.columns:
         company_counts = df_filtered['company'].value_counts().reset_index()
