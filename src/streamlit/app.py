@@ -119,7 +119,7 @@ if not df.empty:
                 y='Company Name', 
                 orientation='h', 
                 height=ui_height, # <--- Dieser Wert ist entscheidend für die Angleichung
-                title="Reviews per Company"
+                title="Comments per Company"
                 )
             
                 # Design-Anpassung für saubere Kanten
