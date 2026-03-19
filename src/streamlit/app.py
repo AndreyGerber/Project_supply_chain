@@ -70,11 +70,10 @@ if not df.empty:
             c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
             with c1:
                 # Wir zeigen 10 Zeilen an
-                st.dataframe(company_counts.head(10), use_container_width=True, hide_index=True)
+                st.dataframe(company_counts), use_container_width=True, hide_index=True)
             with c2:
                 # 'height=380' entspricht in etwa der Höhe von 10 Tabellenzeilen + Header
-                fig_comp = px.bar(
-                company_counts.head(10), # Nur die Top 10 zeigen, damit es zur Tabelle passt
+                fig_comp = px.bar(company_counts), # alle Firmen anzeigen
                 x='Review Count', 
                 y='Company Name', 
                 orientation='h', 
