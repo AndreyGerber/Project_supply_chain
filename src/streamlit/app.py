@@ -325,7 +325,7 @@ if not df.empty:
                 color="company",
                 markers=True,
                 title=f"Trends in Customer Satisfaction ({min_year} - {max_year})",
-                labels={'year': 'Jahr', 'avg_rating': 'Ø Sterne', 'company': 'Unternehmen'},
+                labels={'year': 'Year', 'avg_rating': 'Ø Stars', 'company': 'Company'},
                 hover_data={'review_count': True},
                 height=chart_height,
                 color_discrete_sequence=px.colors.qualitative.Safe # Gut unterscheidbare Farben
