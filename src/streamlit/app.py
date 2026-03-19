@@ -89,7 +89,7 @@ if not df.empty:
                 )
             
                 st.plotly_chart(fig_comp, use_container_width=True)
-     st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
        # --- 📅 Analysis Period & Timeline ---
     st.markdown("#### 📅 Analysis Period")
