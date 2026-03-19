@@ -177,7 +177,7 @@ if not df.empty:
             legend=dict(
                 title="Jahre (click to select):",
                 orientation="h",  # Horizontal unter dem Chart (besser bei vielen Jahren)
-                yanchor="right",
+                yanchor="bottom",
                 y=-0.5,           # Position unter der X-Achse
                 xanchor="center",
                 x=0.5
