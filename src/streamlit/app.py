@@ -144,10 +144,11 @@ if not df.empty:
             col1.metric("Total Reviews", len(df_filtered))
             col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0")
             col3.metric("Supplier Response Rate", f"{response_rate:.1f}%")
-            st.markdown("---")
+            #st.markdown("---")
         st.markdown("<br>", unsafe_allow_html=True)
 
-        
+        # NOCHMAL ABSTAND VOR DER NÄCHSTEN GRAFIK ---
+        st.markdown("<br><br>", unsafe_allow_html=True) # Erzeugt zwei Zeilenumbrüche
 
         # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN ---
         st.markdown("#### 📊 Review Volume by Year")
