@@ -72,15 +72,19 @@ if not df.empty:
             # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
             c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
             with c1:
-                # Wir zeigen 10 Zeilen an
-                st.dataframe(company_counts, use_container_width=True, hide_index=True)
+                # Wir zeigen alle Zeilen an
+                st.dataframe(
+                    company_counts, 
+                    use_container_width=True, 
+                    hide_index=True,
+                    height=ui_height ) # <--- Das hat im Screenshot gefehlt     
             with c2:
                 # 'height=380' entspricht in etwa der Höhe von 10 Tabellenzeilen + Header
                 fig_comp = px.bar(company_counts, # alle Firmen anzeigen
                 x='Review Count', 
                 y='Company Name', 
                 orientation='h', 
-                height=380, # <--- Dieser Wert ist entscheidend für die Angleichung
+                height=ui_height, # <--- Dieser Wert ist entscheidend für die Angleichung
                 title="Reviews per Company"
                 )
             
