@@ -174,44 +174,49 @@ if not df.empty:
 
         st.markdown("---")
         
-        # 3. Keyword-Analyse
-        st.subheader("🔝 Top 10 Keywords (Overall Sentiment)")
-        
-        all_text = " ".join(df_filtered['review_text'].fillna("").astype(str)).lower()
-        # Sonderzeichen entfernen für sauberere Wörter
-        all_text = ''.join(e for e in all_text if e.isalnum() or e.isspace())
-        words = pd.Series(all_text.split())
-        
-        stop_words = [
-            'the', 'and', 'to', 'for', 'is', 'it', 'with', 'a', 'in', 'of', 'i', 'was', 'on', 'at', 'as', 'be',
-            'die', 'der', 'und', 'ist', 'das', 'für', 'ein', 'eine', 'mit', 'auf', 'zu', 'den', 'im', 'dem', 'es'
-        ]
-        
-        top_words = words[~words.isin(stop_words)].value_counts().head(10)
-        
-        if not top_words.empty:
-            fig_words = px.bar(
-                top_words, 
-                x=top_words.values, 
-                y=top_words.index, 
-                orientation='h', 
-                labels={'x': 'Frequency', 'y': 'Keyword'},
-                color=top_words.values,
-                color_continuous_scale='Blues'
-            )
-            
-            fig_words.update_layout(
-                showlegend=False, 
-                coloraxis_showscale=False,
-                yaxis={'categoryorder':'total ascending'},
-                plot_bgcolor='rgba(0,0,0,0)',
-                margin=dict(l=0, r=0, t=30, b=0)
-            )
-            
-            st.plotly_chart(fig_words, use_container_width=True)
-        else:
-            st.write("Not enough text data to generate keyword analysis.")
+        # 3. Keyword-Analyse (Optimiert)
+    st.subheader("🔝 Top 10 Keywords (Overall Sentiment)")
 
+    # Textvorbereitung: Alles klein, Sonderzeichen raus
+    all_text = " ".join(df_filtered['review_text'].fillna("").astype(str)).lower()
+    all_text = ''.join(e for e in all_text if e.isalnum() or e.isspace())
+    words = pd.Series(all_text.split())
+
+    # ERWEITERTE STOPWORD-LISTE (Hier liegt die Lösung)
+    stop_words = [
+        'the', 'and', 'to', 'for', 'is', 'it', 'with', 'a', 'in', 'of', 'i', 'was', 'on', 'at', 'as', 'be',
+        'from', 'my', 'they', 'you', 'not', 'that', 'have', 'this', 'are', 'it', 'me', 'so', 'but', # Hinzugefügt
+        'die', 'der', 'und', 'ist', 'das', 'für', 'ein', 'eine', 'mit', 'auf', 'zu', 'den', 'im', 'dem', 'es',
+        'ich', 'sie', 'nicht', 'war', 'haben', 'habe', 'einer', 'einen', 'einem' # Deutsche Erweiterung
+    ]
+
+    # Filtern der Stopwords
+    top_words = words[~words.isin(stop_words)].value_counts().head(10)
+
+    if not top_words.empty:
+        # Plotly Bar Chart (Horizontal)
+        fig_words = px.bar(
+            top_words, 
+            x=top_words.values, 
+            y=top_words.index, 
+            orientation='h', 
+            labels={'x': 'Frequency', 'index': 'Keyword'},
+            color=top_words.values,
+            color_continuous_scale='Blues' # Autodoc-Style
+        )
+        
+        # Layout-Feinschliff
+        fig_words.update_layout(
+            yaxis={'categoryorder':'total ascending'}, # Höchster Wert oben
+            plot_bgcolor='rgba(0,0,0,0)',
+            showlegend=False,
+            coloraxis_showscale=False,
+            margin=dict(l=20, r=20, t=30, b=20)
+        )
+        
+        st.plotly_chart(fig_words, use_container_width=True)
+    else:
+        st.info("No relevant keywords found with the current filters.")
 
     with tab3:
         st.header("📍 Geographic & Support Performance")
