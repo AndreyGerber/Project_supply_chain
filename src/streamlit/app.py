@@ -407,8 +407,7 @@ if not df.empty:
             color: #004085;
             font-size: 1.2em;
             border: 1px solid #b8daff;">
-            Next Steps will be:
-        </div>  
+            Next Steps will be: <br><br>
             Machine Learning (Regression) → Predicting the number of stars <br><br>
             Named Entity Recognition (NER) / Information Extraction → Identifying important entities <br><br>
             Unsupervised Topic Modeling → Extracting common issues from comments <br><br>
