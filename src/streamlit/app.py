@@ -253,6 +253,8 @@ if not df.empty:
 
         # 2. Gruppieren: Durchschnittliches Rating pro Jahr und Firma
         df_trend = df_filtered.groupby(['Year', 'company'])['rating'].mean().reset_index()
+        # 2. Die Daten explizit nach Jahr sortieren
+        df_trend = df_trend.sort_values('Year')
 
         # 3. Plotly Liniendiagramm erstellen
         fig_trend = px.line(
