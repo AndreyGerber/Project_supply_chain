@@ -67,7 +67,7 @@ if not df.empty:
             company_counts.columns = ['Company Name', 'Review Count']
             
             # 500px bieten genug Platz für 12 Zeilen + Header + Padding
-            ui_height = 1500 
+            ui_height = 500 
 
             # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
             c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
