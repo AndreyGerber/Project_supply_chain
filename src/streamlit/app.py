@@ -125,8 +125,8 @@ if not df.empty:
         st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
 
 
-    # --- ABSTAND EINFÜGEN ---
-    st.write("##") # Erzeugt einen vertikalen Abstand (ca. 30-40px)
+        # --- ABSTAND EINFÜGEN ---
+        st.write("##") # Erzeugt einen vertikalen Abstand (ca. 30-40px)
 
         # -KPIs (Total Reviews, Average Rating, Supplier Response Rate) ---
         st.markdown("""
