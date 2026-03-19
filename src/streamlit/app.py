@@ -128,7 +128,7 @@ if not df.empty:
         # -KPIs (Total Reviews, Average Rating, Supplier Response Rate) ---
         st.markdown("""
         <style>
-        [data-testid="stMetricLabel"] >div {font-size: 42px !important;bfont-weight: bold !important;    }
+        [data-testid="stMetricLabel"] >div {font-size: 22px !important;bfont-weight: bold !important;    }
         [data-testid="stMetricValue"] {font-size: 25px !important; font-weight: bold !important;    }
         </style>    """, unsafe_allow_html=True)
 
