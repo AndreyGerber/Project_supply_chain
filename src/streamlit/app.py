@@ -383,9 +383,12 @@ if not df.empty:
             1. Predicting customer satisfaction: A regression problem focused on predicting the number of stars.
             2. Identifying important entities in a message: Such as location, company name, etc.
             3. Extracting key topics from comments: For example delivery issues, defective items, etc., using an unsupervised approach.
-            Analyzing supplier responses: Extracting relevant words and patterns from responses in order to predict them based solely on the original comment.
-            Our focus is on German companies in the “Auto Parts Store” category on Trustpilot. The dataset was scraped from Trustpilot. The initial analytics are presented below—enjoy exploring!
-            Next Steps:
+            4.Analyzing supplier responses: Extracting relevant words and patterns from responses in order to predict them based solely on the original comment.
+            
+            Our focus is on German companies in the “Auto Parts Store” category on Trustpilot. The dataset was scraped from Trustpilot. 
+            The initial analytics are presented below—enjoy exploring!
+            
+            Next Steps will be:
 
             Machine Learning (Regression) → Predicting the number of stars
             Named Entity Recognition (NER) / Information Extraction → Identifying important entities
