@@ -398,15 +398,7 @@ if not df.empty:
     
     # 2. Zentrierter Ausblick-Satz
     st.markdown("""
-    <div style="   
-        text-align: left; 
-        padding: 20px; 
-        background-color: #e8f4f8; 
-        border-radius: 10px; 
-        color: #004085;
-        font-size: 1.1em;
-        border: 1px solid #b8daff;
-        line-height: 1.8;"> <!-- Zeilenabstand für bessere Lesbarkeit leicht erhöht -->
+    <div style="text-align: left; padding: 20px; background-color: #e8f4f8; border-radius: 10px; color: #004085; font-size: 1.1em; border: 1px solid #b8daff; line-height: 1.8;">
         
         <span style="font-size: 1.4em; font-weight: bold; display: block; margin-bottom: 12px;">
             Next Steps will be:
@@ -427,10 +419,7 @@ if not df.empty:
         <div>
             <strong style="color: black;">Information Extraction / Text Matching</strong> → Generating automated supplier responses
         </div>
-        
-    </div> 
-""", unsafe_allow_html=True)
-
+        </div>""", unsafe_allow_html=True)
 # Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
 else:
     st.warning("Data could not be loaded. Please check the source file.")
