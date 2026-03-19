@@ -107,6 +107,18 @@ if not df.empty:
                                    yaxis=dict(showgrid=False, showticklabels=False, title=""), plot_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
 
+
+        # --- POSITION 2: KPIs (Jetzt UNTER der Preview) ---
+        avg_rating = df_filtered['rating'].mean()
+        response_rate = df_filtered['supplier_response'].notna().mean() * 100
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Reviews", len(df_filtered))
+        col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0")
+        col3.metric("Supplier Response Rate", f"{response_rate:.1f}%")
+        st.markdown("---")
+
+
         # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN ---
         st.markdown("#### 📊 Review Volume by Year")
         
@@ -143,15 +155,7 @@ if not df.empty:
 
 
 
-    # --- POSITION 2: KPIs (Jetzt UNTER der Preview) ---
-    avg_rating = df_filtered['rating'].mean()
-    response_rate = df_filtered['supplier_response'].notna().mean() * 100
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Reviews", len(df_filtered))
-    col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0")
-    col3.metric("Supplier Response Rate", f"{response_rate:.1f}%")
-    st.markdown("---")
+   
 
     # 6. Analysis Tabs
     tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis", "📍 Operations & Support"])
