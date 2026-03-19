@@ -46,8 +46,10 @@ if not df.empty:
     # 4. Main Header
     st.title("📊 Auto parts store Customer Insights Dashboard")
 
-    st.markdown("")
-    st.markdown("")
+    # Fügt eine Leerzeile ein
+    st.markdown("<br>", unsafe_allow_html=True)
+    # Für einen wirklich großen Abstand zwischen der Tabelle und den nächsten Abschnitten
+    st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
 
     st.markdown("""
         <div style="
