@@ -311,8 +311,34 @@ if not df.empty:
         st.header("📍 Geographic & Support Performance")
         col_a, col_b = st.columns(2)
         with col_a:
-            top_loc = df_filtered['location'].value_counts().head(8)
-            fig_loc = px.pie(values=top_loc.values, names=top_loc.index, title="Top regions of comments", hole=0.4)
+            # 1. Alle Standorte zählen
+            loc_counts = df_filtered['location'].value_counts()
+            
+            # 2. Die Top 9 extrahieren
+            top_9 = loc_counts.head(9)
+            
+            # 3. Den Rest berechnen und als "Others" zusammenfassen
+            others_count = loc_counts.iloc[9:].sum()
+            
+            # 4. "Others" nur hinzufügen, wenn es wirklich restliche Daten gibt
+            if others_count > 0:
+                others_series = pd.Series({'Others': others_count})
+                final_loc_data = pd.concat([top_9, others_series])
+            else:
+                final_loc_data = top_9
+
+            # 5. Diagramm erstellen
+            fig_loc = px.pie(
+                values=final_loc_data.values, 
+                names=final_loc_data.index, 
+                title="Top 9 Regions & Others", 
+                hole=0.4,
+                color_discrete_sequence=px.colors.qualitative.Pastel # Schöne Farben für viele Segmente
+            )
+            
+            # 6. Beschriftung optimieren (Prozent und Name anzeigen)
+            fig_loc.update_traces(textinfo='percent+label')
+            
             st.plotly_chart(fig_loc, use_container_width=True)
         with col_b:
             df_filtered['has_response'] = df_filtered['supplier_response'].notna()
