@@ -380,42 +380,72 @@ if not df.empty:
 
     with tab3:
         st.header("📍 Geographic & Support Performance")
-        col_a, col_b = st.columns(2)
+
+        # --- Parameter für die Diagrammhöhe ---
+        chart_height = 500
+
+        # --- Aufteilung 70% zu 30% ---
+        col_a, col_b = st.columns([7, 3]) 
+    
         with col_a:
-            # 1. Alle Standorte zählen
+            # 1. Daten für Regionen (Top 9 + Others)
             loc_counts = df_filtered['location'].value_counts()
-            
-            # 2. Die Top 9 extrahieren
             top_9 = loc_counts.head(9)
-            
-            # 3. Den Rest berechnen und als "Others" zusammenfassen
             others_count = loc_counts.iloc[9:].sum()
-            
-            # 4. "Others" nur hinzufügen, wenn es wirklich restliche Daten gibt
+        
             if others_count > 0:
-                others_series = pd.Series({'Others': others_count})
+                others_series = pd.Series([others_count], index=['Others'])
                 final_loc_data = pd.concat([top_9, others_series])
             else:
                 final_loc_data = top_9
 
-            # 5. Diagramm erstellen
+            # 2. Donut-Diagramm
             fig_loc = px.pie(
                 values=final_loc_data.values, 
                 names=final_loc_data.index, 
                 title="Top 9 Regions & Others", 
                 hole=0.4,
-                color_discrete_sequence=px.colors.qualitative.Pastel # Schöne Farben für viele Segmente
+                color_discrete_sequence=px.colors.qualitative.Pastel,
+                height=chart_height  # <--- Dynamische Höhe
             )
-            
-            # 6. Beschriftung optimieren (Prozent und Name anzeigen)
-            fig_loc.update_traces(textinfo='percent+label')
+        
+            # Legende rechts positionieren wie im Screenshot
+            fig_loc.update_layout(
+                legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.05),
+                margin=dict(t=50, b=50, l=20, r=100) # Platz für Legende schaffen
+            )
+            fig_loc.update_traces(textinfo='percent')
             
             st.plotly_chart(fig_loc, use_container_width=True)
+
         with col_b:
+            # 3. Response Status vorbereiten
             df_filtered['has_response'] = df_filtered['supplier_response'].notna()
             resp_counts = df_filtered['has_response'].value_counts().rename({True: 'Responded', False: 'Pending'})
-            fig_resp = px.bar(x=resp_counts.index, y=resp_counts.values, title="Response Status", color=resp_counts.index)
+            
+            # 4. Balkendiagramm
+            fig_resp = px.bar(
+                x=resp_counts.index, 
+                y=resp_counts.values, 
+                title="Response Status", 
+                color=resp_counts.index,
+                # Farben exakt wie im Bild
+                color_discrete_map={'Responded': '#2E6AD1', 'Pending': '#89C6FF'},
+                height=chart_height # <--- Dynamische Höhe
+            )
+        
+            fig_resp.update_layout(
+                showlegend=False,
+                xaxis_title=None,
+                yaxis_title="Anzahl",
+                margin=dict(t=50, b=50, l=20, r=20)
+            )
+        
+            # Zahlen über den Balken anzeigen
+            fig_resp.update_traces(texttemplate='%{y}', textposition='outside')
+            
             st.plotly_chart(fig_resp, use_container_width=True)
+
 
     # 7. Personalized Footer
     st.markdown("---")
