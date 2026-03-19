@@ -88,7 +88,7 @@ if not df.empty:
         st.success(f"This dataset covers reviews from **{first_date.strftime('%d.%m.%Y')}** to **{last_date.strftime('%d.%m.%Y')}**.")
 
         # 1. Die Zeitachse (Linie)
-        timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['Start', 'End'], 'y': [0, 0]})
+        timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['First comment', 'last comment'], 'y': [0, 0]})
         fig_timeline = px.line(timeline_df, x='date', y='y', markers=True, text='label')
         fig_timeline.update_traces(line_color='#2E7D32', marker=dict(size=12, symbol='diamond'), textposition='top center')
         fig_timeline.update_layout(height=120, margin=dict(l=20, r=20, t=30, b=20), xaxis=dict(showgrid=False, title=""),
