@@ -56,30 +56,44 @@ if not df.empty:
         company_counts.columns = ['Company Name', 'Review Count']
         
         # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
-       c1, c2 = st.columns([1, 2]) 
-
+        c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
         with c1:
             # Wir zeigen 10 Zeilen an
             st.dataframe(company_counts.head(10), use_container_width=True, hide_index=True)
-
         with c2:
             # 'height=380' entspricht in etwa der Höhe von 10 Tabellenzeilen + Header
             fig_comp = px.bar(
-                company_counts.head(10), # Nur die Top 10 zeigen, damit es zur Tabelle passt
-                x='Review Count', 
-                y='Company Name', 
-                orientation='h', 
-                height=380, # <--- Dieser Wert ist entscheidend für die Angleichung
-                title="Reviews per Company"
+            company_counts.head(10), # Nur die Top 10 zeigen, damit es zur Tabelle passt
+            x='Review Count', 
+            y='Company Name', 
+            orientation='h', 
+            height=380, # <--- Dieser Wert ist entscheidend für die Angleichung
+            title="Reviews per Company"
             )
-            
+        
             # Design-Anpassung für saubere Kanten
             fig_comp.update_layout(
-                margin=dict(l=0, r=0, t=40, b=0), # Ränder minimieren
-                yaxis={'categoryorder':'total ascending'} # Größte Balken oben
+            margin=dict(l=0, r=0, t=40, b=0), # Ränder minimieren
+            yaxis={'categoryorder':'total ascending'} # Größte Balken oben
             )
-            
+        
             st.plotly_chart(fig_comp, use_container_width=True)
+     
+       # --- 📅 Analysis Period & Timeline ---
+    st.markdown("#### 📅 Analysis Period")
+    if not df_filtered.empty and 'date' in df_filtered.columns:
+        first_date = df_filtered['date'].min()
+        last_date = df_filtered['date'].max()
+        
+        st.success(f"This dataset covers reviews from **{first_date.strftime('%d.%m.%Y')}** to **{last_date.strftime('%d.%m.%Y')}**.")
+
+        # 1. Die Zeitachse (Linie)
+        timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['Start', 'End'], 'y': [0, 0]})
+        fig_timeline = px.line(timeline_df, x='date', y='y', markers=True, text='label')
+        fig_timeline.update_traces(line_color='#2E7D32', marker=dict(size=12, symbol='diamond'), textposition='top center')
+        fig_timeline.update_layout(height=120, margin=dict(l=20, r=20, t=30, b=20), xaxis=dict(showgrid=False, title=""),
+                                   yaxis=dict(showgrid=False, showticklabels=False, title=""), plot_bgcolor='rgba(0,0,0,0)')
+        st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
 
         # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN ---
         st.markdown("#### 📊 Review Volume by Year")
