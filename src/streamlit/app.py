@@ -380,11 +380,12 @@ if not df.empty:
             border: 1px solid #b8daff;">
             🚀 The objective of this project is to extract meaningful information from customer comments. The main areas of work include:
         </div>
-        
+
             1. Predicting customer satisfaction: A regression problem focused on predicting the number of stars.
             2. Identifying important entities in a message: Such as location, company name, etc.
             3. Extracting key topics from comments: For example delivery issues, defective items, etc., using an unsupervised approach.
-            4.Analyzing supplier responses: Extracting relevant words and patterns from responses in order to predict them based solely on the original comment.
+            4.Analyzing supplier responses: Extracting relevant words and patterns from responses in order 
+            to predict them based solely on the original comment.
             
             Our focus is on German companies in the “Auto Parts Store” category on Trustpilot. The dataset was scraped from Trustpilot. 
             The initial analytics are presented below—enjoy exploring!
