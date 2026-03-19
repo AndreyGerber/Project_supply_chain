@@ -157,6 +157,7 @@ if not df.empty:
         df_filtered['Year'] = df_filtered['date'].dt.year
         yearly_counts = df_filtered['Year'].value_counts().sort_index().reset_index()
         yearly_counts.columns = ['Year', 'Number of Reviews']
+        yearly_counts['Year'] = yearly_counts['Year'].astype(str)
 
         # Plotly Bar Chart erstellen
         fig_years = px.bar(
@@ -164,28 +165,20 @@ if not df.empty:
             x='Year', 
             y='Number of Reviews',
             text='Number of Reviews',
-            color='Year', # 'Year' statt 'Number of Reviews' für Einzelsteuerung
-            color_discrete_sequence=px.colors.qualitative.Plotly # Oder eine eigene Farbliste
-        )
+            color='Year', 
+            ccolor_discrete_sequence=px.colors.qualitative.Plotly    )
 
         fig_years.update_layout(
-            xaxis_type='category', 
-            plot_bgcolor='rgba(0,0,0,0)',
-            showlegend=True, # Legende einschalten
-            legend_title_text='Jahre wählen:',
-            legend=dict(
-                orientation="h", # Horizontal unter oder über dem Chart
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
+        xaxis_type='category', 
+        plot_bgcolor='rgba(0,0,0,0)',
+        showlegend=True, # Aktiviert die interaktive Legende
+        legend=dict(title="Jahre (Klick zum Abwählen):", orientation="h", yanchor="bottom", y=-0.5,           # Position unter der X-Achse
+            xanchor="center",  x=0.5  )   )
 
         fig_years.update_traces(textposition='outside')
 
         st.plotly_chart(fig_years, use_container_width=True)
-        # --- ENDE DES NEUEN ABSCHNITTS ---
+        # --- ENDE DES ABSCHNITTS Review Volume by Year---
 
     st.markdown("---")
     
