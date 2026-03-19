@@ -254,47 +254,42 @@ if not df.empty:
         # 2. Gruppieren: Durchschnittliches Rating pro Jahr und Firma
         df_trend = df_filtered.groupby(['Year', 'company'])['rating'].mean().reset_index()
         # 2. Die Daten explizit nach Jahr sortieren
-        df_trend = df_trend.sort_values('Year')
+        df_trend['Year'] = df_trend['Year'].astype(int)
+        df_trend = df_trend.sort_values(by='Year')
 
-        # 3. Plotly Liniendiagramm erstellen
+        # 3. Das Diagramm erstellen
         fig_trend = px.line(
             df_trend, 
             x='Year', 
             y='rating', 
-            color='company',       # Erzeugt eine Linie pro Firma (und die Legende rechts)
-            markers=True,          # Zeigt Punkte auf der Linie an
-            labels={'rating': 'Average Rating', 'Year': 'Year'},
-            height=500             # Gewünschte Diagrammhöhe
+            color='company',
+            markers=True,
+            height=600
         )
 
-        # 4. Design-Anpassungen (Achsen, Legende, Schrift)
+        # 4. Die X-Achse auf 'linear' stellen, damit die Abstände stimmen
         fig_trend.update_layout(
-            xaxis_type='category', 
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(size=14),
             xaxis=dict(
-                title_font=dict(size=16),
-                tickfont=dict(size=13),
-                showgrid=True, 
+                type='linear',      # Sorgt für die korrekte mathematische Reihenfolge
+                dtick=1,            # Verhindert Kommazahlen wie 2014.5
+                tickmode='linear',
+                title_font=dict(size=18),
+                tickfont=dict(size=14),
+                showgrid=True,
                 gridcolor='LightGray'
             ),
             yaxis=dict(
-                title_font=dict(size=16),
-                tickfont=dict(size=13),
-                range=[1, 5.1],     # Fixiert die Skala auf 1 bis 5 Sterne
-                showgrid=True, 
+                range=[1, 5.1], 
+                title_font=dict(size=18),
+                tickfont=dict(size=14),
+                showgrid=True,
                 gridcolor='LightGray'
             ),
-            legend=dict(
-                title="Companies (click to toggle):",
-                orientation="v",
-                yanchor="top",
-                y=1,
-                xanchor="left",
-                x=1.02
-            ),
-            margin=dict(r=150)     # Platz für die Legende rechts
+            plot_bgcolor='rgba(0,0,0,0)',
+            legend=dict(x=1.02, y=1),
+            margin=dict(r=150)
         )
+
 
         st.plotly_chart(fig_trend, use_container_width=True)
 
