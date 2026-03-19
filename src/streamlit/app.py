@@ -324,7 +324,7 @@ if not df.empty:
                 y="avg_rating",
                 color="company",
                 markers=True,
-                title=f"Entwicklung der Kundenzufriedenheit ({min_year} - {max_year})",
+                title=f"Trends in Customer Satisfaction ({min_year} - {max_year})",
                 labels={'year': 'Jahr', 'avg_rating': 'Ø Sterne', 'company': 'Unternehmen'},
                 hover_data={'review_count': True},
                 height=chart_height,
