@@ -177,7 +177,7 @@ if not df.empty:
             showlegend=True,
             
             # --- LEGENDE RECHTS ---
-            legend=dict(title="(click to select):",orientation="v",    # Vertikal
+            legend=dict(title="(click to select):",
                 yanchor="top", y=1, xanchor="left", 
                 x=1.02 # Platziert die Legende rechts außerhalb des Diagramms
             ),
