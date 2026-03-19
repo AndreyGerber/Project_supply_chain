@@ -261,7 +261,7 @@ if not df.empty:
             x="rating",
             color="rating",
             title="Frequency of Ratings",
-            labels={'rating': 'Star Rating', 'count': 'Number of Reviews'},
+            labels={'rating': 'Star Rating', 'count': 'Number of Comments'},
             nbins=5,
             color_discrete_map=color_map,
             height=600  # <--- HIER: Gesamthöhe des Diagramms einstellen
@@ -271,8 +271,8 @@ if not df.empty:
             font=dict(size=14),     # Allgemeine Schriftgröße (optional)
             xaxis=dict(
                 title_font=dict(size=20), # Größe der "Year" Beschriftung
-                tickfont=dict(size=14) ,   # Größe der Jahreszahlen (2012, 2014...)
-                title="Star Rating"
+                tickfont=dict(size=14)    # Größe der Jahreszahlen (2012, 2014...)
+                
             ),
             yaxis=dict(
                 title_font=dict(size=20), # Größe der "Number of Reviews" Beschriftung
