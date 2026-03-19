@@ -192,19 +192,19 @@ if not df.empty:
 
         # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN, Kommentare über das Jahr ---
     with st.container(border=True): 
-        st.markdown("#### 📊 Review Volume by Year")
+        st.markdown("#### 📊 Number of comments by Year")
         
         # Daten vorbereiten (Jahre extrahieren und zählen)
         df_filtered['Year'] = df_filtered['date'].dt.year.astype(str)
         yearly_counts = df_filtered['Year'].value_counts().sort_index().reset_index()
-        yearly_counts.columns = ['Year', 'Number of Reviews']
+        yearly_counts.columns = ['Year', 'Number of comments']
 
         # Plotly Bar Chart
         fig_years = px.bar(
             yearly_counts, 
             x='Year', 
-            y='Number of Reviews',
-            text='Number of Reviews',
+            y='Number of comments',
+            text='Number of comments',
             color='Year', # Erzeugt die Legende
             color_discrete_sequence=px.colors.qualitative.Plotly,
             height=600  # <--- HIER: Gesamthöhe des Diagramms einstellen
