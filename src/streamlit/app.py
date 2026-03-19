@@ -158,7 +158,7 @@ if not df.empty:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-with tab2:
+    with tab2:
         st.subheader("💬 Sentiment & Keyword Discovery")
         st.info("Search through individual comments or use the quick-filters below to find specific topics.")
         
