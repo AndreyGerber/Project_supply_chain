@@ -398,20 +398,29 @@ if not df.empty:
     
     # 2. Zentrierter Ausblick-Satz
     st.markdown("""
-
         <div style="   
-                    text-align: left; 
-            padding: 15px; 
+            text-align: left; 
+            padding: 20px; 
             background-color: #e8f4f8; 
             border-radius: 10px; 
             color: #004085;
-            font-size: 1.2em;
-            border: 1px solid #b8daff;">
-            Next Steps will be: <br><br>
-            Machine Learning (Regression) → Predicting the number of stars <br><br>
-            Named Entity Recognition (NER) / Information Extraction → Identifying important entities <br><br>
-            Unsupervised Topic Modeling → Extracting common issues from comments <br><br>
-            Information Extraction / Text Matching → Generating automated supplier responses
+            font-size: 1.1em;
+            border: 1px solid #b8daff;
+            line-height: 1.6;">
+            
+            <!-- Überschrift eine Stufe größer -->
+            <span style="font-size: 1.3em; font-weight: bold; display: block; margin-bottom: 15px;">
+                Next Steps will be:
+            </span>
+
+            <strong style="color: black;">Machine Learning (Regression)</strong> → Predicting the number of stars <br>
+            
+            <strong style="color: black;">Named Entity Recognition (NER) / Information Extraction</strong> → Identifying important entities <br>
+            
+            <strong style="color: black;">Unsupervised Topic Modeling</strong> → Extracting common issues from comments <br>
+            
+            <strong style="color: black;">Information Extraction / Text Matching</strong> → Generating automated supplier responses
+            
         </div>
     """, unsafe_allow_html=True)
 
