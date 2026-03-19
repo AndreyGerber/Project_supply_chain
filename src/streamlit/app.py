@@ -46,6 +46,22 @@ if not df.empty:
     # 4. Main Header
     st.title("📊 Copy of auto parts store Customer Insights Dashboard")
     st.markdown("""
+        <div style="
+            text-align: left; 
+            padding: 15px; 
+            background-color: #e8f4f8; 
+            border-radius: 10px; 
+            color: #004085;
+            font-size: 1.1em;
+            border: 1px solid #b8daff;">
+            🚀 The objective of this project is to extract meaningful information from customer comments. The main areas of work include:
+        </div>
+
+            1. Predicting customer satisfaction: A regression problem focused on predicting the number of stars.
+            2. Identifying important entities in a message: Such as location, company name, etc.
+            3. Extracting key topics from comments: For example delivery issues, defective items, etc., using an unsupervised approach.
+            4.Analyzing supplier responses: Extracting relevant words and patterns from responses in order 
+            to predict them based solely on the original comment.
         <div style=" 
             text-align: left; 
             padding: 15px; 
