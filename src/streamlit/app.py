@@ -421,8 +421,7 @@ if not df.empty:
             
             <strong style="color: black;">Information Extraction / Text Matching</strong> → Generating automated supplier responses
             
-        </div>
-    """, unsafe_allow_html=True)
+        </div> """, unsafe_allow_html=True)
 
 # Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
 else:
