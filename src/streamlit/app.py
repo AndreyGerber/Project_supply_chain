@@ -40,7 +40,7 @@ if not df.empty:
     df_filtered = df[df['rating'].isin(selected_rating)]
 
     # 4. Main Header
-    st.title("📊 Autodoc Customer Insights Dashboard")
+    st.title("📊 Copy ofAutodoc Customer Insights Dashboard")
     st.markdown("This dashboard provides a comprehensive analysis of customer feedback and supplier performance.")
     st.markdown("---")
 
