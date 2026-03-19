@@ -379,7 +379,8 @@ if not df.empty:
             font-size: 1.1em;
             border: 1px solid #b8daff;">
             🚀 The objective of this project is to extract meaningful information from customer comments. The main areas of work include:
-
+        </div>
+        
             1. Predicting customer satisfaction: A regression problem focused on predicting the number of stars.
             2. Identifying important entities in a message: Such as location, company name, etc.
             3. Extracting key topics from comments: For example delivery issues, defective items, etc., using an unsupervised approach.
