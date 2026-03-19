@@ -280,49 +280,90 @@ if not df.empty:
     with tab2:
         st.subheader("📈 Durchschnittsbewertung pro Unternehmen über die Jahre")
 
-        # 1. Vorbereitung: Jahr extrahieren
+        # --- 1. EINSTELLUNGEN: SCHRIFTGRÖSSEN ---
+        font_size_axis_title = 18
+        font_size_ticks = 14
+        font_size_legend = 14
+        chart_height = 650
+
+        # --- 2. DATEN VORBEREITEN ---
         df_time = df_filtered.copy()
         df_time['year'] = df_time['date'].dt.year
 
-        # 2. Filter-Parameter in der UI (Slider)
+        # Zeitspanne festlegen (Erster Kommentar bis heute)
+        min_year = int(df_time['year'].min())
+        max_year = pd.Timestamp.now().year
+        all_years = list(range(min_year, max_year + 1))
+
+        # Slider für Filterung
         min_reviews = st.slider(
             "Mindestanzahl an Kommentaren pro Jahr & Unternehmen:", 
             min_value=1, max_value=20, value=5
         )
 
-        # 3. Gruppierung: Durchschnitts-Rating und Anzahl pro Jahr/Firma
+        # Gruppierung: Durchschnitt & Anzahl
         df_grouped = df_time.groupby(['year', 'company']).agg(
             avg_rating=('rating', 'mean'),
             review_count=('rating', 'count')
         ).reset_index()
 
-        # 4. Filter anwenden
-        df_trend = df_grouped[df_grouped['review_count'] >= min_reviews]
+        # Filter anwenden
+        df_trend = df_grouped[df_grouped['review_count'] >= min_reviews].copy()
+
+        # --- 3. LÜCKEN FÜLLEN (Alle Jahre für jede Company sicherstellen) ---
+        companies = df_trend['company'].unique()
+        
+        # Wir erstellen ein Grid aus allen Jahren und allen Companies
+        mux = pd.MultiIndex.from_product([all_years, companies], names=['year', 'company'])
+        df_trend = df_trend.set_index(['year', 'company']).reindex(mux).reset_index()
 
         if not df_trend.empty:
-            # 5. Liniendiagramm erstellen
+            # 4. DIAGRAMM ERSTELLEN
             fig_trend = px.line(
                 df_trend,
                 x="year",
                 y="avg_rating",
                 color="company",
                 markers=True,
-                title=f"Trends (Unternehmen mit mind. {min_reviews} Reviews/Jahr)",
-                labels={'year': 'Jahr', 'avg_rating': 'Ø Bewertung', 'company': 'Unternehmen'},
-                hover_data={'review_count': True} # Zeigt Anzahl der Reviews im Tooltip
+                title=f"Trends ({min_year} - {max_year}) | Mind. {min_reviews} Reviews/Jahr",
+                labels={'year': 'Jahr', 'avg_rating': 'Ø Bewertung', 'company': 'Firma'},
+                hover_data={'review_count': True},
+                height=chart_height
             )
 
-            # Design-Anpassungen
+            # --- 5. ACHSEN & SCHRIFTGRÖSSEN ANPASSEN ---
             fig_trend.update_layout(
-                yaxis=dict(range=[1, 5.1], dtick=1), # Y-Achse von 1 bis 5 fixieren
-                xaxis=dict(dtick=1),                 # Nur ganze Jahre anzeigen
-                height=600,
+                xaxis=dict(
+                    type='linear',
+                    tickmode='linear',
+                    dtick=1,
+                    range=[min_year - 0.2, max_year + 0.2], # Kleiner Puffer links/rechts
+                    title_font=dict(size=font_size_axis_title),
+                    tickfont=dict(size=font_size_ticks)
+                ),
+                yaxis=dict(
+                    range=[1, 5.1], 
+                    dtick=1,
+                    title_font=dict(size=font_size_axis_title),
+                    tickfont=dict(size=font_size_ticks),
+                    title="Durchschnitts-Sterne"
+                ),
+                legend=dict(
+                    font=dict(size=font_size_legend),
+                    orientation="h", # Legende horizontal unter dem Chart
+                    yanchor="bottom", y=-0.3, 
+                    xanchor="center", x=0.5
+                ),
+                margin=dict(l=50, r=50, t=80, b=100),
                 hovermode="x unified"
             )
 
+            # Linien unterbrechen, wenn Jahre fehlen (statt auf 0 zu fallen)
+            fig_trend.update_traces(connectgaps=False)
+
             st.plotly_chart(fig_trend, use_container_width=True)
         else:
-            st.warning("Keine Daten gefunden, die den Filterkriterien entsprechen. Versuche, den Slider zu verringern.")
+            st.warning("Keine Daten für diese Filterkombination verfügbar.")
 
     with tab3:
         st.header("📍 Geographic & Support Performance")
