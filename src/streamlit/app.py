@@ -289,7 +289,7 @@ if not df.empty:
             
             st.plotly_chart(fig_loc, use_container_width=True)
 
-         with col_b:
+        with col_b:
             # 3. Response Status vorbereiten
             df_filtered['has_response'] = df_filtered['supplier_response'].notna()
             resp_counts = df_filtered['has_response'].value_counts().rename({True: 'Responded', False: 'Pending'})
