@@ -61,34 +61,34 @@ if not df.empty:
 
     # COMPANY VALUE COUNTS (Direkt unter der Tabelle) ---
     with st.container(border=True):
-    st.markdown("#### 🏢 Company Distribution")
-    if 'company' in df_filtered.columns:
-        company_counts = df_filtered['company'].value_counts().reset_index()
-        company_counts.columns = ['Company Name', 'Review Count']
-        
-        # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
-        c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
-        with c1:
-            # Wir zeigen 10 Zeilen an
-            st.dataframe(company_counts.head(10), use_container_width=True, hide_index=True)
-        with c2:
-            # 'height=380' entspricht in etwa der Höhe von 10 Tabellenzeilen + Header
-            fig_comp = px.bar(
-            company_counts.head(10), # Nur die Top 10 zeigen, damit es zur Tabelle passt
-            x='Review Count', 
-            y='Company Name', 
-            orientation='h', 
-            height=380, # <--- Dieser Wert ist entscheidend für die Angleichung
-            title="Reviews per Company"
-            )
-        
-            # Design-Anpassung für saubere Kanten
-            fig_comp.update_layout(
-            margin=dict(l=0, r=0, t=40, b=0), # Ränder minimieren
-            yaxis={'categoryorder':'total ascending'} # Größte Balken oben
-            )
-        
-            st.plotly_chart(fig_comp, use_container_width=True)
+        st.markdown("#### 🏢 Company Distribution")
+        if 'company' in df_filtered.columns:
+            company_counts = df_filtered['company'].value_counts().reset_index()
+            company_counts.columns = ['Company Name', 'Review Count']
+            
+            # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
+            c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
+            with c1:
+                # Wir zeigen 10 Zeilen an
+                st.dataframe(company_counts.head(10), use_container_width=True, hide_index=True)
+            with c2:
+                # 'height=380' entspricht in etwa der Höhe von 10 Tabellenzeilen + Header
+                fig_comp = px.bar(
+                company_counts.head(10), # Nur die Top 10 zeigen, damit es zur Tabelle passt
+                x='Review Count', 
+                y='Company Name', 
+                orientation='h', 
+                height=380, # <--- Dieser Wert ist entscheidend für die Angleichung
+                title="Reviews per Company"
+                )
+            
+                # Design-Anpassung für saubere Kanten
+                fig_comp.update_layout(
+                margin=dict(l=0, r=0, t=40, b=0), # Ränder minimieren
+                yaxis={'categoryorder':'total ascending'} # Größte Balken oben
+                )
+            
+                st.plotly_chart(fig_comp, use_container_width=True)
      st.markdown("<br>", unsafe_allow_html=True)
 
        # --- 📅 Analysis Period & Timeline ---
