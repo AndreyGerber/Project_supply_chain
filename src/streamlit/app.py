@@ -4,7 +4,7 @@ import plotly.express as px
 from pathlib import Path
 
 # 1. Configuration
-st.set_page_config(page_title="Autodoc Review Dashboard", layout="wide")
+st.set_page_config(page_title="Copy of Autodoc Review Dashboard", layout="wide")
 
 # 2. Data Loading Function
 @st.cache_data
