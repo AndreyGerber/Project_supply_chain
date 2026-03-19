@@ -129,21 +129,23 @@ if not df.empty:
         st.write("##") # Erzeugt einen vertikalen Abstand (ca. 30-40px)
 
         # -KPIs (Total Reviews, Average Rating, Supplier Response Rate) ---
-        st.markdown("""
-        <style>
-        [data-testid="stMetric"] {display: flex; flex-direction: column; align-items: center; text-align: center; }
-        [data-testid="stMetricLabel"] >div {font-size: 22px !important; font-weight: bold !important; justify-content: center !important; text-align: center !important; }
-        [data-testid="stMetricValue"] >div {font-size: 25px !important; font-weight: bold !important; justify-content: center !important; text-align: center !important; }
-        </style>    """, unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown("""
+            <style>
+            [data-testid="stMetric"] {display: flex; flex-direction: column; align-items: center; text-align: center; }
+            [data-testid="stMetricLabel"] >div {font-size: 22px !important; font-weight: bold !important; justify-content: center !important; text-align: center !important; }
+            [data-testid="stMetricValue"] >div {font-size: 25px !important; font-weight: bold !important; justify-content: center !important; text-align: center !important; }
+            </style>    """, unsafe_allow_html=True)
 
-        avg_rating = df_filtered['rating'].mean()
-        response_rate = df_filtered['supplier_response'].notna().mean() * 100
+            avg_rating = df_filtered['rating'].mean()
+            response_rate = df_filtered['supplier_response'].notna().mean() * 100
 
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Total Reviews", len(df_filtered))
-        col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0")
-        col3.metric("Supplier Response Rate", f"{response_rate:.1f}%")
-        st.markdown("---")
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Total Reviews", len(df_filtered))
+            col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0")
+            col3.metric("Supplier Response Rate", f"{response_rate:.1f}%")
+            st.markdown("---")
+        st.markdown("<br>", unsafe_allow_html=True)
 
         # NOCHMAL ABSTAND VOR DER NÄCHSTEN GRAFIK ---
         st.markdown("<br><br>", unsafe_allow_html=True) # Erzeugt zwei Zeilenumbrüche
