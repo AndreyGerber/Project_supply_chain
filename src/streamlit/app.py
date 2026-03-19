@@ -169,10 +169,10 @@ if not df.empty:
             ccolor_discrete_sequence=px.colors.qualitative.Plotly    )
 
         fig_years.update_layout(
-        xaxis_type='category', 
-        plot_bgcolor='rgba(0,0,0,0)',
-        showlegend=True, # Aktiviert die interaktive Legende
-        legend=dict(title="Jahre (Klick zum Abwählen):", orientation="h", yanchor="bottom", y=-0.5, xanchor="center",  x=0.5  )   )
+            xaxis_type='category', 
+            plot_bgcolor='rgba(0,0,0,0)',
+            showlegend=True, # Aktiviert die interaktive Legende
+            legend=dict(title="Jahre (Klick zum Abwählen):", orientation="h", yanchor="bottom", y=-0.5, xanchor="center",  x=0.5  )   )
 
         fig_years.update_traces(textposition='outside')
 
