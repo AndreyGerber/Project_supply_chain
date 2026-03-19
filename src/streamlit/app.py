@@ -70,7 +70,7 @@ if not df.empty:
             color: #004085;
             font-size: 1.1em;
             border: 1px solid #b8daff;">
-            Our focus is on German companies in the “Auto Parts Store” category on Trustpilot. The dataset was scraped from Trustpilot. 
+            Our focus lies on German companies in the “Auto Parts Store” category on Trustpilot. The dataset was scraped from Trustpilot. 
             The initial analytics are presented below—enjoy exploring!
         </div>""", unsafe_allow_html=True)
     st.markdown("---")
