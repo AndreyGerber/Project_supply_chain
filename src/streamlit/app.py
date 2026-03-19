@@ -339,7 +339,7 @@ if not df.empty:
                     tickmode='linear',
                     dtick=1,
                     range=[min_year - 0.1, max_year + 0.1], # Achse fest bis heute
-                    title_font=dict(size=font_size_axis_title),
+                    title_font=dict(size=18),
                     tickfont=dict(size=font_size_ticks),
                     showgrid=True,
                     gridcolor='rgba(200, 200, 200, 0.3)'
