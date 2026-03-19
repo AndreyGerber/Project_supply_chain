@@ -177,7 +177,7 @@ if not df.empty:
             showlegend=True,
             
             # --- LEGENDE RECHTS ---
-            legend=dict(title="(click to select):",
+            legend=dict(title="(click to select):",orientation="v",    # Vertikal
                 yanchor="top", y=1, xanchor="left", 
                 x=1.02 # Platziert die Legende rechts außerhalb des Diagramms
             ),
@@ -210,9 +210,6 @@ if not df.empty:
 
 
 
-
-   
-
     # 6. Analysis Tabs
     tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis", "📍 Operations & Support"])
 
@@ -226,7 +223,8 @@ if not df.empty:
             title="Frequency of Ratings",
             labels={'rating': 'Star Rating', 'count': 'Number of Reviews'},
             nbins=5,
-            color_discrete_map=color_map
+            color_discrete_map=color_map,
+            height=600  # <--- HIER: Gesamthöhe des Diagramms einstellen
         )
         st.plotly_chart(fig, use_container_width=True)
 
