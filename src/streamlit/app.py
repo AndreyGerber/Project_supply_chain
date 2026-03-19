@@ -4,7 +4,7 @@ import plotly.express as px
 from pathlib import Path
 
 # 1. Configuration
-st.set_page_config(page_title="Copy of Auto parts store Review Dashboard", layout="wide")
+st.set_page_config(page_title="Auto parts store Review Dashboard", layout="wide")
 
 # 2. Data Loading Function
 @st.cache_data
@@ -44,7 +44,7 @@ if not df.empty:
     df_filtered = df[df['rating'].isin(selected_rating)]
 
     # 4. Main Header
-    st.title("📊 Copy of auto parts store Customer Insights Dashboard")
+    st.title("📊 Auto parts store Customer Insights Dashboard")
     st.markdown("""
         <div style="
             text-align: left; 
