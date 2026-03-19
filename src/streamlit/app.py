@@ -4,7 +4,7 @@ import plotly.express as px
 from pathlib import Path
 
 # 1. Configuration
-st.set_page_config(page_title="Copy of Autodoc Review Dashboard", layout="wide")
+st.set_page_config(page_title="Copy of Auto parts store Review Dashboard", layout="wide")
 
 # 2. Data Loading Function
 @st.cache_data
@@ -40,7 +40,7 @@ if not df.empty:
     df_filtered = df[df['rating'].isin(selected_rating)]
 
     # 4. Main Header
-    st.title("📊 Copy of Autodoc Customer Insights Dashboard")
+    st.title("📊 Copy of auto parts store Customer Insights Dashboard")
     st.markdown("This dashboard provides a comprehensive analysis of customer feedback and supplier performance.")
     st.markdown("---")
 
@@ -88,7 +88,7 @@ if not df.empty:
         st.success(f"This dataset covers reviews from **{first_date.strftime('%d.%m.%Y')}** to **{last_date.strftime('%d.%m.%Y')}**.")
 
         # 1. Die Zeitachse (Linie)
-        timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['First comment', 'last comment'], 'y': [0, 0]})
+        timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['first comment', 'last comment'], 'y': [0, 0]})
         fig_timeline = px.line(timeline_df, x='date', y='y', markers=True, text='label')
         fig_timeline.update_traces(line_color='#2E7D32', marker=dict(size=12, symbol='diamond'), textposition='top center')
         fig_timeline.update_layout(height=120, margin=dict(l=20, r=20, t=30, b=20), xaxis=dict(showgrid=False, title=""),
@@ -158,7 +158,7 @@ if not df.empty:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    with tab2:
+with tab2:
         st.subheader("💬 Sentiment & Keyword Discovery")
         st.info("Search through individual comments or use the quick-filters below to find specific topics.")
         
@@ -206,7 +206,7 @@ if not df.empty:
     ]
 
     # Filtern der Stopwords
-    top_words = words[~words.isin(stop_words)].value_counts().head(10)
+    top_words = words[~words.isin(stop_words)].value_counts().head(20) # Top 20 Keywords
 
     if not top_words.empty:
         # Plotly Bar Chart (Horizontal)
