@@ -128,12 +128,8 @@ if not df.empty:
         # -KPIs (Total Reviews, Average Rating, Supplier Response Rate) ---
         st.markdown("""
         <style>
-        /* Ändert die Beschriftung (z.B. 'Total Reviews') */ [data-testid="stMetricLabel"] {
-            font-size: 22px !important;    font-weight: bold !important;    }
-        /* Ändert den Wert (z.B. '4.50 / 5.0') */
-        [data-testid="stMetricValue"] {
-            font-size: 45px !important;    font-weight: bold !important;    color: #2E7D32 !important;
-        }
+        [data-testid="stMetricLabel"] {font-size: 22px !important;bfont-weight: bold !important;    }
+        [data-testid="stMetricValue"] {font-size: 25px !important; font-weight: bold !important;    }
         </style>    """, unsafe_allow_html=True)
 
         avg_rating = df_filtered['rating'].mean()
