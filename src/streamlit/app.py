@@ -409,9 +409,9 @@ if not df.empty:
             border: 1px solid #b8daff;">
             Next Steps will be:
         </div>  
-            Machine Learning (Regression) → Predicting the number of stars
-            Named Entity Recognition (NER) / Information Extraction → Identifying important entities
-            Unsupervised Topic Modeling → Extracting common issues from comments
+            Machine Learning (Regression) → Predicting the number of stars <br><br>
+            Named Entity Recognition (NER) / Information Extraction → Identifying important entities <br><br>
+            Unsupervised Topic Modeling → Extracting common issues from comments <br><br>
             Information Extraction / Text Matching → Generating automated supplier responses
         </div>
     """, unsafe_allow_html=True)
