@@ -274,7 +274,7 @@ if not df.empty:
         fig_trend = px.line(
             df_trend, 
             x='Year', 
-            y='Rating', 
+            y='rating', 
             color='company',
             markers=True,
             height=600,
@@ -288,15 +288,15 @@ if not df.empty:
                 type='linear',
                 dtick=1,
                 tickmode='linear',
-                title_font=dict(size=20),
-                tickfont=dict(size=16),
+                title_font=dict(size=18),
+                tickfont=dict(size=14),
                 showgrid=True,
                 gridcolor='LightGray'
             ),
-            yaxis=dict(
+            yaxis=dict(title="Average Rating",
                 range=[1, 5.1], 
-                title_font=dict(size=20),
-                tickfont=dict(size=16),
+                title_font=dict(size=18),
+                tickfont=dict(size=14),
                 showgrid=True,
                 gridcolor='LightGray'
             ),
