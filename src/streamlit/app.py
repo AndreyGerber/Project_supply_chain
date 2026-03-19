@@ -104,7 +104,7 @@ if not df.empty:
         # 1. Die Zeitachse (als Linie in Form eines kleinen Diagramms)
         timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['first comment', 'last comment'], 'y': [0, 0]})
         fig_timeline = px.line(timeline_df, x='date', y='y', markers=True, text='label')
-        fig_timeline.update_traces(line_color='#2E7D32', line_width=4, marker=dict(size=12, symbol='diamond'), textposition='top center', textfont=dict(size=16, color='#2E7D32')
+        fig_timeline.update_traces(line_color='#2E7D32', line_width=4, marker=dict(size=12, symbol='diamond'), textposition='top center', textfont=dict(size=16, color='#2E7D32'))
         fig_timeline.update_layout(height=120, margin=dict(l=20, r=20, t=30, b=20), xaxis=dict(showgrid=False, title=""),
                                    yaxis=dict(showgrid=False, showticklabels=False, title=""), plot_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
