@@ -46,9 +46,9 @@ if not df.empty:
     # 4. Main Header
     st.title("📊 Auto parts store Customer Insights Dashboard")
 
-    st.markdown("---")
-    st.markdown("---")
-    
+    st.markdown("")
+    st.markdown("")
+
     st.markdown("""
         <div style="
             text-align: left; 
