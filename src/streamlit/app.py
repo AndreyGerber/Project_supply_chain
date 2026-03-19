@@ -278,7 +278,7 @@ if not df.empty:
         st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-        st.subheader("📈 Durchschnittsbewertung pro Unternehmen über die Jahre")
+        st.subheader("📈 Average rating per company over the years")
 
         # --- 1. ZENTRALE EINSTELLUNGEN: SCHRIFTGRÖSSEN & LAYOUT ---
         font_size_axis_title = 20  # Größe der Achsen-Beschriftungen (X & Y)
@@ -298,8 +298,8 @@ if not df.empty:
 
         # Filter-Slider
         min_reviews = st.slider(
-            "Mindestanzahl an Kommentaren pro Jahr & Unternehmen:", 
-            min_value=1, max_value=20, value=5
+            "min number of comments per year:", 
+            min_value=5, max_value=15, value=7
         )
 
         # Gruppierung
