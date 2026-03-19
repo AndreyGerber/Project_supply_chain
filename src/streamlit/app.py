@@ -371,7 +371,7 @@ if not df.empty:
     # 2. Zentrierter Ausblick-Satz
     st.markdown("""
         <div style="
-            text-align: center; 
+            text-align: left; 
             padding: 15px; 
             background-color: #e8f4f8; 
             border-radius: 10px; 
