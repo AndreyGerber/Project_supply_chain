@@ -151,6 +151,7 @@ if not df.empty:
         st.markdown("<br><br>", unsafe_allow_html=True) # Erzeugt zwei Zeilenumbrüche
 
         # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN, Kommentare über das Jahr ---
+    with st.container(border=True): 
         st.markdown("#### 📊 Review Volume by Year")
         
         # Daten vorbereiten (Jahre extrahieren und zählen)
@@ -176,24 +177,20 @@ if not df.empty:
             showlegend=True,
             
             # --- LEGENDE RECHTS ---
-            legend=dict(
-                title="Jahre (click to select):",
-                orientation="v",    # Vertikal
-                yanchor="top",
-                y=1,
-                xanchor="left",
-                x=1.02              # Platziert die Legende rechts außerhalb des Diagramms
+            legend=dict(title="(click to select):",orientation="v",    # Vertikal
+                yanchor="top", y=1, xanchor="left", 
+                x=1.02 # Platziert die Legende rechts außerhalb des Diagramms
             ),
 
             # --- SCHRIFTGRÖSSEN ---
             font=dict(size=14),     # Allgemeine Schriftgröße (optional)
             xaxis=dict(
-                title_font=dict(size=18), # Größe der "Year" Beschriftung
+                title_font=dict(size=20), # Größe der "Year" Beschriftung
                 tickfont=dict(size=14)    # Größe der Jahreszahlen (2012, 2014...)
             ),
             yaxis=dict(
-                title_font=dict(size=18), # Größe der "Number of Reviews" Beschriftung
-                tickfont=dict(size=14),   # Größe der Zahlen an der Y-Achse
+                title_font=dict(size=20), # Größe der "Number of Reviews" Beschriftung
+                tickfont=dict(size=16),   # Größe der Zahlen an der Y-Achse
                 showgrid=True, 
                 gridcolor='LightGray'
             ),
@@ -203,6 +200,7 @@ if not df.empty:
         fig_years.update_traces(textposition='outside')
 
         st.plotly_chart(fig_years, use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True)
         # --- ENDE DES ABSCHNITTS Review Volume by Year---
 
     st.markdown("---")
