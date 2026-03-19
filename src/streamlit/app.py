@@ -175,12 +175,12 @@ if not df.empty:
             plot_bgcolor='rgba(0,0,0,0)',
             showlegend=True, # Aktiviert die interaktive Legende
             legend=dict(
-                title="Jahre (Klick zum Abwählen):",
+                title="Jahre (click to selcet):",
                 orientation="h",  # Horizontal unter dem Chart (besser bei vielen Jahren)
-                yanchor="bottom",
-                y=-0.5,           # Position unter der X-Achse
-                xanchor="center",
-                x=0.5
+                yanchor="right",
+                #y=-0.5,           # Position unter der X-Achse
+                #xanchor="center",
+                #x=0.5
             )
         )
 
