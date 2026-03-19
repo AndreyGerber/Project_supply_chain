@@ -271,7 +271,8 @@ if not df.empty:
             font=dict(size=14),     # Allgemeine Schriftgröße (optional)
             xaxis=dict(
                 title_font=dict(size=20), # Größe der "Year" Beschriftung
-                tickfont=dict(size=14)    # Größe der Jahreszahlen (2012, 2014...)
+                tickfont=dict(size=14)    # Größe der Jahreszahlen (2012, 2014...),
+                title="Star Rating"
             ),
             yaxis=dict(
                 title_font=dict(size=20), # Größe der "Number of Reviews" Beschriftung
