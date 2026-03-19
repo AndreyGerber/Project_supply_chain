@@ -278,72 +278,51 @@ if not df.empty:
         st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-        st.header("📍 Geographic & Support Performance")
+        st.subheader("📈 Durchschnittsbewertung pro Unternehmen über die Jahre")
 
-        # --- Parameter für die Diagrammhöhe ---
-        chart_height = 500
+        # 1. Vorbereitung: Jahr extrahieren
+        df_time = df_filtered.copy()
+        df_time['year'] = df_time['date'].dt.year
 
-        # --- Aufteilung 70% zu 30% ---
-        col_a, col_b = st.columns([7, 3]) 
-    
-        with col_a:
-            # 1. Daten für Regionen (Top 9 + Others)
-            loc_counts = df_filtered['location'].value_counts()
-            top_9 = loc_counts.head(9)
-            others_count = loc_counts.iloc[9:].sum()
-        
-            if others_count > 0:
-                others_series = pd.Series([others_count], index=['Others'])
-                final_loc_data = pd.concat([top_9, others_series])
-            else:
-                final_loc_data = top_9
+        # 2. Filter-Parameter in der UI (Slider)
+        min_reviews = st.slider(
+            "Mindestanzahl an Kommentaren pro Jahr & Unternehmen:", 
+            min_value=1, max_value=20, value=5
+        )
 
-            # 2. Donut-Diagramm
-            fig_loc = px.pie(
-                values=final_loc_data.values, 
-                names=final_loc_data.index, 
-                title="Top 9 Regions & Others", 
-                hole=0.4,
-                color_discrete_sequence=px.colors.qualitative.Pastel,
-                height=chart_height  # <--- Dynamische Höhe
-            )
-        
-            # Legende rechts positionieren wie im Screenshot
-            fig_loc.update_layout(
-                legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.05),
-                margin=dict(t=50, b=50, l=20, r=100) # Platz für Legende schaffen
-            )
-            fig_loc.update_traces(textinfo='percent')
-            
-            st.plotly_chart(fig_loc, use_container_width=True)
+        # 3. Gruppierung: Durchschnitts-Rating und Anzahl pro Jahr/Firma
+        df_grouped = df_time.groupby(['year', 'company']).agg(
+            avg_rating=('rating', 'mean'),
+            review_count=('rating', 'count')
+        ).reset_index()
 
-        with col_b:
-            # 3. Response Status vorbereiten
-            df_filtered['has_response'] = df_filtered['supplier_response'].notna()
-            resp_counts = df_filtered['has_response'].value_counts().rename({True: 'Responded', False: 'Pending'})
-            
-            # 4. Balkendiagramm
-            fig_resp = px.bar(
-                x=resp_counts.index, 
-                y=resp_counts.values, 
-                title="Response Status", 
-                color=resp_counts.index,
-                # Farben exakt wie im Bild
-                color_discrete_map={'Responded': '#2E6AD1', 'Pending': '#89C6FF'},
-                height=chart_height # <--- Dynamische Höhe
+        # 4. Filter anwenden
+        df_trend = df_grouped[df_grouped['review_count'] >= min_reviews]
+
+        if not df_trend.empty:
+            # 5. Liniendiagramm erstellen
+            fig_trend = px.line(
+                df_trend,
+                x="year",
+                y="avg_rating",
+                color="company",
+                markers=True,
+                title=f"Trends (Unternehmen mit mind. {min_reviews} Reviews/Jahr)",
+                labels={'year': 'Jahr', 'avg_rating': 'Ø Bewertung', 'company': 'Unternehmen'},
+                hover_data={'review_count': True} # Zeigt Anzahl der Reviews im Tooltip
             )
-        
-            fig_resp.update_layout(
-                showlegend=False,
-                xaxis_title=None,
-                yaxis_title="Anzahl",
-                margin=dict(t=50, b=50, l=20, r=20)
+
+            # Design-Anpassungen
+            fig_trend.update_layout(
+                yaxis=dict(range=[1, 5.1], dtick=1), # Y-Achse von 1 bis 5 fixieren
+                xaxis=dict(dtick=1),                 # Nur ganze Jahre anzeigen
+                height=600,
+                hovermode="x unified"
             )
-        
-            # Zahlen über den Balken anzeigen
-            fig_resp.update_traces(texttemplate='%{y}', textposition='outside')
-            
-            st.plotly_chart(fig_resp, use_container_width=True)
+
+            st.plotly_chart(fig_trend, use_container_width=True)
+        else:
+            st.warning("Keine Daten gefunden, die den Filterkriterien entsprechen. Versuche, den Slider zu verringern.")
 
     with tab3:
         st.header("📍 Geographic & Support Performance")
