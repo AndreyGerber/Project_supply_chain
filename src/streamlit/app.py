@@ -253,7 +253,7 @@ if not df.empty:
         st.markdown("#### 📈 Average Rating Trends by Company")
 
         # --- NEU: Parameter für Mindestanzahl an Kommentaren ---
-        min_reviews = st.slider("Mindestanzahl an Reviews pro Jahr/Firma:", 1, 50, 10)
+        min_reviews = st.slider("choose the number of comments per year:", 5, 25, 10)
 
         # 1. Daten vorbereiten
         df_filtered['date'] = pd.to_datetime(df_filtered['date'])
