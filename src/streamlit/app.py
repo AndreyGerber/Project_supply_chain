@@ -147,8 +147,7 @@ if not df.empty:
             st.markdown("---")
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # NOCHMAL ABSTAND VOR DER NÄCHSTEN GRAFIK ---
-        st.markdown("<br><br>", unsafe_allow_html=True) # Erzeugt zwei Zeilenumbrüche
+        
 
         # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN ---
         st.markdown("#### 📊 Review Volume by Year")
