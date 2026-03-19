@@ -275,7 +275,7 @@ if not df.empty:
                 
             ),
             yaxis=dict(
-                title_font=dict(size=20), # Größe der "Number of Reviews" Beschriftung
+                title_font=dict(size=24), # Größe der "Number of Reviews" Beschriftung
                 tickfont=dict(size=14),   # Größe der Zahlen an der Y-Achse
                 showgrid=True, 
                 gridcolor='LightGray',
