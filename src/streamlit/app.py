@@ -253,7 +253,7 @@ if not df.empty:
         st.header("📍 Geographic & Support Performance")
 
         # --- Parameter für die Diagrammhöhe ---
-        chart_height = st.slider("Diagrammhöhe anpassen (Pixel):", 300, 1000, 500)
+        chart_height = 500
 
         # --- Aufteilung 70% zu 30% ---
         col_a, col_b = st.columns([7, 3]) 
