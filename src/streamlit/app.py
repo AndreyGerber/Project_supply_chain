@@ -278,7 +278,8 @@ if not df.empty:
                 title_font=dict(size=20), # Größe der "Number of Reviews" Beschriftung
                 tickfont=dict(size=14),   # Größe der Zahlen an der Y-Achse
                 showgrid=True, 
-                gridcolor='LightGray'
+                gridcolor='LightGray',
+                title = "Count of Star Ratings"
             )
         )
 
