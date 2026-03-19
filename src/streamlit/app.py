@@ -280,28 +280,29 @@ if not df.empty:
     with tab2:
         st.subheader("📈 Durchschnittsbewertung pro Unternehmen über die Jahre")
 
-        # --- 1. EINSTELLUNGEN: SCHRIFTGRÖSSEN ---
-        font_size_axis_title = 18
-        font_size_ticks = 14
-        font_size_legend = 14
-        chart_height = 650
+        # --- 1. ZENTRALE EINSTELLUNGEN: SCHRIFTGRÖSSEN & LAYOUT ---
+        font_size_axis_title = 20  # Größe der Achsen-Beschriftungen (X & Y)
+        font_size_ticks = 14       # Größe der Zahlen an den Achsen
+        font_size_legend = 14      # Größe der Firmennamen in der Legende
+        font_size_title = 22       # Größe des Diagramm-Titels
+        chart_height = 600
 
         # --- 2. DATEN VORBEREITEN ---
         df_time = df_filtered.copy()
         df_time['year'] = df_time['date'].dt.year
 
-        # Zeitspanne festlegen (Erster Kommentar bis heute)
+        # Zeitspanne: Erster Kommentar im Datensatz bis HEUTE
         min_year = int(df_time['year'].min())
         max_year = pd.Timestamp.now().year
         all_years = list(range(min_year, max_year + 1))
 
-        # Slider für Filterung
+        # Filter-Slider
         min_reviews = st.slider(
             "Mindestanzahl an Kommentaren pro Jahr & Unternehmen:", 
             min_value=1, max_value=20, value=5
         )
 
-        # Gruppierung: Durchschnitt & Anzahl
+        # Gruppierung
         df_grouped = df_time.groupby(['year', 'company']).agg(
             avg_rating=('rating', 'mean'),
             review_count=('rating', 'count')
@@ -310,60 +311,65 @@ if not df.empty:
         # Filter anwenden
         df_trend = df_grouped[df_grouped['review_count'] >= min_reviews].copy()
 
-        # --- 3. LÜCKEN FÜLLEN (Alle Jahre für jede Company sicherstellen) ---
+        # --- 3. LÜCKEN FÜLLEN (Stellt sicher, dass jedes Jahr auf der X-Achse existiert) ---
         companies = df_trend['company'].unique()
-        
-        # Wir erstellen ein Grid aus allen Jahren und allen Companies
-        mux = pd.MultiIndex.from_product([all_years, companies], names=['year', 'company'])
-        df_trend = df_trend.set_index(['year', 'company']).reindex(mux).reset_index()
+        if len(companies) > 0:
+            mux = pd.MultiIndex.from_product([all_years, companies], names=['year', 'company'])
+            df_trend = df_trend.set_index(['year', 'company']).reindex(mux).reset_index()
 
-        if not df_trend.empty:
-            # 4. DIAGRAMM ERSTELLEN
+            # --- 4. DIAGRAMM ERSTELLEN ---
             fig_trend = px.line(
                 df_trend,
                 x="year",
                 y="avg_rating",
                 color="company",
                 markers=True,
-                title=f"Trends ({min_year} - {max_year}) | Mind. {min_reviews} Reviews/Jahr",
-                labels={'year': 'Jahr', 'avg_rating': 'Ø Bewertung', 'company': 'Firma'},
+                title=f"Entwicklung der Kundenzufriedenheit ({min_year} - {max_year})",
+                labels={'year': 'Jahr', 'avg_rating': 'Ø Sterne', 'company': 'Unternehmen'},
                 hover_data={'review_count': True},
-                height=chart_height
+                height=chart_height,
+                color_discrete_sequence=px.colors.qualitative.Safe # Gut unterscheidbare Farben
             )
 
-            # --- 5. ACHSEN & SCHRIFTGRÖSSEN ANPASSEN ---
+            # --- 5. FINETUNING DER OPTIK & SCHRIFTGRÖSSEN ---
             fig_trend.update_layout(
+                title_font=dict(size=font_size_title),
                 xaxis=dict(
                     type='linear',
                     tickmode='linear',
                     dtick=1,
-                    range=[min_year - 0.2, max_year + 0.2], # Kleiner Puffer links/rechts
+                    range=[min_year - 0.1, max_year + 0.1], # Achse fest bis heute
                     title_font=dict(size=font_size_axis_title),
-                    tickfont=dict(size=font_size_ticks)
+                    tickfont=dict(size=font_size_ticks),
+                    showgrid=True,
+                    gridcolor='rgba(200, 200, 200, 0.3)'
                 ),
                 yaxis=dict(
-                    range=[1, 5.1], 
+                    range=[0.8, 5.2], # Skala von 1 bis 5 (mit etwas Puffer)
                     dtick=1,
                     title_font=dict(size=font_size_axis_title),
                     tickfont=dict(size=font_size_ticks),
-                    title="Durchschnitts-Sterne"
+                    title="Durchschnittliche Sterne",
+                    showgrid=True
                 ),
                 legend=dict(
                     font=dict(size=font_size_legend),
-                    orientation="h", # Legende horizontal unter dem Chart
-                    yanchor="bottom", y=-0.3, 
-                    xanchor="center", x=0.5
+                    orientation="v",         # Vertikal
+                    yanchor="top", y=1,      # Oben ausrichten
+                    xanchor="left", x=1.02,  # Rechts neben dem Chart positionieren
+                    title_font=dict(size=font_size_legend + 2)
                 ),
-                margin=dict(l=50, r=50, t=80, b=100),
-                hovermode="x unified"
+                margin=dict(l=60, r=150, t=80, b=60), # Platz rechts für Legende reserviert
+                hovermode="x unified",
+                plot_bgcolor='white'
             )
 
-            # Linien unterbrechen, wenn Jahre fehlen (statt auf 0 zu fallen)
-            fig_trend.update_traces(connectgaps=False)
+            # WICHTIG: Linien nicht verbinden, wenn ein Jahr fehlt (kein "Drop to Zero")
+            fig_trend.update_traces(connectgaps=False, line=dict(width=3))
 
             st.plotly_chart(fig_trend, use_container_width=True)
         else:
-            st.warning("Keine Daten für diese Filterkombination verfügbar.")
+            st.info("Erhöhe den Filter oder wähle mehr Ratings aus, um Daten zu sehen.")
 
     with tab3:
         st.header("📍 Geographic & Support Performance")
