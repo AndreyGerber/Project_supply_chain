@@ -250,34 +250,43 @@ if not df.empty:
         st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-        # --- LINIENDIAGRAMM: DURCHSCHNITTS-RATING PRO JAHR ---
         st.markdown("#### 📈 Average Rating Trends by Company")
 
-        # 1. Daten vorbereiten (Datum konvertieren & Jahr extrahieren)
+        # --- NEU: Parameter für Mindestanzahl an Kommentaren ---
+        min_reviews = st.slider("Mindestanzahl an Reviews pro Jahr/Firma:", 1, 50, 10)
+
+        # 1. Daten vorbereiten
         df_filtered['date'] = pd.to_datetime(df_filtered['date'])
         df_filtered['Year'] = df_filtered['date'].dt.year
 
-        # 2. Gruppieren: Durchschnittliches Rating pro Jahr und Firma
-        df_trend = df_filtered.groupby(['Year', 'company'])['rating'].mean().reset_index()
-        # 2. Die Daten explizit nach Jahr sortieren
+        # 2. Gruppieren: Mittelwert UND Anzahl berechnen
+        df_trend = df_filtered.groupby(['Year', 'company'])['rating'].agg(['mean', 'count']).reset_index()
+        df_trend.columns = ['Year', 'company', 'rating', 'review_count']
+
+        # --- NEU: Filtern basierend auf dem Parameter ---
+        df_trend = df_trend[df_trend['review_count'] >= min_reviews]
+
+        # 3. Sortieren für korrekte Linienführung
         df_trend['Year'] = df_trend['Year'].astype(int)
         df_trend = df_trend.sort_values(by='Year')
 
-        # 3. Das Diagramm erstellen
+        # 4. Das Diagramm erstellen
         fig_trend = px.line(
             df_trend, 
             x='Year', 
             y='rating', 
             color='company',
             markers=True,
-            height=600
+            height=600,
+            # Zeige im Hover zusätzlich die Anzahl der Reviews an
+            hover_data={'review_count': True, 'Year': False, 'rating': ':.2f'}
         )
 
-        # 4. Die X-Achse auf 'linear' stellen, damit die Abstände stimmen
+        # 5. Layout-Einstellungen (wie gehabt)
         fig_trend.update_layout(
             xaxis=dict(
-                type='linear',      # Sorgt für die korrekte mathematische Reihenfolge
-                dtick=1,            # Verhindert Kommazahlen wie 2014.5
+                type='linear',
+                dtick=1,
                 tickmode='linear',
                 title_font=dict(size=18),
                 tickfont=dict(size=14),
@@ -295,7 +304,6 @@ if not df.empty:
             legend=dict(x=1.02, y=1),
             margin=dict(r=150)
         )
-
 
         st.plotly_chart(fig_trend, use_container_width=True)
 
