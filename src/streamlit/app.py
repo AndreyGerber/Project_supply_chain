@@ -150,7 +150,7 @@ if not df.empty:
         # NOCHMAL ABSTAND VOR DER NÄCHSTEN GRAFIK ---
         st.markdown("<br><br>", unsafe_allow_html=True) # Erzeugt zwei Zeilenumbrüche
 
-        # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN ---
+        # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN, Kommentare über das Jahr ---
         st.markdown("#### 📊 Review Volume by Year")
         
         # Daten vorbereiten (Jahre extrahieren und zählen)
@@ -164,16 +164,25 @@ if not df.empty:
             x='Year', 
             y='Number of Reviews',
             text='Number of Reviews',
-            color='Number of Reviews',
-            color_continuous_scale='Greens'
+            color='Year', # 'Year' statt 'Number of Reviews' für Einzelsteuerung
+            color_discrete_sequence=px.colors.qualitative.Plotly # Oder eine eigene Farbliste
         )
 
         fig_years.update_layout(
             xaxis_type='category', 
             plot_bgcolor='rgba(0,0,0,0)',
-            showlegend=False,
-            coloraxis_showscale=False
+            showlegend=True, # Legende einschalten
+            legend_title_text='Jahre wählen:',
+            legend=dict(
+                orientation="h", # Horizontal unter oder über dem Chart
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
         )
+
+        fig_years.update_traces(textposition='outside')
 
         st.plotly_chart(fig_years, use_container_width=True)
         # --- ENDE DES NEUEN ABSCHNITTS ---
