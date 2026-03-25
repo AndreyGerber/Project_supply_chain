@@ -19,7 +19,7 @@ def load_data():
     df = df.dropna(subset=['date'])
     
     if 'rating_svg' in df.columns:
-        df['rating'] = df['rating_svg'].str.extract('(\d+)').astype(float).fillna(0).astype(int)
+        df['rating'] = df['rating_svg']#.str.extract('(\d+)').astype(float).fillna(0).astype(int)
     
     columns_to_drop = ['rating_numeric', 'rating_svg']
     df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
