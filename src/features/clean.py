@@ -66,7 +66,56 @@ def clean_text_advanced(text):
     words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
     return " ".join(words)
 
+# vergleichbare Kategorien erstellen
+issue_dict = {
+    "Delivery Delay": [
+        # Englisch
+        "delay", "late", "not delivered", "delivery time",
+        # Deutsch
+        "verspätet", "lieferung", "lieferzeit", "zu spät",
+        # Spanisch
+        "retraso", "tarde", "entrega", "envío tarde"
+    ],
+    
+    "Damaged Product": [
+        "broken", "damage", "damaged",
+        "kaputt", "beschädigt", "defekt",
+        "roto", "dañado"
+    ],
+    
+    "Wrong Item": [
+        "wrong item", "incorrect", "not what i ordered",
+        "falsch", "falsches teil",
+        "incorrecto", "equivocado"
+    ],
+    
+    "Refund Issue": [
+        "refund", "money back", "return problem",
+        "rückerstattung", "geld zurück",
+        "reembolso", "devolución"
+    ],
+    
+    "Customer Service": [
+        "service", "support", "no response",
+        "kundenservice", "keine antwort",
+        "atención", "sin respuesta"
+    ]
+}
 
+def categorize_issues(text):
+    if pd.isna(text):
+        return []
+    
+    text = text.lower()
+    found_categories = []
+    
+    for category, keywords in issue_dict.items():
+        for kw in keywords:
+            if re.search(rf"\b{kw}\b", text):
+                found_categories.append(category)
+                break  # verhindert doppelte Kategorie
+    
+    return found_categories if found_categories else ["Other"]
 
 #neue Spalte rating
 #df["rating"] = df["rating_svg"].apply(extract_numeric_rating)
@@ -86,7 +135,8 @@ df = df.drop_duplicates()
 # neue spalte review_text_clean_advanced
 df["review_text_clean_advanced"] = df["review_text_clean"].apply(clean_text_advanced)
 
-
+#neue Spalte issue_category
+df['issue_categories'] = df['review_text'].apply(categorize_issues)
 
 #speichern unter -> wichtig zum später aufrufen
 df.to_csv(BASE_CLEAN + "reviews_clean_test.csv", index=False)
