@@ -81,13 +81,13 @@ if not df.empty:
             To collect customer feedback data, an automated web scraping pipeline was developed.
             Due to dynamically loaded content, a browser-based approach using Selenium was implemented to ensure reliable extraction of all relevant elements, including hidden or asynchronously loaded data.
             The scraper iterates across multiple companies and pages, extracting the following attributes for each review:
-            •	review_text: customer comment 
-            •	rating_svg: star rating 
-            •	date: timestamp of the review 
-            •	location: customer country 
-            •	supplier_response: company reply 
-            •	verified: review verification status 
-            •	company: retailer identifier
+            review_text: customer comment 
+            rating_svg: star rating 
+            date: timestamp of the review 
+            location: customer country 
+            supplier_response: company reply 
+            verified: review verification status 
+            company: retailer identifier
             <br><br>
             The initial analytics are presented below—enjoy exploring!
         </div>""", unsafe_allow_html=True)
