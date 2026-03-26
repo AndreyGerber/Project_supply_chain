@@ -1,5 +1,6 @@
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+from collections import Counter
 import nltk
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -30,8 +31,6 @@ def extract_numeric_rating(svg):
     number = svg.split('-')[1].split('.')[0]
     return number
     
-# bereinigt supplier_response    
-#ToDo
 
 # bereinigt rewiew_text
 def clean_text(text):
@@ -66,39 +65,130 @@ def clean_text_advanced(text):
     words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
     return " ".join(words)
 
+# Company identifiers were standardized by separating brand names and country-specific 
+# domains, enabling more granular analysis across geographic markets.
+# trennt die company in company und companie_site
+def split_company(company):
+    if pd.isna(company):
+        return pd.Series([None, None])
+    
+    parts = company.split("_")
+    
+    if len(parts) == 2:
+        return pd.Series([parts[0], parts[1]])
+    else:
+        return pd.Series([company, None])
+    
+
+# The keyword dictionary is in multiple languages and is including semantically 
+# related expressions. This helps to classify and capture a broader range of customer issues across 
+# international markets.
 # vergleichbare Kategorien erstellen
 issue_dict = {
+
     "Delivery Delay": [
-        # Englisch
-        "delay", "late", "not delivered", "delivery time",
-        # Deutsch
-        "verspätet", "lieferung", "lieferzeit", "zu spät",
-        # Spanisch
-        "retraso", "tarde", "entrega", "envío tarde"
+        # EN
+        "delay", "late", "not delivered", "delivery time", "shipping delay", "slow delivery",
+        # DE
+        "verspätet", "lieferung", "lieferzeit", "zu spät", "lange gewartet",
+        # ES
+        "retraso", "tarde", "entrega", "envío tarde", "demora",
+        # FR
+        "retard", "livraison tardive", "délai", "expédition lente",
+        # IT
+        "ritardo", "consegna in ritardo", "spedizione lenta", "tempo di consegna",
+        # NL (Belgien)
+        "vertraging", "late levering", "trage verzending"
     ],
-    
+
     "Damaged Product": [
-        "broken", "damage", "damaged",
-        "kaputt", "beschädigt", "defekt",
-        "roto", "dañado"
+        # EN
+        "broken", "damage", "damaged", "defective", "scratched", "faulty",
+        # DE
+        "kaputt", "beschädigt", "defekt", "zerkratzt",
+        # ES
+        "roto", "dañado", "defectuoso",
+        # FR
+        "cassé", "endommagé", "défectueux",
+        # IT
+        "rotto", "danneggiato", "difettoso",
+        # NL
+        "kapot", "beschadigd", "defect"
     ],
-    
+
     "Wrong Item": [
-        "wrong item", "incorrect", "not what i ordered",
-        "falsch", "falsches teil",
-        "incorrecto", "equivocado"
+        # EN
+        "wrong item", "incorrect", "not what i ordered", "different product",
+        # DE
+        "falsch", "falsches teil", "nicht bestellt",
+        # ES
+        "incorrecto", "equivocado", "producto incorrecto",
+        # FR
+        "mauvais produit", "incorrect", "pas commandé",
+        # IT
+        "prodotto sbagliato", "errato", "non ordinato",
+        # NL
+        "verkeerd product", "fout", "niet besteld"
     ],
-    
+
     "Refund Issue": [
-        "refund", "money back", "return problem",
-        "rückerstattung", "geld zurück",
-        "reembolso", "devolución"
+        # EN
+        "refund", "money back", "return problem", "no refund", "refund delay",
+        # DE
+        "rückerstattung", "geld zurück", "keine rückzahlung",
+        # ES
+        "reembolso", "devolución", "sin reembolso",
+        # FR
+        "remboursement", "pas de remboursement",
+        # IT
+        "rimborso", "nessun rimborso",
+        # NL
+        "terugbetaling", "geen terugbetaling"
     ],
-    
+
     "Customer Service": [
-        "service", "support", "no response",
-        "kundenservice", "keine antwort",
-        "atención", "sin respuesta"
+        # EN
+        "service", "support", "no response", "no reply", "unhelpful", "bad service",
+        # DE
+        "kundenservice", "keine antwort", "schlechter service",
+        # ES
+        "atención", "sin respuesta", "mal servicio",
+        # FR
+        "service client", "aucune réponse", "mauvais service",
+        # IT
+        "servizio clienti", "nessuna risposta", "servizio scarso",
+        # NL
+        "klantenservice", "geen antwoord", "slechte service"
+    ],
+
+    "Delivery Issue": [
+        # EN
+        "delivery problem", "shipping issue", "package lost", "missing package",
+        # DE
+        "lieferproblem", "paket verloren", "nicht angekommen",
+        # ES
+        "problema entrega", "paquete perdido",
+        # FR
+        "problème livraison", "colis perdu",
+        # IT
+        "problema consegna", "pacco perso",
+        # NL
+        "leveringsprobleem", "pakket verloren"
+    ],
+
+    "Product Availability": [
+        # EN
+        "out of stock", "not available", "unavailable",
+        # DE
+        "nicht verfügbar", "ausverkauft",
+        # ES
+        "no disponible", "agotado",
+        # FR
+        "indisponible", "en rupture",
+        # IT
+        "non disponibile", "esaurito",
+        # NL
+        "niet beschikbaar", "uitverkocht"
     ]
 }
 
@@ -117,6 +207,22 @@ def categorize_issues(text):
     
     return found_categories if found_categories else ["Other"]
 
+# A weighted keyword approach is used to capture not only the presence but also 
+# the intensity of specific supply chain issues within customer reviews.
+# Limitation: Keyword frequency does not always reflect true importance, 
+# as repetition may be stylistic rather than indicative of severity.
+# gewichtetes Vorkommen von Kategorien in einem Text
+def categorize_issues_weighted(text):
+    text = text.lower()
+    matches = []
+
+    for category, keywords in issue_dict.items():
+        for kw in keywords:
+            if re.search(rf"\b{kw}\b", text):
+                matches.append(category)
+
+    return Counter(matches)
+
 #neue Spalte rating
 #df["rating"] = df["rating_svg"].apply(extract_numeric_rating)
 
@@ -132,11 +238,14 @@ df["review_text_clean"] = df["review_text"].apply(clean_text)
 #weg mit Duplikaten
 df = df.drop_duplicates()
 
+# teilen der company Spalte in company und company_site
+df[['company', 'company_site']] = df['company'].apply(split_company)
+
 # neue spalte review_text_clean_advanced
 df["review_text_clean_advanced"] = df["review_text_clean"].apply(clean_text_advanced)
 
 #neue Spalte issue_category
-df['issue_categories'] = df['review_text'].apply(categorize_issues)
+df['issue_categories'] = df['review_text'].apply(categorize_issues_weighted)
 
 #speichern unter -> wichtig zum später aufrufen
 df.to_csv(BASE_CLEAN + "reviews_clean_test.csv", index=False)
