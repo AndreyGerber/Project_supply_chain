@@ -80,13 +80,13 @@ if not df.empty:
             The dataset was scraped from Trustpilot.<br><br>
             To collect customer feedback data, an automated web scraping pipeline was developed.
             Due to dynamically loaded content, a browser-based approach using Selenium was implemented to ensure reliable extraction of all relevant elements, including hidden or asynchronously loaded data.
-            The scraper iterates across multiple companies and pages, extracting the following attributes for each review:
-            review_text: customer comment 
-            rating_svg: star rating 
-            date: timestamp of the review 
-            location: customer country 
-            supplier_response: company reply 
-            verified: review verification status 
+            The scraper iterates across multiple companies and pages, extracting the following attributes for each review:<br>
+            review_text: customer comment <br>
+            rating_svg: star rating <br>
+            date: timestamp of the review <br>
+            location: customer country <br>
+            supplier_response: company reply <br>
+            verified: review verification status <br>
             company: retailer identifier
             <br><br>
             The initial analytics are presented below—enjoy exploring!
