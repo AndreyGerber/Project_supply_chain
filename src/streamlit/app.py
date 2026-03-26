@@ -78,6 +78,17 @@ if not df.empty:
             border: 1px solid #b8daff;">
             Our focus lies on German companies in the “Auto Parts Store” category on Trustpilot. 
             The dataset was scraped from Trustpilot.<br><br>
+            To collect customer feedback data, an automated web scraping pipeline was developed to extract reviews from Trustpilot in the automotive spare parts sector.
+            Due to dynamically loaded content, a browser-based approach using Selenium was implemented to ensure reliable extraction of all relevant elements, including hidden or asynchronously loaded data.
+            The scraper iterates across multiple companies and pages, extracting the following attributes for each review:
+            •	review_text: customer comment 
+            •	rating_svg: star rating 
+            •	date: timestamp of the review 
+            •	location: customer country 
+            •	supplier_response: company reply 
+            •	verified: review verification status 
+            •	company: retailer identifier
+            <br><br>
             The initial analytics are presented below—enjoy exploring!
         </div>""", unsafe_allow_html=True)
     st.markdown("---")
@@ -85,7 +96,7 @@ if not df.empty:
     # --- POSITION 1: RAW DATA PREVIEW ---
     st.subheader("📄 Raw Data Preview")
     st.info("Direct preview of the filtered dataset:")
-    st.dataframe(df_filtered.head(15), use_container_width=True)
+    st.dataframe(df_filtered.dropna().head(15), use_container_width=True)
     
     # Fügt eine Leerzeile ein
     st.markdown("<br>", unsafe_allow_html=True)

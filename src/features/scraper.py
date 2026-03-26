@@ -38,34 +38,34 @@ wait = WebDriverWait(driver, 10)
 # Händler mit Bewertung >6000
 companies1 = { 
     "autodoc-de": "https://www.trustpilot.com/review/autodoc.de",
-    "mister-auto": "https://www.trustpilot.com/review/mister-auto.de",
-    "atp-autoteile": "https://www.trustpilot.com/review/www.atp-autoteile.de",
-    "motointegrator": "https://www.trustpilot.com/review/motointegrator.de",
-    "stabilo-fachmarkt": "https://www.trustpilot.com/review/www.stabilo-fachmarkt.de",
-    "autodoc-pt": "https://www.trustpilot.com/review/auto-doc.pt",
-    "pkwteile": "https://www.trustpilot.com/review/pkwteile.de",
-    "autodoc-be": "https://www.trustpilot.com/review/autodoc.be",
-    "daparto": "https://www.trustpilot.com/review/www.daparto.de",
-    "motointegrator-fr": "https://www.trustpilot.com/review/www.motointegrator.fr",
-    "kfzteile24": "https://www.trustpilot.com/review/www.kfzteile24.de",
-    "autoteile-markt": "https://www.trustpilot.com/review/autoteile-markt.de",
-    "autoteiledirekt": "https://www.trustpilot.com/review/autoteiledirekt.de"
+    "mister-auto_de": "https://www.trustpilot.com/review/mister-auto.de",
+    "atp-autoteile_de": "https://www.trustpilot.com/review/www.atp-autoteile.de",
+    "motointegrator_de": "https://www.trustpilot.com/review/motointegrator.de",
+    "stabilo-fachmarkt_de": "https://www.trustpilot.com/review/www.stabilo-fachmarkt.de",
+    "autodoc_pt": "https://www.trustpilot.com/review/auto-doc.pt",
+    "pkwteile_de": "https://www.trustpilot.com/review/pkwteile.de",
+    "autodoc_be": "https://www.trustpilot.com/review/autodoc.be",
+    "daparto_de": "https://www.trustpilot.com/review/www.daparto.de",
+    "motointegrator_fr": "https://www.trustpilot.com/review/www.motointegrator.fr",
+    "kfzteile24_de": "https://www.trustpilot.com/review/www.kfzteile24.de",
+    "autoteile-markt_de": "https://www.trustpilot.com/review/autoteile-markt.de",
+    "autoteiledirekt_de": "https://www.trustpilot.com/review/autoteiledirekt.de"
 }
 #Händler mit Bewertung <6000 >1000
 companies2 = { 
-    "aerosus": "https://www.trustpilot.com/review/aerosus.com",
-    "scheibenwischer": "https://www.trustpilot.com/review/scheibenwischer.com",
-    "bandel-online": "https://www.trustpilot.com/review/www.bandel-online.de",
-    "trodo": "https://www.trustpilot.com/review/trodo.com",
-    "rsu": "https://www.trustpilot.com/review/rsu.de",
-    "motointegrator-it": "https://www.trustpilot.com/review/motointegrator.it",
-    "motointegrator-nl": "https://www.trustpilot.com/review/motointegrator.nl",
-    "kovvar": "https://www.trustpilot.com/review/www.onlinefussmatten.de",
-    "wunschkennzeichen-reservieren": "https://www.trustpilot.com/review/wunschkennzeichen-reservieren.jetzt",
-    "autodoc-eu": "https://www.trustpilot.com/review/autodoc.eu",
-    "motointegrator-es": "https://www.trustpilot.com/review/motointegrator.es",
-    "autodoc-pl": "https://www.trustpilot.com/review/autodoc.pl",
-    "profiteile": "https://www.trustpilot.com/review/profiteile.de"
+    "aerosus_com": "https://www.trustpilot.com/review/aerosus.com",
+    "scheibenwischer_com": "https://www.trustpilot.com/review/scheibenwischer.com",
+    "bandel-online_de": "https://www.trustpilot.com/review/www.bandel-online.de",
+    "trodo_com": "https://www.trustpilot.com/review/trodo.com",
+    "rsu_de": "https://www.trustpilot.com/review/rsu.de",
+    "motointegrator_it": "https://www.trustpilot.com/review/motointegrator.it",
+    "motointegrator_nl": "https://www.trustpilot.com/review/motointegrator.nl",
+    "kovvar_de": "https://www.trustpilot.com/review/www.onlinefussmatten.de",
+    "wunschkennzeichen-reservieren_jetzt": "https://www.trustpilot.com/review/wunschkennzeichen-reservieren.jetzt",
+    "autodoc_eu": "https://www.trustpilot.com/review/autodoc.eu",
+    "motointegrator_es": "https://www.trustpilot.com/review/motointegrator.es",
+    "autodoc_pl": "https://www.trustpilot.com/review/autodoc.pl",
+    "profiteile_de": "https://www.trustpilot.com/review/profiteile.de"
 }
 
 all_companies = {**companies1, **companies2}
@@ -91,9 +91,15 @@ def extract_supplier_response(article):
     tag = article.find("p", attrs={"data-service-review-business-reply-text-typography": True})
     return tag.get_text(" ", strip=True) if tag else None
 
+#Trustpilot:
+# There are two types of product review labels: 
+# Those that indicate that the review has been collected via a Trustpilot 
+# invitation, and those imported into our system from another product 
+# review platform. -> "Verified" and "Invited" , both indicate that the review is genuine and collected through Trustpilot's invitation 
+# while not have undergone the same verification process.
 
-def extract_verified(article):
-    tag = article.find("span", string=lambda x: x and "Verified" in x)
+def extract_verified(article): 
+    tag = article.find("span", string=lambda x: x and ("Verified" in x or "Invited" in x))
     return 1 if tag else 0
 
 # review
