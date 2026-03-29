@@ -35,9 +35,10 @@ driver = webdriver.Edge(service=service, options=edge_options)
 wait = WebDriverWait(driver, 10)
 
 # OB 17.03.26
+#Best in Auto Parts & Wheels Germany
 # Händler mit Bewertung >6000
 companies1 = { 
-    "autodoc-de": "https://www.trustpilot.com/review/autodoc.de",
+    "autodoc_de": "https://www.trustpilot.com/review/autodoc.de",
     "mister-auto_de": "https://www.trustpilot.com/review/mister-auto.de",
     "atp-autoteile_de": "https://www.trustpilot.com/review/www.atp-autoteile.de",
     "motointegrator_de": "https://www.trustpilot.com/review/motointegrator.de",
@@ -67,8 +68,52 @@ companies2 = {
     "autodoc_pl": "https://www.trustpilot.com/review/autodoc.pl",
     "profiteile_de": "https://www.trustpilot.com/review/profiteile.de"
 }
+companies3 = {
+    "carglass_de": "https://www.trustpilot.com/review/carglass.de",
+    "reifendirekt_de": "https://www.trustpilot.com/review/reifendirekt.de",
+    "kennzeichen_express": "https://www.trustpilot.com/review/www.kennzeichen.express",
+    "reifenleader_de": "https://www.trustpilot.com/review/reifenleader.de",
+    "123pneus_fr": "https://www.trustpilot.com/review/123pneus.fr",
+    "pitstop_de": "https://www.trustpilot.com/review/www.pitstop.de",
+    "gommadiretto_it": "https://www.trustpilot.com/review/gommadiretto.it",
+    "maciag-offroad_de": "https://www.trustpilot.com/review/maciag-offroad.de",
+    "reifendiscount_de": "https://www.trustpilot.com/review/www.reifendiscount.de",
+    "reifendirekt_ch": "https://www.trustpilot.com/review/reifendirekt.ch",
+    "motea_com": "https://www.trustpilot.com/review/motea.com",
+    "elektrovorteil_de": "https://www.trustpilot.com/review/elektrovorteil.de",
+    "xlmoto_de": "https://www.trustpilot.com/review/xlmoto.de",
+    "dackonline_se": "https://www.trustpilot.com/review/dackonline.se",
+    "dækonline_dk": "https://www.trustpilot.com/review/d%C3%A6konline.dk" 
+    
+    }
 
-all_companies = {**companies1, **companies2}
+companies4 = {
+    "giga-reifen_de": "https://www.trustpilot.com/review/giga-reifen.de",
+    "reifendirekt_at": "https://www.trustpilot.com/review/reifendirekt.at",
+    "reifen-pneus-online_de": "https://www.trustpilot.com/review/reifen-pneus-online.de",
+    "motorradreifendirekt_de": "https://www.trustpilot.com/review/www.motorradreifendirekt.de",
+    "reifen-vor-ort_de": "https://www.trustpilot.com/review/www.reifen-vor-ort.de",
+    "autobandenmarkt_nl": "https://www.trustpilot.com/review/autobandenmarkt.nl",
+    "grip500_de": "https://www.trustpilot.com/review/grip500.de",
+    "123pneus_ch": "https://www.trustpilot.com/review/123pneus.ch",
+    "reifen24_de": "https://www.trustpilot.com/review/reifen24.de",
+    "shop4tesla_com": "https://www.trustpilot.com/review/shop4tesla.com",
+    "motorradmeistermilz_de": "https://www.trustpilot.com/review/motorradmeistermilz.de",
+    "neumaticos-online_es": "https://www.trustpilot.com/review/neumaticos-online.es",
+    "autobatterienbilliger_de": "https://www.trustpilot.com/review/autobatterienbilliger.de",
+    "polo-motorrad_com": "https://www.trustpilot.com/review/polo-motorrad.com",
+    "quotlix_de": "https://www.trustpilot.com/review/quotlix.de",
+    "carbonify_de": "https://www.trustpilot.com/review/carbonify.de",
+    "schilder-kaufen": "https://www.trustpilot.com/review/schilder.kaufen",
+    "dekkonline_com": "https://www.trustpilot.com/review/dekkonline.com",
+    "fussmatten-autoteppiche_de": "https://www.trustpilot.com/review/fussmatten-autoteppiche.de",
+    "mvh-shop_de": "https://www.trustpilot.com/review/mvh-shop.de", 
+    "www-autobutler_de": "https://www.trustpilot.com/review/www.autobutler.de",
+    "123pneus_be": "https://www.trustpilot.com/review/123pneus.be",
+    "oponeo_de": "https://www.trustpilot.com/review/oponeo.de",
+    "ws-autoteile_com": "https://www.trustpilot.com/review/ws-autoteile.com"    
+    }
+all_companies = {**companies3, **companies4}
 all_reviews = []
 
 # -------------------------------
@@ -185,7 +230,7 @@ df = pd.DataFrame(all_reviews)
 
 print("\n✅ Total reviews scraped:", len(df))
 
-df.to_json(BASE_RAW + "trustpilot_reviews_production.json", orient="records", indent=2)
+df.to_json(BASE_RAW + "trustpilot_reviews_production2.json", orient="records", indent=2)
 
 #df.to_json(BASE_RAW + "trustpilot_raw_reviews2.json", orient="records", indent=2)
 
