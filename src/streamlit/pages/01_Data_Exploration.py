@@ -167,31 +167,45 @@ if not df.empty:
                 st.plotly_chart(fig_comp, use_container_width=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
+
+
     # Rating vs Verified (table and chart)
     with st.container(border=True):
         st.markdown("#### 📊 Rating vs Verified")
 
-        fig_ver = px.box(
+        # Ein Violin-Plot mit 'points="all"' zeigt die Dichte der Bewertungen
+        fig_ver = px.violin(
             df,
             x="verified",
             y="rating",
-            points="all"  # zeigt einzelne Datenpunkte
+            color="verified",      # Unterschiedliche Farben für 0 und 1
+            box=True,              # Zeichnet eine kleine Box in die Mitte
+            points="all",          # Zeigt alle Datenpunkte mit Jitter (Streuung)
+            color_discrete_map={0: "#EF553B", 1: "#00CC96"} # Rot für Unverified, Grün für Verified
         )
 
         fig_ver.update_layout(
             title="Customer Satisfaction: Verified vs. Non-Verified Reviews",
-            xaxis_title="Verified",
-            yaxis_title="Rating"
+            xaxis=dict(
+                title="Verified Status",
+                tickmode='array',
+                tickvals=[0, 1],
+                ticktext=['Non-Verified (0)', 'Verified (1)']
+            ),
+            yaxis_title="Rating (Stars)",
+            showlegend=False,
+            height=500
         )
 
         st.plotly_chart(fig_ver, use_container_width=True)
 
         # Textbeschreibung
         st.markdown("""
-        **The inclusion of a ‘verified’ indicator allows us to distinguish  
+        The inclusion of a **'verified'** indicator allows us to distinguish  
         between authenticated and non-authenticated customer feedback,  
-        reducing potential bias and increasing the reliability of the analysis.**
+        reducing potential bias and increasing the reliability of the analysis.
         """)
+
 
     # Abstand unten
     st.markdown("<br>", unsafe_allow_html=True)
