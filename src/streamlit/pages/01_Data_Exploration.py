@@ -310,7 +310,7 @@ if not df.empty:
             showlegend=True, 
             
             legend=dict(
-                title="Select Year(s):", # Geänderter Titel für das Publikum
+                title="Select Year:", # Geänderter Titel für das Publikum
                 orientation="v",
                 yanchor="top", y=1, 
                 xanchor="left", x=1.02
