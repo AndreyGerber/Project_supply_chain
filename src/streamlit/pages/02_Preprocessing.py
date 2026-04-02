@@ -163,48 +163,49 @@ if 'raw_data' in st.session_state:
     system_replies = df[system_mask]
     sys_count = len(system_replies)
 
+    # --- AB HIER ERSETZEN ---
 
-        # 2. Identifiziere echte Text-Duplikate (NUR aus den Zeilen, die KEINE System-Antworten sind)
-        # Wir nutzen exakt das Gegenteil (~) der system_mask von oben
-        df_no_system = df[~system_mask]
-        text_counts = df_no_system['review_text'].value_counts()
-        real_duplicates = text_counts[text_counts > 1]
+    # 2. Identifiziere echte Text-Duplikate (NUR aus den Zeilen, die KEINE System-Antworten sind)
+    # Wir nutzen exakt das Gegenteil (~) der system_mask von oben
+    df_no_system = df[~system_mask]
+    text_counts = df_no_system['review_text'].value_counts()
+    real_duplicates = text_counts[text_counts > 1]
 
-        st.write(f"**B. Genuine Comment Duplicates:** Found {len(real_duplicates)} unique texts that appear multiple times.")
+    st.write(f"**B. Genuine Comment Duplicates:** Found {len(real_duplicates)} unique texts that appear multiple times.")
 
-        # 3. Darstellung der echten Duplikate in einer Tabelle
-        if not real_duplicates.empty:
-            dup_df = real_duplicates.reset_index()
-            dup_df.columns = ['Review Content', 'Occurrence Count']
-            
-            st.dataframe(
-                dup_df.head(10), 
-                use_container_width=True, 
-                hide_index=True,
-                column_config={
-                    "Review Content": st.column_config.TextColumn("Review Content", width="large"),
-                    "Occurrence Count": st.column_config.NumberColumn("Count", width="small")
-                }
-            )
-
-        # --- DIE MATHEMATISCH KORREKTE CONCLUSION ---
+    # 3. Darstellung der echten Duplikate in einer Tabelle
+    if not real_duplicates.empty:
+        dup_df = real_duplicates.reset_index()
+        dup_df.columns = ['Review Content', 'Occurrence Count']
         
-        # Anzahl der ZUSÄTZLICHEN Zeilen durch echte Duplikate berechnen
-        # (Summe aller Vorkommen minus die Anzahl der einzigartigen Sätze)
-        total_duplicate_rows = real_duplicates.sum()
-        unique_duplicate_texts = len(real_duplicates)
-        extra_rows = total_duplicate_rows - unique_duplicate_texts
-        
-        # Die finale Summe (Muss jetzt exakt 972 ergeben)
-        total_identified = sys_count + extra_rows
+        st.dataframe(
+            dup_df.head(10), 
+            use_container_width=True, 
+            hide_index=True,
+            column_config={
+                "Review Content": st.column_config.TextColumn("Review Content", width="large"),
+                "Occurrence Count": st.column_config.NumberColumn("Count", width="small")
+            }
+        )
 
-        st.info(f"""
-            💡 **Conclusion:** We have identified all **{total_identified}** missing entries:
-            * **{sys_count}** are automated system replies (starting with 'Reply from').
-            * **{extra_rows}** are extra copies of common phrases (like 'Super Service').
-            
-            This perfectly explains why we have {len(df)} total rows but only {df['review_text'].nunique()} unique comments.
-        """)
+    # --- DIE MATHEMATISCH KORREKTE CONCLUSION ---
+    
+    # Anzahl der ZUSÄTZLICHEN Zeilen durch echte Duplikate berechnen
+    # (Summe aller Vorkommen minus die Anzahl der einzigartigen Sätze)
+    total_duplicate_rows = real_duplicates.sum()
+    unique_duplicate_texts = len(real_duplicates)
+    extra_rows = total_duplicate_rows - unique_duplicate_texts
+    
+    # Die finale Summe (Muss jetzt exakt 972 ergeben)
+    total_identified = sys_count + extra_rows
+
+    st.info(f"""
+        💡 **Conclusion:** We have identified all **{total_identified}** missing entries:
+        * **{sys_count}** are automated system replies (starting with 'Reply from').
+        * **{extra_rows}** are extra copies of common phrases (like 'Super Service').
+        
+        This perfectly explains why we have {len(df)} total rows but only {df['review_text'].nunique()} unique comments.
+    """)
 
 
 
