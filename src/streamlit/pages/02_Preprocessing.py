@@ -103,6 +103,9 @@ if 'raw_data' in st.session_state:
 
     # 4. In Streamlit anzeigen
     st.markdown(full_html, unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
 
     st.subheader("🔍 Analysis of Duplicate Comments")
     # Die Top 5 der am häufigsten vorkommenden identischen Texte
