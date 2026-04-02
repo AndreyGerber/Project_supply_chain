@@ -52,10 +52,7 @@ else:
 st.markdown("<br>", unsafe_allow_html=True)
 
 
-
-
-
-
+# 4. Übersicht über die Spalten und deren Einzigartigkeit (nunique)
 st.write("### 📋 Dataset Column Overview")
 
 # HTML & CSS Definition (Volle Kontrolle über Style)
@@ -93,7 +90,7 @@ html_style = """
 </style>
 """
 
-# Tabellen-Körper dynamisch aufbauen (ANFORDERUNG 1: KEINE ID-SPALTE)
+# Tabellen-Körper dynamisch aufbauen (KEINE ID-SPALTE)
 table_rows = ""
 for col in df.columns:
     unique_count = df[col].nunique()
@@ -121,11 +118,13 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 
+# 5. Erklärung der Duplikate (Warum haben wir mehr Zeilen als einzigartige Kommentare?)
+st.subheader("🔍 Deep Dive: Why are there duplicates in 'review_text'?")
 
-st.subheader("🔍 Deep Dive: Why are there duplicates?")
 st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]""", language="python")
+st.markdown("is it a sistem reply or a duplicate comment?")
 
-# 1. Identifiziere die System-Antworten (Die "Reply from" Zeilen)
+# Identifiziere die System-Antworten (Die "Reply from" Zeilen)
 # Wir suchen nur nach Texten, die mit "Reply from" STARTEN (^)
 system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]
 
