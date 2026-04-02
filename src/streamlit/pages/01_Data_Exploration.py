@@ -174,28 +174,43 @@ if not df.empty:
         st.markdown("#### 📊 Rating vs Verified")
 
         # Ein Violin-Plot mit 'points="all"' zeigt die Dichte der Bewertungen
-        fig_ver = px.violin(
+       fig_ver = px.violin(
             df,
             x="verified",
             y="rating",
-            color="verified",      # Unterschiedliche Farben für 0 und 1
-            box=True,              # Zeichnet eine kleine Box in die Mitte
-            points="all",          # Zeigt alle Datenpunkte mit Jitter (Streuung)
-            color_discrete_map={0: "#EF553B", 1: "#00CC96"} # Rot für Unverified, Grün für Verified
+            color="verified",
+            box=True,
+            points=False, # <--- WICHTIG: Hier auf 'False' setzen, um die Linien zu löschen
+            color_discrete_map={0: "#EF553B", 1: "#00CC96"}
         )
 
+        # ==========================================
+        # HIER DEINEN NEUEN CODE EINFÜGEN:
+        # ==========================================
+
+        # 1. Daten gruppieren und zählen (Wichtig: Spaltennamen 'rating' prüfen)
+        counts = df.groupby(['verified', 'rating']).size().reset_index(name='count')
+
+        # 2. Zahlen als Text-Labels hinzufügen
+        for i, row in counts.iterrows():
+            fig_ver.add_annotation(
+                x=row['verified'],
+                y=row['rating'],
+                text=f"n={row['count']}",
+                showarrow=False,
+                yshift=10, 
+                font=dict(size=12, color="black", family="Arial")
+            )
+
+        # 3. Layout verschönern (Beschriftung der Achsen)
         fig_ver.update_layout(
-            title="Customer Satisfaction: Verified vs. Non-Verified Reviews",
             xaxis=dict(
-                title="Verified Status",
                 tickmode='array',
                 tickvals=[0, 1],
                 ticktext=['Non-Verified (0)', 'Verified (1)']
-            ),
-            yaxis_title="Rating (Stars)",
-            showlegend=False,
-            height=500
+            )
         )
+
 
         st.plotly_chart(fig_ver, use_container_width=True)
 
