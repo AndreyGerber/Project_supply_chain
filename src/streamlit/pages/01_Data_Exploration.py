@@ -44,7 +44,7 @@ if not df.empty:
     df_filtered = df[df['rating'].isin(selected_rating)]
 
     # 4. Main Header
-    st.title("📊 Auto parts store Customer Insights Dashboard")
+    st.title("📊 Phase 1: Data Exploration"")
 
     # Fügt eine Leerzeile ein
     st.markdown("<br>", unsafe_allow_html=True)
@@ -60,7 +60,7 @@ if not df.empty:
             color: #004085;
             font-size: 1.1em;
             border: 1px solid #b8daff;">
-            🚀 The objective of this project is to extract meaningful information from customer comments. The main areas of work include:
+            🚀 The objective of this part is to extract meaningful information from customer comments. The main areas of work include:
         </div>
 
             1. Predicting customer satisfaction: A regression problem focused on predicting the number of stars.
@@ -92,6 +92,12 @@ if not df.empty:
             The initial analytics are presented below—enjoy exploring!
         </div>""", unsafe_allow_html=True)
     st.markdown("---")
+
+    st.markdown("""
+    In this section, we analyze the raw dataset of the **Auto Parts Store**. 
+    Our goal is to understand the distribution of star ratings and get a first look at the customer comments.
+    ---
+    """)
 
     # --- POSITION 1: RAW DATA PREVIEW ---
     st.subheader("📄 Raw Data Preview")
