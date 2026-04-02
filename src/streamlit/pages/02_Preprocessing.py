@@ -35,32 +35,68 @@ if 'raw_data' in st.session_state:
     with st.expander("🔍 View Raw Data Columns"):
         st.write("### 📋 Dataset Column Overview")
 
-        # 1. Daten vorbereiten
-        column_info = []
+        # 1. HTML & CSS Definition (Volle Kontrolle über Style)
+        html_style = """
+        <style>
+            .custom-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-family: sans-serif;
+                color: #31333F;
+            }
+            .custom-table th, .custom-table td {
+                border: 1px solid #e6e9ef;
+                padding: 12px;
+            }
+            /* Header Styling */
+            .custom-table th {
+                background-color: #f0f2f6;
+                font-weight: bold;
+            }
+            /* ANFORDERUNG 2: Column Name & Daten LINKSBÜNDIG (Breite 70%) */
+            .custom-table td:nth-child(1), .custom-table th:nth-child(1) {
+                text-align: left;
+                width: 70%;
+            }
+            /* ANFORDERUNG 3: Unique Values & Daten ZENTRIERT (Breite 30%) */
+            .custom-table td:nth-child(2), .custom-table th:nth-child(2) {
+                text-align: center;
+                width: 30%;
+            }
+            /* Optional: Zeilen-Highlighting beim Drüberfahren */
+            .custom-table tr:hover {
+                background-color: #f8f9fb;
+            }
+        </style>
+        """
+
+        # 2. Tabellen-Körper dynamisch aufbauen (ANFORDERUNG 1: KEINE ID-SPALTE)
+        table_rows = ""
         for col in df.columns:
-            column_info.append({
-                "Column Name": col,
-                "Unique Values (nunique)": df[col].nunique()
-            })
-        df_info = pd.DataFrame(column_info)
+            unique_count = df[col].nunique()
+            table_rows += f"<tr><td>{col}</td><td>{unique_count}</td></tr>"
 
-        # 2. CSS für die Ausrichtung
-        st.markdown("""
-            <style>
-            /* Erste Spalte (Column Name): Links bündig */
-            .stTable td:nth-child(1) {
-                text-align: left !important;
-            }
-            /* Zweite Spalte (Unique Values): Zentriert */
-            .stTable td:nth-child(2), .stTable th:nth-child(2) {
-                text-align: center !important;
-            }
-            </style>
-            """, unsafe_allow_html=True)
+        # 3. Alles zusammenfügen
+        full_html = f"""
+        {html_style}
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Column Name</th>
+                    <th>Unique Values (nunique)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {table_rows}
+            </tbody>
+        </table>
+        """
 
-        # 3. Anzeige OHNE ID-Spalte (Index)
-        # .style.hide(axis='index') entfernt die Spalte 0, 1, 2...
-        st.table(df_info.style.hide(axis='index'))
+        # 4. In Streamlit anzeigen
+        st.markdown(full_html, unsafe_allow_html=True)
+
+
+
 
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
     st.divider()
