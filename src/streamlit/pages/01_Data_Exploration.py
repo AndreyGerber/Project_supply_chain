@@ -280,6 +280,8 @@ if not df.empty:
         # NOCHMAL ABSTAND VOR DER NÄCHSTEN GRAFIK ---
         st.markdown("<br><br>", unsafe_allow_html=True) # Erzeugt zwei Zeilenumbrüche
 
+
+
         # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN, Kommentare über das Jahr ---
     with st.container(border=True): 
         st.markdown("#### 📊 Number of comments by Year")
@@ -295,7 +297,8 @@ if not df.empty:
             x='Year', 
             y='Number of comments',
             text='Number of comments',
-            color='Year', # Erzeugt die Legende
+            #color='Year', # Erzeugt die Legende
+            color_discrete_sequence=['#1E88E5'],
             color_discrete_sequence=px.colors.qualitative.Plotly,
             height=600  # <--- HIER: Gesamthöhe des Diagramms einstellen
         )
