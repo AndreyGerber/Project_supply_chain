@@ -106,7 +106,7 @@ if not df.empty:
             </ul>
         </div>
             <br>
-            The initial analytics are presented below—enjoy exploring!
+            The initial analytics are presented below — enjoy exploring!
         </div>""", unsafe_allow_html=True)
     st.markdown("---")
 
@@ -115,7 +115,7 @@ if not df.empty:
     # --- POSITION 1: RAW DATA PREVIEW ---
     st.subheader("📄 Raw Data Preview")
     st.info("Direct preview of the filtered dataset:")
-    st.dataframe(df_filtered.dropna().head(15), use_container_width=True)
+    st.dataframe(df_filtered.dropna().head(20), use_container_width=True)
     
     # Fügt eine Leerzeile ein
     st.markdown("<br>", unsafe_allow_html=True)
