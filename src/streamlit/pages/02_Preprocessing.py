@@ -211,7 +211,7 @@ if not system_replies.empty:
 
 st.write(f"**B. Genuine Comment Duplicates:** Identified {extra_rows} extra copies of customer phrases.")
 
-# Top 10 Liste für die Optik
+# Top 10 Liste
 text_counts = df_no_system['review_text'].value_counts()
 real_duplicates = text_counts[text_counts > 1]
 if not real_duplicates.empty:
@@ -221,12 +221,12 @@ if not real_duplicates.empty:
 
 # --- DIE FINALE KORREKTE CONCLUSION ---
 st.info(f"""
-    💡 **Conclusion:** We have identified all **{total_identified}** missing entries:
-    * **{sys_count}** are automated system replies (starting with 'Reply from').
+    💡 **Conclusion:** We have identified all **{total_identified}** redundant entries:
+    * **{sys_count}** are automated system replies.
     * **{extra_rows}** are extra copies of common customer phrases.
     
     Total: {sys_count} + {extra_rows} = **{total_identified}**.
-    This explains why we have {len(df)} total rows but only {df['review_text'].nunique()} unique comments.
+    This explains why we have {len(df)} total rows but only **{unique_user_count}** unique comments.
 """)
 
 
