@@ -123,7 +123,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # 5. Erklärung der Duplikate (Warum haben wir mehr Zeilen als einzigartige Kommentare?)
 st.subheader("🔍 Deep Dive: Why are there duplicates in 'review_text'?")
 
-st.code(""" Successfully linked to the dataset! (6443 rows loaded) but only 5471 in "review_text" """, language="python")
+st.code(""" Successfully linked to the dataset! (6443 rows loaded). But only 5471 in "review_text" """, language="python")
 
 
 #Bild laden
@@ -148,14 +148,13 @@ with col2:
         # Das Bild füllt nun nur die Breite von col2 aus, nicht die ganze Seite
         st.image(
             logo_path, 
-            caption="Project Overview", 
+            #caption="Project Overview", 
             use_container_width=True
         )
     else:
         st.error(f"❌ File not found at: {logo_path}")
 
 # Optional: Text unter dem Bild (außerhalb der Spalten für volle Breite)
-st.write("Dies ist die Projektübersicht.")
 #Bild laden. Abschnitt zum Ende
 
 
