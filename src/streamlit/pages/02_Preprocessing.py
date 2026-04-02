@@ -33,67 +33,72 @@ if 'raw_data' in st.session_state:
 
     # 3. Rohdaten-Vorschau (Exakt wie auf der Vorseite zur Kontrolle)
     with st.expander("🔍 View Raw Data Columns"):
-        st.write("### 📋 Dataset Column Overview")
 
-        # 1. HTML & CSS Definition (Volle Kontrolle über Style)
-        html_style = """
-        <style>
-            .custom-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-family: sans-serif;
-                color: #31333F;
-            }
-            .custom-table th, .custom-table td {
-                border: 1px solid #e6e9ef;
-                padding: 12px;
-            }
-            /* Header Styling */
-            .custom-table th {
-                background-color: #f0f2f6;
-                font-weight: bold;
-            }
-            /* ANFORDERUNG 2: Column Name & Daten LINKSBÜNDIG (Breite 70%) */
-            .custom-table td:nth-child(1), .custom-table th:nth-child(1) {
-                text-align: left;
-                width: 70%;
-            }
-            /* ANFORDERUNG 3: Unique Values & Daten ZENTRIERT (Breite 30%) */
-            .custom-table td:nth-child(2), .custom-table th:nth-child(2) {
-                text-align: center;
-                width: 30%;
-            }
-            /* Optional: Zeilen-Highlighting beim Drüberfahren */
-            .custom-table tr:hover {
-                background-color: #f8f9fb;
-            }
-        </style>
-        """
 
-        # 2. Tabellen-Körper dynamisch aufbauen (ANFORDERUNG 1: KEINE ID-SPALTE)
-        table_rows = ""
-        for col in df.columns:
-            unique_count = df[col].nunique()
-            table_rows += f"<tr><td>{col}</td><td>{unique_count}</td></tr>"
 
-        # 3. Alles zusammenfügen
-        full_html = f"""
-        {html_style}
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>Column Name</th>
-                    <th>Unique Values (nunique)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {table_rows}
-            </tbody>
-        </table>
-        """
 
-        # 4. In Streamlit anzeigen
-        st.markdown(full_html, unsafe_allow_html=True)
+
+    st.write("### 📋 Dataset Column Overview")
+
+    # 1. HTML & CSS Definition (Volle Kontrolle über Style)
+    html_style = """
+    <style>
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: sans-serif;
+            color: #31333F;
+        }
+        .custom-table th, .custom-table td {
+            border: 1px solid #e6e9ef;
+            padding: 12px;
+        }
+        /* Header Styling */
+        .custom-table th {
+            background-color: #f0f2f6;
+            font-weight: bold;
+        }
+        /* ANFORDERUNG 2: Column Name & Daten LINKSBÜNDIG (Breite 70%) */
+        .custom-table td:nth-child(1), .custom-table th:nth-child(1) {
+            text-align: left;
+            width: 70%;
+        }
+        /* ANFORDERUNG 3: Unique Values & Daten ZENTRIERT (Breite 30%) */
+        .custom-table td:nth-child(2), .custom-table th:nth-child(2) {
+            text-align: center;
+            width: 30%;
+        }
+        /* Optional: Zeilen-Highlighting beim Drüberfahren */
+        .custom-table tr:hover {
+            background-color: #f8f9fb;
+        }
+    </style>
+    """
+
+    # 2. Tabellen-Körper dynamisch aufbauen (ANFORDERUNG 1: KEINE ID-SPALTE)
+    table_rows = ""
+    for col in df.columns:
+        unique_count = df[col].nunique()
+        table_rows += f"<tr><td>{col}</td><td>{unique_count}</td></tr>"
+
+    # 3. Alles zusammenfügen
+    full_html = f"""
+    {html_style}
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>Column Name</th>
+                <th>Unique Values (nunique)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {table_rows}
+        </tbody>
+    </table>
+    """
+
+    # 4. In Streamlit anzeigen
+    st.markdown(full_html, unsafe_allow_html=True)
 
     st.subheader("🔍 Analysis of Duplicate Comments")
     # Die Top 5 der am häufigsten vorkommenden identischen Texte
