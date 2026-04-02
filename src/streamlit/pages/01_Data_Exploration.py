@@ -291,33 +291,26 @@ if not df.empty:
         yearly_counts = df_filtered['Year'].value_counts().sort_index().reset_index()
         yearly_counts.columns = ['Year', 'Number of comments']
 
-     # Plotly Bar Chart - Einfarbig MIT Legende
+        # 1. Plotly Bar Chart - Jedes Jahr als eigene Gruppe, aber gleiche Farbe
         fig_years = px.bar(
             yearly_counts, 
             x='Year', 
             y='Number of comments',
             text='Number of comments',
-            # Wir geben der Datenreihe einen Namen für die Legende
-            labels={'Number of comments': 'Total Comments'},
+            color='Year', # Wichtig: Damit bekommt jedes Jahr einen eigenen Legenden-Eintrag
+            # Hier erzwingen wir, dass JEDES Jahr die gleiche Farbe bekommt:
+            color_discrete_sequence=['#1E88E5'] * len(yearly_counts), 
             height=600
         )
 
-        # Hier erzwingen wir die eine Farbe für alle Balken
-        fig_years.update_traces(
-            marker_color='#1E88E5', 
-            name='Reviews per Year', # Dieser Text erscheint in der Legende
-            showlegend=True          # Legende explizit wieder einschalten
-        )
-
-        # Layout-Feineinstellungen
+        # 2. Layout-Feineinstellungen
         fig_years.update_layout(
             xaxis_type='category', 
             plot_bgcolor='rgba(0,0,0,0)',
-            showlegend=True, # Legende global aktivieren
+            showlegend=True, 
             
-            # --- LEGENDE RECHTS (wie vorher) ---
             legend=dict(
-                title="Legend:",
+                title="Select Year(s):", # Geänderter Titel für das Publikum
                 orientation="v",
                 yanchor="top", y=1, 
                 xanchor="left", x=1.02
@@ -325,17 +318,9 @@ if not df.empty:
 
             # --- SCHRIFTGRÖSSEN ---
             font=dict(size=14),
-            xaxis=dict(
-                title_font=dict(size=20),
-                tickfont=dict(size=14)
-            ),
-            yaxis=dict(
-                title_font=dict(size=20),
-                tickfont=dict(size=16),
-                showgrid=True, 
-                gridcolor='LightGray'
-            ),
-            margin=dict(r=150) # Platz für die Legende lassen
+            xaxis=dict(title_font=dict(size=20), tickfont=dict(size=14)),
+            yaxis=dict(title_font=dict(size=20), tickfont=dict(size=16), showgrid=True, gridcolor='LightGray'),
+            margin=dict(r=150)
         )
 
         fig_years.update_traces(textposition='outside')
