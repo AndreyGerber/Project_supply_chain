@@ -102,6 +102,20 @@ if 'raw_data' in st.session_state:
     st.write(duplicates)
 
 
+    st.subheader("🧹 Data Cleaning: Removing System Replies")
+
+    # Wir filtern alle Zeilen heraus, die mit "Reply from" beginnen
+    initial_count = len(df)
+    df = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]
+    removed_count = initial_count - len(df)
+
+    st.warning(f"Removed {removed_count} rows containing company replies instead of customer comments.")
+    st.session_state['raw_data'] = df # Speicher das gesäuberte DF wieder ab
+
+
+
+
+
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
     st.divider()
 
