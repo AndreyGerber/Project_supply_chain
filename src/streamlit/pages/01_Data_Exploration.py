@@ -28,6 +28,9 @@ def load_data():
 # Initialize Data
 df = load_data()
 
+# 2. WICHTIG: Das df für die anderen Seiten (Preprocessing etc.) bereitstellen
+if not df.empty:
+    st.session_state['raw_data'] = df
 
 
 
