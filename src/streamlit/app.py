@@ -18,9 +18,9 @@ This project focuses on analyzing customer comments to automatically predict the
 This represents a classic **Natural Language Processing (NLP)** and **Classification** challenge.
 
 ### 🎯 Project Objectives
-*   **Pattern Recognition:** Identify which words correlate most strongly with positive or negative reviews.
+*   **Pattern Recognition:** Identify which words correlate most strongly with positive or negative reviews. Find the negative and positve review patterns. 
 *   **Automation:** Train a model to accurately detect the sentiment (stars) of any given text.
-*   **Interaction:** Real-time testing of the model using "pseudo-comments" entered by the audience.
+*   **Interaction:** Real-time testing of the model using your-comments.
 
 ---
 ### 🚀 Workflow & Navigation
@@ -51,4 +51,4 @@ with col4:
     st.caption("Interactive Prediction: Enter your own comment and let the AI predict the rating!")
 
 st.markdown("---")
-st.success("💡 **Quick Start:** Begin by uploading your dataset in the **Data Upload** section in the sidebar.")
+st.success("💡 **Ready to Start:** then lets move to Data Exploration.")
