@@ -28,53 +28,41 @@ First, let's verify that we have access to the same dataset from the previous ph
 
 # 3. Daten aus dem "Gedächtnis" (Session State) abrufen
 if 'raw_data' in st.session_state:
-    # Wir laden die Daten in eine lokale Variable 'df'
+    # Alles ab hier muss exakt gleich weit eingerückt sein (4 Leerzeichen)
     df = st.session_state['raw_data']
     
- # --- SCHRITT 1: DIE MATHEMATIK (Zuerst berechnen!) ---
-    # Identifiziere System-Antworten (Die 503 Zeilen)
+    # --- SCHRITT 1: DIE MATHEMATIK (Zuerst berechnen!) ---
     system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
     df_system = df[system_mask]
     sys_count = len(df_system) 
 
-    # Daten OHNE System-Antworten (Der Rest)
+    # Daten OHNE System-Antworten
     df_no_system = df[~system_mask]
 
-    # Echte Duplikate NUR im verbleibenden Rest berechnen
-    # Das ergibt die überflüssigen Kopien (z.B. "Best rate")
+    # Echte Duplikate im Rest berechnen
     extra_rows = len(df_no_system) - df_no_system['review_text'].nunique()
     
-    # Die finale Kontrollsumme (972)
+    # Die finale Kontrollsumme
     total_identified = sys_count + extra_rows 
 
     # --- SCHRITT 2: DIE ANZEIGE (UI) ---
     st.success(f"✅ Successfully linked to the dataset! ({len(df)} rows loaded)")
 
-    # 3. Rohdaten-Vorschau (Exakt wie auf der Vorseite zur Kontrolle)
-    with st.expander("🔍 View Raw Data Columns"):
-        # ... dein bisheriger Code für Expander ...
-
-    # ... dein bisheriger Code für die HTML Spalten-Übersicht ...
-
+    # Hier kommen jetzt deine weiteren Anzeigen (Expander, Tabellen etc.)
+    # Achte darauf, dass auch diese weiterhin eingerückt bleiben!
+    
     st.subheader("🔍 Deep Dive: Why are there duplicates?")
-    
-    # Hier nutzt du jetzt die oben berechneten Variablen
     st.write(f"**A. System Replies:** Found {sys_count} rows that are just company responses.")
-    
-    # ... dein bisheriger Code für die Summary-Tabelle (company_summary) ...
 
-    st.write(f"**B. Genuine Comment Duplicates:** Identified {extra_rows} extra copies of customer phrases.")
-
-    # ... dein bisheriger Code für die Top 10 Liste ...
+    # ... Hier den Rest deines Codes einfügen ...
 
     # --- DIE FINALE KORREKTE CONCLUSION ---
     st.info(f"""
         💡 **Conclusion:** We have identified all **{total_identified}** redundant entries:
-        * **{sys_count}** are automated system replies (starting with 'Reply from').
-        * **{extra_rows}** are extra copies of common customer phrases.
+        * **{sys_count}** are automated system replies.
+        * **{extra_rows}** are extra copies of user comments.
         
         Total: {sys_count} + {extra_rows} = **{total_identified}**.
-        This explains why we have {len(df)} total rows but only **{df['review_text'].nunique()}** unique comments.
     """)
 
     
