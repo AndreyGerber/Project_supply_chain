@@ -184,15 +184,18 @@ if not df.empty:
             color_discrete_map={0: "#EF553B", 1: "#00CC96"} # Rot für Unverified, Grün für Verified
         )
 
-        fig_ver.update_traces(
-            points="all",      # Alle Punkte anzeigen
-            jitter=0.7,        # Streuung nach links/rechts (0 bis 1)
-            pointpos=0,        # Punkte direkt AUF die Violine legen (0 ist mittig)
-            marker=dict(size=3, opacity=0.5) # Kleinere, leicht transparente Punkte
+        fig_ver.update_layout(
+            title="Customer Satisfaction: Verified vs. Non-Verified Reviews",
+            xaxis=dict(
+                title="Verified Status",
+                tickmode='array',
+                tickvals=[0, 1],
+                ticktext=['Non-Verified (0)', 'Verified (1)']
+            ),
+            yaxis_title="Rating (Stars)",
+            showlegend=False,
+            height=500
         )
-
-        # Layout-Update (optional für bessere Optik)
-        fig_ver.update_layout(height=500)
 
         st.plotly_chart(fig_ver, use_container_width=True)
 
