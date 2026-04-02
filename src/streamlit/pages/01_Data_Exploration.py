@@ -111,11 +111,17 @@ if not df.empty:
     st.markdown("---")
 
 
-
     # --- POSITION 1: RAW DATA PREVIEW ---
     st.subheader("📄 Raw Data Preview")
     st.info("Direct preview of the filtered dataset:")
-    st.dataframe(df_filtered.dropna().head(20), use_container_width=True)
+
+    # Wir berechnen die Höhe (ca. 35 Pixel pro Zeile + Header)
+    # 600 Pixel reichen normalerweise locker für 15 Zeilen aus.
+    st.dataframe(
+        df_filtered.dropna().head(15), 
+        use_container_width=True, 
+        height=565
+    )
     
     # Fügt eine Leerzeile ein
     st.markdown("<br>", unsafe_allow_html=True)
