@@ -51,4 +51,4 @@ with col4:
     st.caption("Interactive Prediction: Enter your own comment and let the AI predict the rating!")
 
 st.markdown("---")
-st.success("💡 **Ready to Start:** then lets move to Data Exploration.")
+st.success("💡 **Ready to Start:** then let's move to Data Exploration.")
