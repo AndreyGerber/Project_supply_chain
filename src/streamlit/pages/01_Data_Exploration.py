@@ -118,7 +118,7 @@ if not df.empty:
     # Wir setzen die Höhe auf 550 Pixel. 
     # Das reicht bei Standard-Schriftgröße für ca. 15 Zeilen + Header + Menüleiste.
     st.dataframe(
-        df_filtered.head(75), 
+        df_filtered.head(76),   # so sieht man bis zur Zeile 75 (inklusive). 
         use_container_width=True,
         height=550 
     )
@@ -137,7 +137,7 @@ if not df.empty:
             company_counts.columns = ['Company Name', 'Review Count']
             
             # 500px bieten genug Platz für 12 Zeilen + Header + Padding
-            ui_height = 550 
+            ui_height = 650 
 
             # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
             c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
