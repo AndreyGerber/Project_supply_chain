@@ -14,13 +14,10 @@ def download_nltk_data():
 
 download_nltk_data()
 
-st.set_page_config(page_title="Phase 2: Preprocessing", layout="wide")
-st.title("🧹 Phase 2: Natural Language Preprocessing (NLP)")
-
 # 1. Seite konfigurieren (wie bei den anderen Seiten)
 st.set_page_config(page_title="Phase 2: Preprocessing", layout="wide")
 
-st.title("🧹 Phase 2: Natural Language Preprocessing")
+st.title("🧹 Phase 2: Natural Language Preprocessing (NLP)" )
 
 st.markdown("""
 In this step, we prepare our raw review texts for Machine Learning. 
