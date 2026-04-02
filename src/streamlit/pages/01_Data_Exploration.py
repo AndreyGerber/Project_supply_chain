@@ -178,23 +178,22 @@ if not df.empty:
             df,
             x="verified",
             y="rating",
-            color="verified",      # Unterschiedliche Farben für 0 und 1
-            box=True,              # Zeichnet eine kleine Box in die Mitte
-            points="all",          # Zeigt alle Datenpunkte mit Jitter (Streuung)
-            color_discrete_map={0: "#EF553B", 1: "#00CC96"} # Rot für Unverified, Grün für Verified
+            color="verified",
+            box=True,
+            points="all",  # Alle Punkte anzeigen
+            color_discrete_map={0: "#EF553B", 1: "#00CC96"}
         )
 
+        # Das hier sorgt dafür, dass die Punkte gestreut (jitter) werden 
+        # und nicht als harte Linien erscheinen:
+        fig_ver.update_traces(jitter=0.7, pointpos=0) 
+
         fig_ver.update_layout(
-            title="Customer Satisfaction: Verified vs. Non-Verified Reviews",
             xaxis=dict(
-                title="Verified Status",
                 tickmode='array',
                 tickvals=[0, 1],
                 ticktext=['Non-Verified (0)', 'Verified (1)']
-            ),
-            yaxis_title="Rating (Stars)",
-            showlegend=False,
-            height=500
+            )
         )
 
         st.plotly_chart(fig_ver, use_container_width=True)
