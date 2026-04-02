@@ -23,6 +23,8 @@ This represents a classic **Natural Language Processing (NLP)** and **Classifica
 *   **Automation:** Train a model to accurately detect the sentiment (stars) of any given text.
 *   **Interaction:** Real-time testing of the model using your-comments.
 
+<br><br>
+
 ---
 ### 🚀 Workflow & Navigation
 Use the **sidebar on the left** to navigate through the different phases of the project:
