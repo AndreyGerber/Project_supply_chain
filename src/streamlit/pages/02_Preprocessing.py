@@ -123,17 +123,40 @@ st.markdown("<br>", unsafe_allow_html=True)
 # 5. Erklärung der Duplikate (Warum haben wir mehr Zeilen als einzigartige Kommentare?)
 st.subheader("🔍 Deep Dive: Why are there duplicates in 'review_text'?")
 
-st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]""", language="python")
-
-# Bild laden
 current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir) # This goes from 'pages' to the main folder
+
+# Falls dieses Skript im Ordner 'pages/' liegt, gehe eine Ebene höher
+if "pages" in current_dir:
+    parent_dir = os.path.dirname(current_dir)
+else:
+    parent_dir = current_dir
+
 logo_path = os.path.join(parent_dir, "static", "what_is_it.png")
 
-if os.path.exists(logo_path):
-    st.image(logo_path, caption="Project Overview", use_container_width=True)
-else:
-    st.error(f"❌ File not found at: {logo_path}")
+# 2. Layout mit Spalten (Columns)
+# Wir erstellen 3 Spalten. Die mittlere (col2) enthält das Bild.
+# Du kannst die Zahlen (1, 2, 1) anpassen, um die Breite der Mitte zu ändern.
+col1, col2, col3 = st.columns([1, 2, 1]) 
+
+with col2:
+    if os.path.exists(logo_path):
+        # Das Bild füllt nun nur die Breite von col2 aus, nicht die ganze Seite
+        st.image(
+            logo_path, 
+            caption="Project Overview", 
+            use_container_width=True
+        )
+    else:
+        st.error(f"❌ File not found at: {logo_path}")
+
+# Optional: Text unter dem Bild (außerhalb der Spalten für volle Breite)
+st.write("Dies ist die Projektübersicht.")
+
+
+
+st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]""", language="python")
+
+
 
 
 
