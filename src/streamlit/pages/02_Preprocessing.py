@@ -127,11 +127,10 @@ st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na
 
 # Bild laden
 current_dir = os.path.dirname(__file__)
-logo_path = os.path.join(current_dir, "static", "what_is_it.png")
+parent_dir = os.path.dirname(current_dir) # This goes from 'pages' to the main folder
+logo_path = os.path.join(parent_dir, "static", "what_is_it.png")
 
-#  Bild auf der Hauptseite anzeigen
 if os.path.exists(logo_path):
-    # 'use_container_width=True' passt das Bild automatisch an die Spaltenbreite an
     st.image(logo_path, caption="Project Overview", use_container_width=True)
 else:
     st.error(f"❌ File not found at: {logo_path}")
