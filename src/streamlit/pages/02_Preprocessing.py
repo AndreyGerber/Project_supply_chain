@@ -42,39 +42,34 @@ if 'raw_data' in st.session_state:
                 "Column Name": col,
                 "Unique Values (nunique)": df[col].nunique()
             })
-
         df_info = pd.DataFrame(column_info)
 
-        # 2. Darstellung mit Spaltenkonfiguration
-        st.dataframe(
-            df_info,
-            use_container_width=True,
-            hide_index=True,  # Entfernt die ID-Spalte (0, 1, 2...) ganz links
-            column_config={
-                "Column Name": st.column_config.TextColumn(
-                    "Column Name",
-                    width="large",   # Hier kannst du "small", "medium" oder "large" wählen
-                    help="The name of the feature in the dataset"
-                ),
-                "Unique Values (nunique)": st.column_config.NumberColumn(
-                    "Unique Values (nunique)",
-                    width="medium",  # Breite für die Zahlen-Spalte
-                    format="%d",     # Zeigt ganze Zahlen ohne Komma an
-                    help="Number of unique entries in this column"
-                )
-            }
-        )
-
-        # 3. Zentrierung der Zahlen (CSS-Hack)
+        # 2. CSS für exakte Breiten und Zentrierung
         st.markdown("""
             <style>
-            /* Richtet alle Zellen in der zweiten Spalte (Zahlen) zentriert aus */
-            [data-testid="stTable"] td:nth-child(2), 
-            [data-testid="stDataFrame"] td:nth-child(2) {
+            /* Die gesamte Tabelle breiter machen */
+            .stTable {
+                width: 100%;
+            }
+            /* Erste Spalte (Column Name): Links bündig, Breite 60% */
+            .stTable td:nth-child(1) {
+                width: 60%;
+                text-align: left !important;
+            }
+            /* Zweite Spalte (Unique Values): Zentriert, Breite 40% */
+            .stTable td:nth-child(2), .stTable th:nth-child(2) {
+                width: 40%;
+                text-align: center !important;
+            }
+            /* Header der zweiten Spalte ebenfalls zentrieren */
+            .stTable th:nth-child(2) {
                 text-align: center !important;
             }
             </style>
             """, unsafe_allow_html=True)
+
+        # 3. Anzeige als st.table (ID/Index wird hier automatisch weggelassen, wenn nicht im DF)
+        st.table(df_info)
 
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
     st.divider()
