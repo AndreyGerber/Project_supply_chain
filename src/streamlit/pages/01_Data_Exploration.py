@@ -118,7 +118,7 @@ if not df.empty:
     # Wir setzen die Höhe auf 550 Pixel. 
     # Das reicht bei Standard-Schriftgröße für ca. 15 Zeilen + Header + Menüleiste.
     st.dataframe(
-        df_filtered.head(15), 
+        df_filtered.dropna().head(15), 
         use_container_width=True,
         height=550 
     )
