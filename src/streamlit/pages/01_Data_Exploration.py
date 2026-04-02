@@ -63,7 +63,7 @@ if not df.empty:
             🚀 The objective of this part is to extract meaningful information from customer comments. The main areas of work include:
         </div>
 
-            We analyze the raw dataset of the **Auto Parts Stores**. <br><br>
+            We analyze the raw dataset of the **Auto Parts Stores**. 
             We will try to understand the distribution of star ratings and get a first look at the customer comments.
         <div style=" 
             text-align: left; 
