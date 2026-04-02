@@ -160,8 +160,6 @@ with col2:
 
 
 
-
-
 # Identifiziere die System-Antworten (Die "Reply from" Zeilen)
 # Wir suchen nur nach Texten, die mit "Reply from" STARTEN (^)
 system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]
@@ -210,17 +208,12 @@ if not system_replies.empty:
     st.info(f"💡 **Insight:** Instead of showing all {len(system_replies)} rows, we summarized them by company.")
 
 
-    # 1. Wir definieren die Maske für System-Antworten einmal am Anfang (SEHR WICHTIG)
+# 1. Wir definieren die Maske für System-Antworten einmal am Anfang (SEHR WICHTIG)
 system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
 system_replies = df[system_mask]
 sys_count = len(system_replies)
 
 
-
-# 1. System-Antworten (Die 503 Zeilen)
-system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
-system_replies = df[system_mask]
-sys_count = len(system_replies) # Das sind 503
 
 # 2. Daten OHNE System-Antworten (Der Rest)
 df_no_system = df[~system_mask]
