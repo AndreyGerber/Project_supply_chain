@@ -115,41 +115,21 @@ if 'raw_data' in st.session_state:
     st.write(f"**A. System Replies:** Found {len(system_replies)} rows that are just company responses.")
 
     if not system_replies.empty:
-        st.write("#### 🏢 Summary of System Replies by Company")
+        st.markdown("#### 🏢 Summary of System Replies by Company")
 
-        # 1. Daten aggregieren: Pro Firma zählen und ein Textbeispiel nehmen
+        # 1. Daten aggregieren
         company_summary = system_replies.groupby('company')['review_text'].agg(
             Count='count',
             Example='first'
         ).reset_index().sort_values(by='Count', ascending=False)
 
-        # 2. HTML-Tabelle für volle Kontrolle über Ausrichtung und ID-Spalte
-        html_summary = """
+        # 2. Das HTML-Gerüst bauen (WICHTIG: Alles muss in EINER Variable sein)
+        html_table = """
         <style>
-            .summary-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-family: sans-serif;
-                font-size: 15px;
-            }
-            .summary-table th, .summary-table td {
-                border: 1px solid #e6e9ef;
-                padding: 10px;
-            }
-            .summary-table th {
-                background-color: #f0f2f6;
-                text-align: left;
-            }
-            /* Spalte 1 (Company): Links */
-            .summary-table td:nth-child(1) { width: 25%; text-align: left; }
-            /* Spalte 2 (Count): Zentriert */
-            .summary-table td:nth-child(2), .summary-table th:nth-child(2) { 
-                width: 15%; text-align: center; 
-            }
-            /* Spalte 3 (Example): Links & Kursiv */
-            .summary-table td:nth-child(3) { 
-                width: 60%; text-align: left; font-style: italic; color: #666; 
-            }
+            .summary-table { width: 100%; border-collapse: collapse; font-family: sans-serif; }
+            .summary-table th, .summary-table td { border: 1px solid #e6e9ef; padding: 10px; }
+            .summary-table th { background-color: #f0f2f6; text-align: left; }
+            .summary-table td:nth-child(2) { text-align: center; } /* Count zentriert */
         </style>
         <table class="summary-table">
             <thead>
@@ -162,21 +142,17 @@ if 'raw_data' in st.session_state:
             <tbody>
         """
 
+        # 3. Die Zeilen zur Tabelle hinzufügen
         for _, row in company_summary.iterrows():
-            html_summary += f"""
-                <tr>
-                    <td>{row['company']}</td>
-                    <td>{row['Count']}</td>
-                    <td>{row['Example']}</td>
-                </tr>
-            """
+            html_table += f"<tr><td>{row['company']}</td><td>{row['Count']}</td><td>{row['Example']}</td></tr>"
 
-        html_summary += "</tbody></table>"
+        # 4. Die Tabelle schließen
+        html_table += "</tbody></table>"
 
-        # 3. Anzeige in Streamlit
-        st.markdown(html_summary, unsafe_allow_html=True)
+        # 5. WICHTIG: Mit unsafe_allow_html=True rendern
+        st.markdown(html_table, unsafe_allow_html=True)
         
-        st.info(f"💡 **Insight:** Instead of showing all {len(system_replies)} rows, we summarized them. These are clearly automated headers that don't contain customer feedback.")
+        st.info(f"💡 **Insight:** Instead of showing all {len(system_replies)} rows, we summarized them by company.")
 
 
     # 2. Identifiziere echte Text-Duplikate (identische Kommentare)
