@@ -35,7 +35,7 @@ if 'raw_data' in st.session_state:
     with st.expander("🔍 View Raw Data Columns"):
         st.write("### 📋 Dataset Column Overview")
 
-        # 1. Daten vorbereiten (wie bisher)
+        # 1. Daten vorbereiten
         column_info = []
         for col in df.columns:
             column_info.append({
@@ -44,32 +44,25 @@ if 'raw_data' in st.session_state:
             })
         df_info = pd.DataFrame(column_info)
 
-        # 2. CSS für exakte Breiten und Zentrierung
+        # 2. CSS für Zentrierung und Breiten (verbessert)
         st.markdown("""
             <style>
-            /* Die gesamte Tabelle breiter machen */
-            .stTable {
-                width: 100%;
-            }
-            /* Erste Spalte (Column Name): Links bündig, Breite 60% */
+            /* Spalte 1 (Name): Links bündig, Breite 60% */
             .stTable td:nth-child(1) {
                 width: 60%;
                 text-align: left !important;
             }
-            /* Zweite Spalte (Unique Values): Zentriert, Breite 40% */
+            /* Spalte 2 (Zahlen): Zentriert, Breite 40% */
             .stTable td:nth-child(2), .stTable th:nth-child(2) {
                 width: 40%;
-                text-align: center !important;
-            }
-            /* Header der zweiten Spalte ebenfalls zentrieren */
-            .stTable th:nth-child(2) {
                 text-align: center !important;
             }
             </style>
             """, unsafe_allow_html=True)
 
-        # 3. Anzeige als st.table (ID/Index wird hier automatisch weggelassen, wenn nicht im DF)
-        st.table(df_info)
+        # 3. Anzeige OHNE Index (ID-Spalte)
+        # Wir nutzen .style.hide(axis='index'), um die ID-Spalte in der HTML-Tabelle zu unterdrücken
+        st.table(df_info.style.hide(axis='index'))
 
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
     st.divider()
