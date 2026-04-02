@@ -474,7 +474,7 @@ if not df.empty:
 
         # --- Aufteilung 70% zu 30% ---
         col_a, col_b = st.columns([7, 3]) 
-        
+
         with col_a:
             # 1. Daten für Regionen (Top 9 + Others) vorbereiten
             loc_counts = df_filtered['location'].value_counts()
@@ -567,20 +567,17 @@ if not df.empty:
     </span>
 
     <div style="margin-bottom: 8px;">
-        <strong style="color: black;">Machine Learning (Regression)</strong> → Predicting the number of stars
+        <strong style="color: black;">Preprocessing</strong> → preparing the data for machine learning models
     </div>
         
     <div style="margin-bottom: 8px;">
-         <strong style="color: black;">Named Entity Recognition (NER) / Information Extraction</strong> → Identifying important entities
+         <strong style="color: black;">Modeling</strong> → analyzing the data with various machine learning techniques and choosing the best model for our use case.
     </div>
         
     <div style="margin-bottom: 8px;">
-        <strong style="color: black;">Unsupervised Topic Modeling</strong> → Extracting common issues from comments
+        <strong style="color: black;">Play with our model</strong> → testing the model with new comments and evaluating the results.
     </div>
         
-     <div>
-        <strong style="color: black;">Information Extraction / Text Matching</strong> → Generating automated supplier responses
-    </div>
     </div>""", unsafe_allow_html=True)
 # Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
 else:
