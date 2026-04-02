@@ -28,44 +28,10 @@ First, let's verify that we have access to the same dataset from the previous ph
 
 # 3. Daten aus dem "Gedächtnis" (Session State) abrufen
 if 'raw_data' in st.session_state:
-    # Alles ab hier muss exakt gleich weit eingerückt sein (4 Leerzeichen)
+    # Wir laden die Daten in eine lokale Variable 'df'
     df = st.session_state['raw_data']
     
-    # --- SCHRITT 1: DIE MATHEMATIK (Zuerst berechnen!) ---
-    system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
-    df_system = df[system_mask]
-    sys_count = len(df_system) 
-
-    # Daten OHNE System-Antworten
-    df_no_system = df[~system_mask]
-
-    # Echte Duplikate im Rest berechnen
-    extra_rows = len(df_no_system) - df_no_system['review_text'].nunique()
-    
-    # Die finale Kontrollsumme
-    total_identified = sys_count + extra_rows 
-
-    # --- SCHRITT 2: DIE ANZEIGE (UI) ---
-    st.success(f"✅ Successfully linked to the dataset! ({len(df)} rows loaded)")
-
-    # Hier kommen jetzt deine weiteren Anzeigen (Expander, Tabellen etc.)
-    # Achte darauf, dass auch diese weiterhin eingerückt bleiben!
-    
-    st.subheader("🔍 Deep Dive: Why are there duplicates?")
-    st.write(f"**A. System Replies:** Found {sys_count} rows that are just company responses.")
-
-    # ... Hier den Rest deines Codes einfügen ...
-
-    # --- DIE FINALE KORREKTE CONCLUSION ---
-    st.info(f"""
-        💡 **Conclusion:** We have identified all **{total_identified}** redundant entries:
-        * **{sys_count}** are automated system replies.
-        * **{extra_rows}** are extra copies of user comments.
         
-        Total: {sys_count} + {extra_rows} = **{total_identified}**.
-    """)
-
-    
     st.success(f"✅ Successfully linked to the dataset! ({len(df)} rows loaded)")
 
     #  Rohdaten-Vorschau (Exakt wie auf der Vorseite zur Kontrolle)
