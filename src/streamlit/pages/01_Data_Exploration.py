@@ -174,19 +174,15 @@ if not df.empty:
         st.markdown("#### 📊 Rating vs Verified")
 
         # Ein Violin-Plot mit 'points="all"' zeigt die Dichte der Bewertungen
-       fig_ver = px.violin(
+        fig_ver = px.violin(
             df,
             x="verified",
             y="rating",
-            color="verified",
-            box=True,
-            points=False, # <--- WICHTIG: Hier auf 'False' setzen, um die Linien zu löschen
-            color_discrete_map={0: "#EF553B", 1: "#00CC96"}
+            color="verified",      # Unterschiedliche Farben für 0 und 1
+            box=True,              # Zeichnet eine kleine Box in die Mitte
+            points="all",          # Zeigt alle Datenpunkte mit Jitter (Streuung)
+            color_discrete_map={0: "#EF553B", 1: "#00CC96"} # Rot für Unverified, Grün für Verified
         )
-
-        # ==========================================
-        # HIER DEINEN NEUEN CODE EINFÜGEN:
-        # ==========================================
 
         # 1. Daten gruppieren und zählen (Wichtig: Spaltennamen 'rating' prüfen)
         counts = df.groupby(['verified', 'rating']).size().reset_index(name='count')
