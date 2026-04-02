@@ -31,6 +31,53 @@ if 'raw_data' in st.session_state:
     # Wir laden die Daten in eine lokale Variable 'df'
     df = st.session_state['raw_data']
     
+ # --- SCHRITT 1: DIE MATHEMATIK (Zuerst berechnen!) ---
+    # Identifiziere System-Antworten (Die 503 Zeilen)
+    system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
+    df_system = df[system_mask]
+    sys_count = len(df_system) 
+
+    # Daten OHNE System-Antworten (Der Rest)
+    df_no_system = df[~system_mask]
+
+    # Echte Duplikate NUR im verbleibenden Rest berechnen
+    # Das ergibt die überflüssigen Kopien (z.B. "Best rate")
+    extra_rows = len(df_no_system) - df_no_system['review_text'].nunique()
+    
+    # Die finale Kontrollsumme (972)
+    total_identified = sys_count + extra_rows 
+
+    # --- SCHRITT 2: DIE ANZEIGE (UI) ---
+    st.success(f"✅ Successfully linked to the dataset! ({len(df)} rows loaded)")
+
+    # 3. Rohdaten-Vorschau (Exakt wie auf der Vorseite zur Kontrolle)
+    with st.expander("🔍 View Raw Data Columns"):
+        # ... dein bisheriger Code für Expander ...
+
+    # ... dein bisheriger Code für die HTML Spalten-Übersicht ...
+
+    st.subheader("🔍 Deep Dive: Why are there duplicates?")
+    
+    # Hier nutzt du jetzt die oben berechneten Variablen
+    st.write(f"**A. System Replies:** Found {sys_count} rows that are just company responses.")
+    
+    # ... dein bisheriger Code für die Summary-Tabelle (company_summary) ...
+
+    st.write(f"**B. Genuine Comment Duplicates:** Identified {extra_rows} extra copies of customer phrases.")
+
+    # ... dein bisheriger Code für die Top 10 Liste ...
+
+    # --- DIE FINALE KORREKTE CONCLUSION ---
+    st.info(f"""
+        💡 **Conclusion:** We have identified all **{total_identified}** redundant entries:
+        * **{sys_count}** are automated system replies (starting with 'Reply from').
+        * **{extra_rows}** are extra copies of common customer phrases.
+        
+        Total: {sys_count} + {extra_rows} = **{total_identified}**.
+        This explains why we have {len(df)} total rows but only **{df['review_text'].nunique()}** unique comments.
+    """)
+
+    
     st.success(f"✅ Successfully linked to the dataset! ({len(df)} rows loaded)")
 
     #  Rohdaten-Vorschau (Exakt wie auf der Vorseite zur Kontrolle)
@@ -208,24 +255,6 @@ if not system_replies.empty:
     st.info(f"💡 **Insight:** Instead of showing all {len(system_replies)} rows, we summarized them by company.")
 
 
-# 1. Wir definieren die Maske für System-Antworten einmal am Anfang (SEHR WICHTIG)
-system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
-system_replies = df[system_mask]
-sys_count = len(system_replies)
-
-
-
-# 2. Daten OHNE System-Antworten (Der Rest)
-df_no_system = df[~system_mask]
-
-# 3. Echte Duplikate NUR im verbleibenden Rest berechnen
-# Wir nehmen alle Zeilen im Rest und ziehen die einzigartigen Texte ab
-# Das ergibt exakt die überflüssigen Kopien
-extra_rows = len(df_no_system) - df_no_system['review_text'].nunique()
-
-# 4. Die finale Kontrollsumme
-total_identified = sys_count + extra_rows # 503 + 469 = 972
-
 st.write(f"**B. Genuine Comment Duplicates:** Identified {extra_rows} extra copies of customer phrases.")
 
 # Top 10 Liste für die Optik
@@ -252,7 +281,6 @@ st.info(f"""
 
 
 st.subheader("🔍 Analysis of Duplicate Comments")
-st.code("""df = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]""", language="python")
 
 
 
