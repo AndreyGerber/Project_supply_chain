@@ -78,25 +78,38 @@ if not df.empty:
             To collect customer feedback data, an automated web scraping pipeline was developed.
             Due to dynamically loaded content, a browser-based approach using Selenium was implemented to ensure reliable extraction of all relevant elements, including hidden or asynchronously loaded data.<br>
             <br>
-        <div style="font-size: 18px; line-height: 1.6;">
-            The scraper iterates across multiple companies and pages, extracting the following attributes for each review:
-            <ul style="list-style-type: disc; margin-top: 10px;">
-                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">review_text:</b> customer comment</li>
-                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">rating_svg:</b> star rating</li>
-                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">date:</b> timestamp of the review</li>
-                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">location:</b> customer country</li>
-                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">supplier_response:</b> company reply</li>
-                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">verified:</b> review verification status</li>
-                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">company:</b> retailer identifier</li>
-            </ul>
-        </div>
         <style>
-            /* Hier wird die Farbe der Aufzählungspunkte (Bullets) definiert */
+            /* 1. Zentrale Definition für die schwarzen Punkte */
             li::marker {
-                color: black; /* Hier deine Wunschfarbe für den Punkt (z.B. Streamlit-Rot) */
+                color: black;
                 font-size: 1.2em;
             }
+            
+            /* 2. Einrückung und Zeilenabstand für die Liste */
+            .custom-list-container {
+                margin-left: 50px; /* Schiebt alles nach rechts */
+                font-size: 18px;
+                line-height: 1.6;
+            }
+
+            /* 3. Abstand zwischen den einzelnen Stichpunkten */
+            .custom-list-container li {
+                margin-bottom: 8px;
+            }
         </style>
+
+        <div class="custom-list-container">
+            The scraper iterates across multiple companies and pages, extracting the following attributes for each review:
+            <ul style="list-style-type: disc; margin-top: 15px;">
+                <li><b style="color: #1E88E5;">review_text:</b> customer comment</li>
+                <li><b style="color: #1E88E5;">rating_svg:</b> star rating</li>
+                <li><b style="color: #1E88E5;">date:</b> timestamp of the review</li>
+                <li><b style="color: #1E88E5;">location:</b> customer country</li>
+                <li><b style="color: #1E88E5;">supplier_response:</b> company reply</li>
+                <li><b style="color: #1E88E5;">verified:</b> review verification status</li>
+                <li><b style="color: #1E88E5;">company:</b> retailer identifier</li>
+            </ul>
+        </div>
             <br><br>
             The initial analytics are presented below—enjoy exploring!
         </div>""", unsafe_allow_html=True)
