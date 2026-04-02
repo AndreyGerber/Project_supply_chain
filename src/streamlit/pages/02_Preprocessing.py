@@ -158,9 +158,6 @@ with col2:
 #Bild laden. Abschnitt zum Ende
 
 
-st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]""", language="python")
-
-
 
 
 
@@ -170,6 +167,7 @@ st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na
 system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]
 
 st.write(f"**A. System Replies:** Found {len(system_replies)} rows that are just company responses.")
+st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]""", language="python")
 
 if not system_replies.empty:
     st.markdown("#### 🏢 Summary of System Replies by Company")
