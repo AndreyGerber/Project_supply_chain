@@ -17,6 +17,25 @@ download_nltk_data()
 st.set_page_config(page_title="Phase 2: Preprocessing", layout="wide")
 st.title("🧹 Phase 2: Natural Language Preprocessing (NLP)")
 
+
+# --- POSITION 1: RAW DATA PREVIEW ---
+    st.subheader("📄 Raw Data Preview")
+    st.info("Direct preview of the filtered dataset:")
+
+    # Wir setzen die Höhe auf 550 Pixel. 
+    # Das reicht bei Standard-Schriftgröße für ca. 15 Zeilen + Header + Menüleiste.
+    st.dataframe(
+        df_filtered.head(76),   # so sieht man bis zur Zeile 75 (inklusive). 
+        use_container_width=True,
+        height=550 
+    )
+    
+    # Fügt eine Leerzeile ein
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+
+
 # 2. Daten aus dem Session State laden
 if 'raw_data' in st.session_state:
     df = st.session_state['raw_data'].copy()
