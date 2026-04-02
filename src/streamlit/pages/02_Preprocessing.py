@@ -209,24 +209,43 @@ if not system_replies.empty:
     st.info(f"💡 **Insight:** Instead of showing all {len(system_replies)} rows, we summarized them by company.")
 
 
+# --- 1. SCHRITT: SYSTEM-ANTWORTEN ISOLIEREN ---
+# Wir suchen alles, was mit "Reply from" beginnt
+system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
+df_system = df[system_mask]
+sys_count = len(df_system) # Das sind deine 503 Zeilen
+
+# --- 2. SCHRITT: ECHTE USER-DUPLIKATE BERECHNEN ---
+# Wir nehmen nur die Zeilen, die KEINE System-Antworten sind
+df_no_system = df[~system_mask]
+
+# Die Anzahl der "extra Kopien" ist: (Alle User-Zeilen) minus (Einzigartige User-Texte)
+unique_user_count = df_no_system['review_text'].nunique()
+extra_rows = len(df_no_system) - unique_user_count # Das sind die restlichen Duplikate (z.B. 469)
+
+# Gesamtsumme der zu entfernenden Zeilen (972)
+total_identified = sys_count + extra_rows
+
+# --- 3. DARSTELLUNG ABSCHNITT B ---
 st.write(f"**B. Genuine Comment Duplicates:** Identified {extra_rows} extra copies of customer phrases.")
 
-# Top 10 Liste
+# Top 10 Liste der echten Duplikate (ohne "Reply from")
+# Wir zählen, wie oft jeder Text im gefilterten df_no_system vorkommt
 text_counts = df_no_system['review_text'].value_counts()
-real_duplicates = text_counts[text_counts > 1]
-if not real_duplicates.empty:
-    dup_df = real_duplicates.reset_index()
-    dup_df.columns = ['Review Content', 'Occurrence Count']
-    st.dataframe(dup_df.head(10), use_container_width=True, hide_index=True)
+real_duplicates = text_counts[text_counts > 1].reset_index()
 
-# --- DIE FINALE KORREKTE CONCLUSION ---
+if not real_duplicates.empty:
+    real_duplicates.columns = ['Review Content', 'Occurrence Count']
+    st.dataframe(real_duplicates.head(10), use_container_width=True, hide_index=True)
+
+# --- 4. DIE FINALE KORREKTE CONCLUSION ---
 st.info(f"""
     💡 **Conclusion:** We have identified all **{total_identified}** redundant entries:
-    * **{sys_count}** are automated system replies.
+    * **{sys_count}** are automated system replies (starting with 'Reply from').
     * **{extra_rows}** are extra copies of common customer phrases.
     
     Total: {sys_count} + {extra_rows} = **{total_identified}**.
-    This explains why we have {len(df)} total rows but only **{unique_user_count}** unique comments.
+    This explains why we have {len(df)} total rows but only **{unique_user_count}** unique customer comments.
 """)
 
 
