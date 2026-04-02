@@ -76,7 +76,7 @@ if not df.empty:
             Our focus lies on German companies in the “Auto Parts Store” category on Trustpilot. 
             The dataset was scraped from Trustpilot.<br><br>
             To collect customer feedback data, an automated web scraping pipeline was developed.
-            Due to dynamically loaded content, a browser-based approach using Selenium was implemented to ensure reliable extraction of all relevant elements, including hidden or asynchronously loaded data.
+            Due to dynamically loaded content, a browser-based approach using Selenium was implemented to ensure reliable extraction of all relevant elements, including hidden or asynchronously loaded data.<br>
             The scraper iterates across multiple companies and pages, extracting the following attributes for each review:<br>
             <br>
             review_text: customer comment <br>
