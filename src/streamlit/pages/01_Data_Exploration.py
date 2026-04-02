@@ -558,27 +558,32 @@ if not df.empty:
         </div>
     """, unsafe_allow_html=True)
     
-    # 2. Zentrierter Ausblick-Satz
+     # 2. Zentrierter Ausblick-Satz mit Verlinkung
     st.markdown("""
-    <div style="text-align: left; padding: 20px; background-color: #e8f4f8; border-radius: 10px; color: #004085; font-size: 1.1em; border: 1px solid #b8daff; line-height: 1.8;">
-        
-    <span style="font-size: 1.4em; font-weight: bold; display: block; margin-bottom: 12px;">
-        Next Steps will be:
-    </span>
+        <div style="text-align: left; padding: 20px; background-color: #e8f4f8; border-radius: 10px; color: #004085; font-size: 1.1em; border: 1px solid #b8daff; line-height: 1.8;">
+            
+        <span style="font-size: 1.4em; font-weight: bold; display: block; margin-bottom: 12px;">
+            Next Steps will be:
+        </span>
 
-    <div style="margin-bottom: 8px;">
-        <strong style="color: black;">Preprocessing</strong> → preparing the data for machine learning models
-    </div>
-        
-    <div style="margin-bottom: 8px;">
-         <strong style="color: black;">Modeling</strong> → analyzing the data with various machine learning techniques and choosing the best model for our use case.
-    </div>
-        
-    <div style="margin-bottom: 8px;">
-        <strong style="color: black;">Play with our model</strong> → testing the model with new comments and evaluating the results.
-    </div>
-        
-    </div>""", unsafe_allow_html=True)
+        <div style="margin-bottom: 8px;">
+            <a href="/Preprocessing" target="_self" style="color: black; font-weight: bold; text-decoration: underline;">Preprocessing</a> 
+            → preparing the data for machine learning models
+        </div>
+            
+        <div style="margin-bottom: 8px;">
+            <a href="/Modeling" target="_self" style="color: black; font-weight: bold; text-decoration: underline;">Modeling</a> 
+            → analyzing the data with various machine learning techniques and choosing the best model for our use case.
+        </div>
+            
+        <div style="margin-bottom: 8px;">
+            <a href="/Live_Demo" target="_self" style="color: black; font-weight: bold; text-decoration: underline;">Play with our model</a> 
+            → testing the model with new comments and evaluating the results.
+        </div>
+            
+        </div>""", unsafe_allow_html=True)
+
+
 # Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
 else:
     st.warning("Data could not be loaded. Please check the source file.")
