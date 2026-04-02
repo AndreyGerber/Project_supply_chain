@@ -495,8 +495,8 @@ if not df.empty:
             # 2. Balkendiagramm (Horizontal für bessere Lesbarkeit)
             fig_loc = px.bar(
                 plot_df, 
-                x='Count', 
-                y='Region', 
+                x='Region', 
+                y='count', 
                 title="Top 9 Regions & Others", 
                 orientation='h', # Horizontaler Balken
                 text='Count',     # Zahlen direkt am Balken anzeigen
