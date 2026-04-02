@@ -88,8 +88,8 @@ if not df.empty:
             /* NUR die Liste einrücken */
             .eingerueckte-liste {
                 margin-left: 20px; /* Hier schiebst du nur die Punkte nach rechts */
-                margin-top: 15px;
-                line-height: 1.8;
+                margin-top: 12px;
+                line-height: 1.6; /* Optional: Erhöht den Zeilenabstand für bessere Lesbarkeit */
             }
         </style>
 
