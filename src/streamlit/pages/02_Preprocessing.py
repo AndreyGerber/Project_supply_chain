@@ -44,24 +44,22 @@ if 'raw_data' in st.session_state:
             })
         df_info = pd.DataFrame(column_info)
 
-        # 2. CSS für Zentrierung und Breiten (verbessert)
+        # 2. CSS für die Ausrichtung
         st.markdown("""
             <style>
-            /* Spalte 1 (Name): Links bündig, Breite 60% */
+            /* Erste Spalte (Column Name): Links bündig */
             .stTable td:nth-child(1) {
-                width: 60%;
                 text-align: left !important;
             }
-            /* Spalte 2 (Zahlen): Zentriert, Breite 40% */
+            /* Zweite Spalte (Unique Values): Zentriert */
             .stTable td:nth-child(2), .stTable th:nth-child(2) {
-                width: 40%;
                 text-align: center !important;
             }
             </style>
             """, unsafe_allow_html=True)
 
-        # 3. Anzeige OHNE Index (ID-Spalte)
-        # Wir nutzen .style.hide(axis='index'), um die ID-Spalte in der HTML-Tabelle zu unterdrücken
+        # 3. Anzeige OHNE ID-Spalte (Index)
+        # .style.hide(axis='index') entfernt die Spalte 0, 1, 2...
         st.table(df_info.style.hide(axis='index'))
 
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
