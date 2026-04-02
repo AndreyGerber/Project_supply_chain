@@ -115,12 +115,12 @@ if not df.empty:
     st.subheader("📄 Raw Data Preview")
     st.info("Direct preview of the filtered dataset:")
 
-    # Wir berechnen die Höhe (ca. 35 Pixel pro Zeile + Header)
-    # 600 Pixel reichen normalerweise locker für 15 Zeilen aus.
+    # Wir nutzen hide_index=True, um Platz zu sparen, falls du die Nummern links nicht brauchst
+    # 'height' auf ca. 600 setzen, damit 15 Zeilen + Header + Menü Platz haben
     st.dataframe(
         df_filtered.dropna().head(15), 
-        use_container_width=True, 
-        height=565
+        use_container_width=True,
+        height=600  # Groß genug für 15 Zeilen, damit kein Scrollbalken in der Tabelle erscheint
     )
     
     # Fügt eine Leerzeile ein
