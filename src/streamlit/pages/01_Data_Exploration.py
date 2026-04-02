@@ -105,7 +105,7 @@ if not df.empty:
                 <li><b style="color: #1E88E5;">company:</b> retailer identifier</li>
             </ul>
         </div>
-            <br><br>
+            <br>
             The initial analytics are presented below—enjoy exploring!
         </div>""", unsafe_allow_html=True)
     st.markdown("---")
