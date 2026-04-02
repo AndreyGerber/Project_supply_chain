@@ -123,6 +123,11 @@ st.markdown("<br>", unsafe_allow_html=True)
 # 5. Erklärung der Duplikate (Warum haben wir mehr Zeilen als einzigartige Kommentare?)
 st.subheader("🔍 Deep Dive: Why are there duplicates in 'review_text'?")
 
+st.code(""" Successfully linked to the dataset! (6443 rows loaded) but only 5471 in "review_text" """, language="python")
+
+
+#Bild laden
+
 current_dir = os.path.dirname(__file__)
 
 # Falls dieses Skript im Ordner 'pages/' liegt, gehe eine Ebene höher
@@ -151,7 +156,7 @@ with col2:
 
 # Optional: Text unter dem Bild (außerhalb der Spalten für volle Breite)
 st.write("Dies ist die Projektübersicht.")
-
+#Bild laden. Abschnitt zum Ende
 
 
 st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]""", language="python")
