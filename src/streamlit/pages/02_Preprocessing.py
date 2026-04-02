@@ -33,14 +33,21 @@ if 'raw_data' in st.session_state:
 
     # 3. Rohdaten-Vorschau (Exakt wie auf der Vorseite zur Kontrolle)
     with st.expander("🔍 View Raw Data Columns"):
-        st.write("Current columns in our dataset:")
-        st.write("Current columns in your dataset:")
-        # Erstellt eine vertikale Liste mit Markdown-Stichpunkten
+        st.write("### 📋 Dataset Column Overview")
+
+        # 1. Wir erstellen eine Liste mit den Infos (Name und Anzahl unique)
+        column_info = []
         for col in df.columns:
-            st.markdown(f"- **{col}**")
-        
-        st.subheader("Data Preview (First 10 rows)")
-        st.dataframe(df.head(10), use_container_width=True)
+            column_info.append({
+                "Column Name": col,
+                "Unique Values (nunique)": df[col].nunique()
+            })
+
+        # 2. In ein DataFrame umwandeln für die Darstellung
+        df_info = pd.DataFrame(column_info)
+
+        # 3. Als Tabelle anzeigen (sieht sauberer aus als eine Liste)
+        st.table(df_info)
 
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
     st.divider()
