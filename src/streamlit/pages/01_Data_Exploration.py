@@ -479,30 +479,43 @@ if not df.empty:
             # 1. Daten für Regionen (Top 9 + Others)
             loc_counts = df_filtered['location'].value_counts()
             top_9 = loc_counts.head(9)
-            others_count = loc_counts.iloc[9:].sum()
-        
-            if others_count > 0:
+            
+            # Falls mehr als 9 Länder existieren, fasse den Rest als 'Others' zusammen
+            if len(loc_counts) > 9:
+                others_count = loc_counts.iloc[9:].sum()
                 others_series = pd.Series([others_count], index=['Others'])
                 final_loc_data = pd.concat([top_9, others_series])
             else:
                 final_loc_data = top_9
 
-            # 2. Donut-Diagramm
-            fig_loc = px.pie(
-                values=final_loc_data.values, 
-                names=final_loc_data.index, 
+            # Daten für Plotly vorbereiten (Index in Spalte umwandeln)
+            plot_df = final_loc_data.reset_index()
+            plot_df.columns = ['Region', 'Count']
+
+            # 2. Balkendiagramm (Horizontal für bessere Lesbarkeit)
+            fig_loc = px.bar(
+                plot_df, 
+                x='Count', 
+                y='Region', 
                 title="Top 9 Regions & Others", 
-                hole=0.4,
+                orientation='h', # Horizontaler Balken
+                text='Count',     # Zahlen direkt am Balken anzeigen
+                color='Region', 
                 color_discrete_sequence=px.colors.qualitative.Pastel,
-                height=chart_height  # <--- Dynamische Höhe
+                height=chart_height
             )
         
-            # Legende rechts positionieren wie im Screenshot
+            # Layout-Anpassungen
             fig_loc.update_layout(
-                legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.05),
-                margin=dict(t=50, b=50, l=20, r=100) # Platz für Legende schaffen
+                showlegend=False, # Legende ausblenden, da Achse beschriftet ist
+                xaxis_title="Number of Reviews",
+                yaxis_title=None,
+                yaxis={'categoryorder':'total ascending'}, # Größter Balken oben
+                margin=dict(t=50, b=50, l=100, r=50) # Mehr Platz links für Ländernamen
             )
-            fig_loc.update_traces(textinfo='percent')
+            
+            # Textposition der Zahlen
+            fig_loc.update_traces(textposition='outside')
             
             st.plotly_chart(fig_loc, use_container_width=True)
 
