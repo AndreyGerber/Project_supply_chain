@@ -35,7 +35,7 @@ if 'raw_data' in st.session_state:
     with st.expander("🔍 View Raw Data Columns"):
         st.write("### 📋 Dataset Column Overview")
 
-        # 1. Wir erstellen eine Liste mit den Infos (Name und Anzahl unique)
+        # 1. Daten vorbereiten (wie bisher)
         column_info = []
         for col in df.columns:
             column_info.append({
@@ -43,11 +43,38 @@ if 'raw_data' in st.session_state:
                 "Unique Values (nunique)": df[col].nunique()
             })
 
-        # 2. In ein DataFrame umwandeln für die Darstellung
         df_info = pd.DataFrame(column_info)
 
-        # 3. Als Tabelle anzeigen (sieht sauberer aus als eine Liste)
-        st.table(df_info)
+        # 2. Darstellung mit Spaltenkonfiguration
+        st.dataframe(
+            df_info,
+            use_container_width=True,
+            hide_index=True,  # Entfernt die ID-Spalte (0, 1, 2...) ganz links
+            column_config={
+                "Column Name": st.column_config.TextColumn(
+                    "Column Name",
+                    width="large",   # Hier kannst du "small", "medium" oder "large" wählen
+                    help="The name of the feature in the dataset"
+                ),
+                "Unique Values (nunique)": st.column_config.NumberColumn(
+                    "Unique Values (nunique)",
+                    width="medium",  # Breite für die Zahlen-Spalte
+                    format="%d",     # Zeigt ganze Zahlen ohne Komma an
+                    help="Number of unique entries in this column"
+                )
+            }
+        )
+
+        # 3. Zentrierung der Zahlen (CSS-Hack)
+        st.markdown("""
+            <style>
+            /* Richtet alle Zellen in der zweiten Spalte (Zahlen) zentriert aus */
+            [data-testid="stTable"] td:nth-child(2), 
+            [data-testid="stDataFrame"] td:nth-child(2) {
+                text-align: center !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
 
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
     st.divider()
