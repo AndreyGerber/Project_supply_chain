@@ -106,9 +106,51 @@ if 'raw_data' in st.session_state:
     st.markdown("<br>", unsafe_allow_html=True)
 
 
+
+
+    st.subheader("🔍 Deep Dive: Why are there duplicates?")
+
+    # 1. Identifiziere die System-Antworten (Die "Reply from" Zeilen)
+    system_replies = df[df['review_text'].str.contains("Reply from", na=False, case=False)]
+    st.write(f"**A. System Replies:** Found {len(system_replies)} rows that are just company responses.")
+
+    if not system_replies.empty:
+        st.dataframe(system_replies[['review_text', 'company']].head(5), hide_index=True)
+
+    # 2. Identifiziere echte Text-Duplikate (identische Kommentare)
+    # Wir schauen uns nur die Texte an, die KEINE System-Antworten sind
+    df_no_replies = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]
+    text_counts = df_no_replies['review_text'].value_counts()
+    real_duplicates = text_counts[text_counts > 1]
+
+    st.write(f"**B. Genuine Comment Duplicates:** Found {len(real_duplicates)} unique texts that appear multiple times.")
+
+    # 3. Darstellung der echten Duplikate in einer Tabelle
+    if not real_duplicates.empty:
+        dup_df = real_duplicates.reset_index()
+        dup_df.columns =
+        
+        st.dataframe(
+            dup_df.head(10), 
+            use_container_width=True, 
+            hide_index=True,
+            column_config={
+                "Comment Text": st.column_config.TextColumn("Review Content", width="large"),
+                "Occurrence Count": st.column_config.NumberColumn("Count", width="small")
+            }
+        )
+
+    st.info(f"💡 **Conclusion:** Out of the missing {len(df) - df['review_text'].nunique()} entries, "
+            f"{len(system_replies)} are system replies and the rest are repeated customer phrases.")
+
+
+
+
     st.subheader("🔍 Analysis of Duplicate Comments")
     st.code("""df = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]""", language="python")
    
+
+
     # Die Top 5 der am häufigsten vorkommenden identischen Texte
     st.write("Most frequent identical comments:")
 
