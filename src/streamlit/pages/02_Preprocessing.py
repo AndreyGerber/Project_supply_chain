@@ -115,13 +115,69 @@ if 'raw_data' in st.session_state:
     st.write(f"**A. System Replies:** Found {len(system_replies)} rows that are just company responses.")
 
     if not system_replies.empty:
-        st.dataframe(system_replies[['review_text', 'company']].head(5), hide_index=True)
+        st.write("#### 🏢 Summary of System Replies by Company")
 
-    # 2. Identifiziere echte Text-Duplikate (identische Kommentare)
-    # Wir schauen uns nur die Texte an, die KEINE System-Antworten sind
-    df_no_replies = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]
-    text_counts = df_no_replies['review_text'].value_counts()
-    real_duplicates = text_counts[text_counts > 1]
+        # 1. Daten aggregieren: Pro Firma zählen und ein Textbeispiel nehmen
+        company_summary = system_replies.groupby('company')['review_text'].agg(
+            Count='count',
+            Example='first'
+        ).reset_index().sort_values(by='Count', ascending=False)
+
+        # 2. HTML-Tabelle für volle Kontrolle über Ausrichtung und ID-Spalte
+        html_summary = """
+        <style>
+            .summary-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-family: sans-serif;
+                font-size: 15px;
+            }
+            .summary-table th, .summary-table td {
+                border: 1px solid #e6e9ef;
+                padding: 10px;
+            }
+            .summary-table th {
+                background-color: #f0f2f6;
+                text-align: left;
+            }
+            /* Spalte 1 (Company): Links */
+            .summary-table td:nth-child(1) { width: 25%; text-align: left; }
+            /* Spalte 2 (Count): Zentriert */
+            .summary-table td:nth-child(2), .summary-table th:nth-child(2) { 
+                width: 15%; text-align: center; 
+            }
+            /* Spalte 3 (Example): Links & Kursiv */
+            .summary-table td:nth-child(3) { 
+                width: 60%; text-align: left; font-style: italic; color: #666; 
+            }
+        </style>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Count</th>
+                    <th>Example Text Content</th>
+                </tr>
+            </thead>
+            <tbody>
+        """
+
+        for _, row in company_summary.iterrows():
+            html_summary += f"""
+                <tr>
+                    <td>{row['company']}</td>
+                    <td>{row['Count']}</td>
+                    <td>{row['Example']}</td>
+                </tr>
+            """
+
+        html_summary += "</tbody></table>"
+
+        # 3. Anzeige in Streamlit
+        st.markdown(html_summary, unsafe_allow_html=True)
+        
+        st.info(f"💡 **Insight:** Instead of showing all {len(system_replies)} rows, we summarized them. These are clearly automated headers that don't contain customer feedback.")
+
 
     st.write(f"**B. Genuine Comment Duplicates:** Found {len(real_duplicates)} unique texts that appear multiple times.")
 
