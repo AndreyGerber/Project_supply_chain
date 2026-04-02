@@ -474,13 +474,12 @@ if not df.empty:
 
         # --- Aufteilung 70% zu 30% ---
         col_a, col_b = st.columns([7, 3]) 
-    
+        
         with col_a:
-            # 1. Daten für Regionen (Top 9 + Others)
+            # 1. Daten für Regionen (Top 9 + Others) vorbereiten
             loc_counts = df_filtered['location'].value_counts()
             top_9 = loc_counts.head(9)
             
-            # Falls mehr als 9 Länder existieren, fasse den Rest als 'Others' zusammen
             if len(loc_counts) > 9:
                 others_count = loc_counts.iloc[9:].sum()
                 others_series = pd.Series([others_count], index=['Others'])
@@ -488,33 +487,32 @@ if not df.empty:
             else:
                 final_loc_data = top_9
 
-            # Daten für Plotly vorbereiten (Index in Spalte umwandeln)
+            # Daten für Plotly in DataFrame umwandeln
             plot_df = final_loc_data.reset_index()
             plot_df.columns = ['Region', 'Count']
 
-            # 2. Balkendiagramm (Horizontal für bessere Lesbarkeit)
+            # 2. Vertikales Balkendiagramm
             fig_loc = px.bar(
                 plot_df, 
-                x='Count', 
-                y='Region', 
+                x='Region',  # Länder auf die X-Achse
+                y='Count',   # Anzahl auf die Y-Achse
                 title="Top 9 Regions & Others", 
-                orientation='v', # Horizontaler Balken
-                text='Count',     # Zahlen direkt am Balken anzeigen
+                text='Count', # Zahlen über den Balken
                 color='Region', 
                 color_discrete_sequence=px.colors.qualitative.Pastel,
                 height=chart_height
             )
         
-            # Layout-Anpassungen
+            # Layout-Anpassungen für vertikale Optik
             fig_loc.update_layout(
-                showlegend=False, # Legende ausblenden, da Achse beschriftet ist
-                xaxis_title="Number of Reviews",
-                yaxis_title=None,
-                yaxis={'categoryorder':'total ascending'}, # Größter Balken oben
-                margin=dict(t=50, b=50, l=100, r=50) # Mehr Platz links für Ländernamen
+                showlegend=False, # Legende aus, da X-Achse beschriftet ist
+                xaxis_title="Region",
+                yaxis_title="Number of Reviews",
+                xaxis={'categoryorder':'total descending'}, # Höchster Balken links
+                margin=dict(t=50, b=50, l=20, r=20)
             )
             
-            # Textposition der Zahlen
+            # Zahlen über den Balken positionieren
             fig_loc.update_traces(textposition='outside')
             
             st.plotly_chart(fig_loc, use_container_width=True)
