@@ -97,7 +97,7 @@ if not df.empty:
     In this section, we analyze the raw dataset of the **Auto Parts Store**. 
     Our goal is to understand the distribution of star ratings and get a first look at the customer comments.
     ---
-    """)
+    """, unsafe_allow_html=True)
 
     # --- POSITION 1: RAW DATA PREVIEW ---
     st.subheader("📄 Raw Data Preview")
