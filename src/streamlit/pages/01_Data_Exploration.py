@@ -291,47 +291,57 @@ if not df.empty:
         yearly_counts = df_filtered['Year'].value_counts().sort_index().reset_index()
         yearly_counts.columns = ['Year', 'Number of comments']
 
-        # Plotly Bar Chart
+     # Plotly Bar Chart - Einfarbig MIT Legende
         fig_years = px.bar(
             yearly_counts, 
             x='Year', 
             y='Number of comments',
             text='Number of comments',
-            #color='Year', # Erzeugt die Legende
-            color_discrete_sequence=['#1E88E5'],
-            height=600  # <--- HIER: Gesamthöhe des Diagramms einstellen
+            # Wir geben der Datenreihe einen Namen für die Legende
+            labels={'Number of comments': 'Total Comments'},
+            height=600
+        )
+
+        # Hier erzwingen wir die eine Farbe für alle Balken
+        fig_years.update_traces(
+            marker_color='#1E88E5', 
+            name='Reviews per Year', # Dieser Text erscheint in der Legende
+            showlegend=True          # Legende explizit wieder einschalten
         )
 
         # Layout-Feineinstellungen
         fig_years.update_layout(
             xaxis_type='category', 
             plot_bgcolor='rgba(0,0,0,0)',
-            showlegend=True,
+            showlegend=True, # Legende global aktivieren
             
-            # --- LEGENDE RECHTS ---
-            legend=dict(title="(click to select):",orientation="v",    # Vertikal
-                yanchor="top", y=1, xanchor="left", 
-                x=1.02 # Platziert die Legende rechts außerhalb des Diagramms
+            # --- LEGENDE RECHTS (wie vorher) ---
+            legend=dict(
+                title="Legend:",
+                orientation="v",
+                yanchor="top", y=1, 
+                xanchor="left", x=1.02
             ),
 
             # --- SCHRIFTGRÖSSEN ---
-            font=dict(size=14),     # Allgemeine Schriftgröße (optional)
+            font=dict(size=14),
             xaxis=dict(
-                title_font=dict(size=20), # Größe der "Year" Beschriftung
-                tickfont=dict(size=14)    # Größe der Jahreszahlen (2012, 2014...)
+                title_font=dict(size=20),
+                tickfont=dict(size=14)
             ),
             yaxis=dict(
-                title_font=dict(size=20), # Größe der "Number of Reviews" Beschriftung
-                tickfont=dict(size=16),   # Größe der Zahlen an der Y-Achse
+                title_font=dict(size=20),
+                tickfont=dict(size=16),
                 showgrid=True, 
                 gridcolor='LightGray'
             ),
-            margin=dict(r=150) # Platz rechts lassen, damit die Legende nicht abgeschnitten wird
+            margin=dict(r=150) # Platz für die Legende lassen
         )
 
         fig_years.update_traces(textposition='outside')
-
         st.plotly_chart(fig_years, use_container_width=True)
+
+
     st.markdown("<br>", unsafe_allow_html=True)
         # --- ENDE DES ABSCHNITTS Review Volume by Year---
 
