@@ -51,4 +51,4 @@ with col4:
     st.caption("Interactive Prediction: Enter your own comment and let the AI predict the rating!")
 
 st.markdown("---")
-st.success("💡 **Quick Start:** Begin by uploading your dataset in the **Data Upl
+st.success("💡 **Quick Start:** Begin by uploading your dataset in the **Data Upload** section in the sidebar.")
