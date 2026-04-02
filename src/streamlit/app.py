@@ -51,6 +51,7 @@ with col4:
     st.caption("Interactive Prediction: Enter your own comment and let the AI predict the rating!")
 
 st.markdown("---")
+st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
 font_size = "20px"
 st.markdown(
     f"""
