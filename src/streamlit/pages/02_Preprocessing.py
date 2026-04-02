@@ -125,18 +125,16 @@ st.subheader("🔍 Deep Dive: Why are there duplicates in 'review_text'?")
 
 st.code("""system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]""", language="python")
 
-#Bild laden
+# Bild laden
 current_dir = os.path.dirname(__file__)
 logo_path = os.path.join(current_dir, "static", "what_is_it.png")
 
-# 2. Das Bild in der Sidebar anzeigen
+#  Bild auf der Hauptseite anzeigen
 if os.path.exists(logo_path):
-    st.sidebar.image(logo_path, caption="Project Logo", use_container_width=True)
+    # 'use_container_width=True' passt das Bild automatisch an die Spaltenbreite an
+    st.image(logo_path, caption="Project Overview", use_container_width=True)
 else:
-    st.sidebar.warning(f"⚠️ Image not found at: {logo_path}")
-
-# Dein restlicher Content...
-st.title("Main Page")
+    st.error(f"❌ File not found at: {logo_path}")
 
 
 
