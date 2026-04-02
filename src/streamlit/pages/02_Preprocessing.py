@@ -114,6 +114,80 @@ if 'raw_data' in st.session_state:
 
 
 
+    st.write("### 📋 Preprocessing Status Overview")
+
+    # 1. Daten für die Tabelle vorbereiten
+    column_info = []
+
+    # Liste der Spalten, die wir als "cleaned" markieren wollen
+    # (Du kannst diese Liste erweitern, wenn du mehr Spalten bearbeitest)
+    cleaned_columns = ['review_text', 'review_text_clean', 'review_text_clean_advanced']
+
+    for col in df.columns:
+        # Check, ob die Spalte in unserer Liste der bereinigten Spalten ist
+        is_cleaned = "✅" if col in cleaned_columns else "❌"
+        
+        column_info.append({
+            "name": col,
+            "count": df[col].nunique(),
+            "status": is_cleaned
+        })
+
+    # 2. HTML & CSS (Anforderung: 3 Spalten, Zentrierung, Breiten)
+    html_table = """
+    <style>
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: sans-serif;
+            color: #31333F;
+        }
+        .status-table th, .status-table td {
+            border: 1px solid #e6e9ef;
+            padding: 12px;
+        }
+        .status-table th {
+            background-color: #f0f2f6;
+        }
+        /* Spalte 1: Name (links) - 50% */
+        .status-table td:nth-child(1), .status-table th:nth-child(1) {
+            text-align: left;
+            width: 50%;
+        }
+        /* Spalte 2: Unique (zentriert) - 25% */
+        .status-table td:nth-child(2), .status-table th:nth-child(2) {
+            text-align: center;
+            width: 25%;
+        }
+        /* Spalte 3: Cleaned (zentriert) - 25% */
+        .status-table td:nth-child(3), .status-table th:nth-child(3) {
+            text-align: center;
+            width: 25%;
+        }
+    </style>
+
+    <table class="status-table">
+        <thead>
+            <tr>
+                <th>Column Name</th>
+                <th>Unique Values</th>
+                <th>Cleaned</th>
+            </tr>
+        </thead>
+        <tbody>
+    """
+
+    for item in column_info:
+        html_table += f"<tr><td>{item['name']}</td><td>{item['count']}</td><td>{item['status']}</td></tr>"
+
+    html_table += "</tbody></table>"
+
+    # 3. Anzeige
+    st.markdown(html_table, unsafe_allow_html=True)
+
+
+
+
 
 
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
