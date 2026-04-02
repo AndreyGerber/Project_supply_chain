@@ -17,6 +17,7 @@ st.markdown("""
 This project focuses on analyzing customer comments to automatically predict the corresponding **star rating**. 
 This represents a classic **Natural Language Processing (NLP)** and **Classification** challenge.
 
+<br><br>
 
 ### 🎯 Project Objectives
 *   **Pattern Recognition:** Identify which words correlate most strongly with positive or negative reviews. Find the negative and positve review patterns. 
