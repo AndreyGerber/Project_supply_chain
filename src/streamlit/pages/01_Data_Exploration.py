@@ -44,7 +44,7 @@ if not df.empty:
     df_filtered = df[df['rating'].isin(selected_rating)]
 
     # 4. Main Header
-    st.title("📊 Phase 1: Data Exploration"")
+    st.title("📊 Phase 1: Data Exploration")
 
     # Fügt eine Leerzeile ein
     st.markdown("<br>", unsafe_allow_html=True)
@@ -92,6 +92,12 @@ if not df.empty:
             The initial analytics are presented below—enjoy exploring!
         </div>""", unsafe_allow_html=True)
     st.markdown("---")
+
+    st.markdown("""
+    In this section, we analyze the raw dataset of the **Auto Parts Store**. 
+    Our goal is to understand the distribution of star ratings and get a first look at the customer comments.
+    ---
+    """)
 
 
     # --- POSITION 1: RAW DATA PREVIEW ---
