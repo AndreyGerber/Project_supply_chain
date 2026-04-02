@@ -4,7 +4,7 @@ import re
 import nltk
 from nltk.corpus import stopwords
 
-# --- 1. SEITEN-KONFIGURATION & RESSOURCEN ---
+# --- 1. PAGE CONFIGURATION & RESOURCES ---
 st.set_page_config(page_title="Phase 2: Preprocessing", layout="wide")
 
 @st.cache_resource
@@ -14,20 +14,20 @@ def download_nltk_data():
 
 download_nltk_data()
 
-# --- 2. HEADER & EINLEITUNG ---
+# --- 2. HEADER & INTRODUCTION ---
 st.title("🧹 Phase 2: Natural Language Preprocessing (NLP)")
 st.markdown("""
-In diesem Schritt bereiten wir die Review-Texte für das Machine Learning vor.
-Zuerst verifizieren wir den Datensatz und identifizieren Rauschen (System-Antworten & Duplikate).
+In this step, we prepare our raw review texts for Machine Learning. 
+First, we verify our dataset and identify noise such as automated system replies and duplicates.
 """)
 
-# --- 3. DATENABRUF AUS SESSION STATE ---
+# --- 3. DATA RETRIEVAL FROM SESSION STATE ---
 if 'raw_data' in st.session_state:
     df = st.session_state['raw_data']
-    st.success(f"✅ Verbindung zum Datensatz hergestellt! ({len(df)} Zeilen geladen)")
+    st.success(f"✅ Dataset linked successfully! ({len(df)} rows loaded)")
 
-    # --- 4. DATASET OVERVIEW (HTML TABELLE) ---
-    st.write("### 📋 Dataset Spalten-Übersicht")
+    # --- 4. DATASET OVERVIEW (CUSTOM HTML TABLE) ---
+    st.write("### 📋 Dataset Column Overview")
     
     html_style = """
     <style>
@@ -47,30 +47,29 @@ if 'raw_data' in st.session_state:
     st.markdown(f"{html_style}<table class='custom-table'><thead><tr><th>Column Name</th><th>Unique Values</th></tr></thead>"
                 f"<tbody>{table_rows}</tbody></table><br>", unsafe_allow_html=True)
 
-    # --- 5. ANALYSE: SYSTEM ANTWORTEN & DUPLIKATE ---
-    st.subheader("🔍 Deep Dive: Warum gibt es Duplikate?")
+    # --- 5. DUPLICATE & SYSTEM REPLY ANALYSIS ---
+    st.subheader("🔍 Deep Dive: Analyzing Duplicates")
     
-    # Logik-Definition
+    # Logic: Identify "Reply from" rows vs. genuine user text duplicates
     system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
     df_system = df[system_mask]
     df_no_system = df[~system_mask]
     
-    # Echte Text-Duplikate im Rest berechnen
+    # Calculate extra rows (duplicates) within the user comments only
     extra_rows_count = len(df_no_system) - df_no_system['review_text'].nunique()
-    total_to_remove = len(df_system) + extra_rows_count
+    total_noise = len(df_system) + extra_rows_count
 
-    # A. System-Antworten Zusammenfassung
-    st.write(f"**A. System-Antworten:** {len(df_system)} Zeilen sind reine Firmen-Antworten.")
+    # A. System Replies Summary
+    st.write(f"**A. System Replies:** Found {len(df_system)} rows that are automated company responses.")
     
     if not df_system.empty:
         company_summary = df_system.groupby('company')['review_text'].agg(['count', 'first']).reset_index()
-        company_summary.columns = ['Company', 'Count', 'Example Text']
+        company_summary.columns = ['Company', 'Count', 'Example Text Content']
         st.dataframe(company_summary.sort_values('Count', ascending=False), use_container_width=True, hide_index=True)
 
-    # B. Echte User-Duplikate
-    st.write(f"**B. Echte Kommentar-Duplikate:** {extra_rows_count} überflüssige Kopien von Kunden-Phrasen gefunden.")
+    # B. Genuine Comment Duplicates
+    st.write(f"**B. Genuine Comment Duplicates:** Identified {extra_rows_count} redundant copies of customer phrases.")
     
-    # Top 5 Duplikate anzeigen
     top_duplicates = df_no_system['review_text'].value_counts().head(5).reset_index()
     top_duplicates.columns = ['Review Content', 'Occurrence Count']
     
@@ -80,22 +79,22 @@ if 'raw_data' in st.session_state:
         hide_index=True,
         column_config={
             "Review Content": st.column_config.TextColumn("Review Content", width="large"),
-            "Occurrence Count": st.column_config.NumberColumn("Anzahl")
+            "Occurrence Count": st.column_config.NumberColumn("Count")
         }
     )
 
-    # Fazit Box
+    # Final Conclusion Box
     st.info(f"""
-        💡 **Fazit:** Wir haben insgesamt **{total_to_remove}** Einträge identifiziert, die entfernt werden sollten:
-        * **{len(df_system)}** automatisierte System-Antworten.
-        * **{extra_rows_count}** identische Kunden-Kommentare.
+        💡 **Conclusion:** We have identified **{total_noise}** entries to be removed:
+        * **{len(df_system)}** are automated system replies.
+        * **{extra_rows_count}** are extra copies of common customer phrases.
         
-        Ziel-Datensatz nach Bereinigung: **{df['review_text'].nunique()}** einzigartige Reviews.
+        Target dataset size after cleaning: **{df['review_text'].nunique()}** unique customer reviews.
     """)
 
 else:
-    st.warning("⚠️ Keine Daten im Session State gefunden. Bitte gehen Sie zurück zu Phase 1.")
+    st.warning("⚠️ No data found in Session State. Please go back to Phase 1 and load the dataset.")
 
-# --- 6. AUSBLICK ---
+# --- 6. NEXT STEPS ---
 st.markdown("---")
-st.write("Möchten Sie nun mit der **Text-Bereinigung** (Stopwords, Sonderzeichen) fortfahren?")
+st.write("Ready to proceed with **Text Cleaning** (removing stopwords, special characters, and lowering case)?")
