@@ -128,7 +128,7 @@ if 'raw_data' in st.session_state:
     # 3. Darstellung der echten Duplikate in einer Tabelle
     if not real_duplicates.empty:
         dup_df = real_duplicates.reset_index()
-        dup_df.columns =
+        dup_df.columns = ['Review Content', 'Occurrence Count']
         
         st.dataframe(
             dup_df.head(10), 
