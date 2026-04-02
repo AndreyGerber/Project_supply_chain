@@ -78,14 +78,25 @@ if not df.empty:
             To collect customer feedback data, an automated web scraping pipeline was developed.
             Due to dynamically loaded content, a browser-based approach using Selenium was implemented to ensure reliable extraction of all relevant elements, including hidden or asynchronously loaded data.<br>
             <br>
-            The scraper iterates across multiple companies and pages, extracting the following attributes for each review:<br>
-            review_text: customer comment <br>
-            rating_svg: star rating <br>
-            date: timestamp of the review <br>
-            location: customer country <br>
-            supplier_response: company reply <br>
-            verified: review verification status <br>
-            company: retailer identifier
+        <div style="font-size: 18px; line-height: 1.6;">
+            The scraper iterates across multiple companies and pages, extracting the following attributes for each review:
+            <ul style="list-style-type: disc; margin-top: 10px;">
+                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">review_text:</b> customer comment</li>
+                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">rating_svg:</b> star rating</li>
+                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">date:</b> timestamp of the review</li>
+                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">location:</b> customer country</li>
+                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">supplier_response:</b> company reply</li>
+                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">verified:</b> review verification status</li>
+                <li style="margin-bottom: 5px;"><b style="color: #1E88E5;">company:</b> retailer identifier</li>
+            </ul>
+        </div>
+        <style>
+            /* Hier wird die Farbe der Aufzählungspunkte (Bullets) definiert */
+            li::marker {
+                color: #FF4B4B; /* Hier deine Wunschfarbe für den Punkt (z.B. Streamlit-Rot) */
+                font-size: 1.2em;
+            }
+        </style>
             <br><br>
             The initial analytics are presented below—enjoy exploring!
         </div>""", unsafe_allow_html=True)
