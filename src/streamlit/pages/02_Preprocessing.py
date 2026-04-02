@@ -33,7 +33,11 @@ if 'raw_data' in st.session_state:
 
     # 3. Rohdaten-Vorschau (Exakt wie auf der Vorseite zur Kontrolle)
     with st.expander("🔍 View Raw Data Columns"):
-
+        st.write("Current columns in your dataset:")
+        st.code(list(df.columns))
+        
+        st.subheader("Data Preview (First 10 rows)")
+        st.dataframe(df.head(10), use_container_width=True)
 
 
 
