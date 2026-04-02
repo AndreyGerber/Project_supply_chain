@@ -178,23 +178,21 @@ if not df.empty:
             df,
             x="verified",
             y="rating",
-            color="verified",
-            box=True,
-            points="all",  # Alle Punkte anzeigen
-            color_discrete_map={0: "#EF553B", 1: "#00CC96"}
+            color="verified",      # Unterschiedliche Farben für 0 und 1
+            box=True,              # Zeichnet eine kleine Box in die Mitte
+            points="all",          # Zeigt alle Datenpunkte mit Jitter (Streuung)
+            color_discrete_map={0: "#EF553B", 1: "#00CC96"} # Rot für Unverified, Grün für Verified
         )
 
-        # Das hier sorgt dafür, dass die Punkte gestreut (jitter) werden 
-        # und nicht als harte Linien erscheinen:
-        fig_ver.update_traces(jitter=0.7, pointpos=0) 
-
-        fig_ver.update_layout(
-            xaxis=dict(
-                tickmode='array',
-                tickvals=[0, 1],
-                ticktext=['Non-Verified (0)', 'Verified (1)']
-            )
+        fig_ver.update_traces(
+            points="all",      # Alle Punkte anzeigen
+            jitter=0.7,        # Streuung nach links/rechts (0 bis 1)
+            pointpos=0,        # Punkte direkt AUF die Violine legen (0 ist mittig)
+            marker=dict(size=3, opacity=0.5) # Kleinere, leicht transparente Punkte
         )
+
+        # Layout-Update (optional für bessere Optik)
+        fig_ver.update_layout(height=500)
 
         st.plotly_chart(fig_ver, use_container_width=True)
 
