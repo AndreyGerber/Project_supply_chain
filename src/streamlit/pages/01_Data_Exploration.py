@@ -299,7 +299,6 @@ if not df.empty:
             text='Number of comments',
             #color='Year', # Erzeugt die Legende
             color_discrete_sequence=['#1E88E5'],
-            color_discrete_sequence=px.colors.qualitative.Plotly,
             height=600  # <--- HIER: Gesamthöhe des Diagramms einstellen
         )
 
