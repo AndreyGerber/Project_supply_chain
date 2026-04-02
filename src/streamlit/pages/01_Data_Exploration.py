@@ -93,7 +93,7 @@ if not df.empty:
         <style>
             /* Hier wird die Farbe der Aufzählungspunkte (Bullets) definiert */
             li::marker {
-                color: #FF4B4B; /* Hier deine Wunschfarbe für den Punkt (z.B. Streamlit-Rot) */
+                color: black; /* Hier deine Wunschfarbe für den Punkt (z.B. Streamlit-Rot) */
                 font-size: 1.2em;
             }
         </style>
