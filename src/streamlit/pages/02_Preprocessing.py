@@ -166,23 +166,42 @@ if 'raw_data' in st.session_state:
 
     st.write(f"**B. Genuine Comment Duplicates:** Found {len(real_duplicates)} unique texts that appear multiple times.")
 
-    # 3. Darstellung der echten Duplikate in einer Tabelle
-    if not real_duplicates.empty:
-        dup_df = real_duplicates.reset_index()
-        dup_df.columns = ['Review Content', 'Occurrence Count']
-        
-        st.dataframe(
-            dup_df.head(10), 
-            use_container_width=True, 
-            hide_index=True,
-            column_config={
-                "Comment Text": st.column_config.TextColumn("Review Content", width="large"),
-                "Occurrence Count": st.column_config.NumberColumn("Count", width="small")
-            }
-        )
+       # 3. Darstellung der echten Duplikate in einer Tabelle
+        if not real_duplicates.empty:
+            dup_df = real_duplicates.reset_index()
+            dup_df.columns = ['Review Content', 'Occurrence Count']
+            
+            st.dataframe(
+                dup_df.head(10), 
+                use_container_width=True, 
+                hide_index=True,
+                column_config={
+                    "Review Content": st.column_config.TextColumn("Review Content", width="large"),
+                    "Occurrence Count": st.column_config.NumberColumn("Count", width="small")
+                }
+            )
 
-    st.info(f"💡 **Conclusion:** Out of the missing {len(df) - df['review_text'].nunique()} entries, "
-            f"{len(system_replies)} are system replies and the rest are repeated customer phrases.")
+        # --- HIER IST DIE KORRIGIERTE MATHEMATIK ---
+        
+        # 1. Anzahl der "System-Müll" Zeilen
+        sys_count = len(system_replies)
+        
+        # 2. Anzahl der ZUSÄTZLICHEN Zeilen durch echte Duplikate berechnen
+        # (Summe aller Vorkommen minus die Anzahl der einzigartigen Sätze)
+        total_duplicate_rows = real_duplicates.sum()
+        unique_duplicate_texts = len(real_duplicates)
+        extra_rows = total_duplicate_rows - unique_duplicate_texts
+        
+        # 3. Die Summe für die Anzeige
+        total_missing = sys_count + extra_rows
+
+        st.info(f"""
+            💡 **Conclusion:** We have identified all **{total_missing}** missing entries:
+            * **{sys_count}** are automated system replies (will be removed).
+            * **{extra_rows}** are extra copies of common phrases (like 'Super Service').
+            
+            This explains why we have {len(df)} total rows but only {df['review_text'].nunique()} unique comments.
+        """)
 
 
 
