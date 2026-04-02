@@ -121,10 +121,10 @@ if 'raw_data' in st.session_state:
         company_system_counts = system_replies['company'].value_counts().reset_index()
         company_system_counts.columns = ['Company Name', 'System Reply Count']
         
-    # Anzeige als kleine, saubere Tabelle
-    st.table(company_system_counts)
-    
-    st.info(f"💡 **Insight:** These {len(system_replies)} entries are not customer opinions but automated headers from these companies. They will be removed to ensure high-quality training data.")
+        # Anzeige als kleine, saubere Tabelle
+        st.table(company_system_counts)
+        
+        st.info(f"💡 **Insight:** These {len(system_replies)} entries are not customer opinions but automated headers from these companies. They will be removed to ensure high-quality training data.")
 
     # 2. Identifiziere echte Text-Duplikate (identische Kommentare)
     # Wir schauen uns nur die Texte an, die KEINE System-Antworten sind
