@@ -179,6 +179,12 @@ if 'raw_data' in st.session_state:
         st.info(f"💡 **Insight:** Instead of showing all {len(system_replies)} rows, we summarized them. These are clearly automated headers that don't contain customer feedback.")
 
 
+    # 2. Identifiziere echte Text-Duplikate (identische Kommentare)
+    # Wir schauen uns nur die Texte an, die KEINE System-Antworten sind
+    df_no_replies = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]
+    text_counts = df_no_replies['review_text'].value_counts()
+    real_duplicates = text_counts[text_counts > 1]
+
     st.write(f"**B. Genuine Comment Duplicates:** Found {len(real_duplicates)} unique texts that appear multiple times.")
 
     # 3. Darstellung der echten Duplikate in einer Tabelle
