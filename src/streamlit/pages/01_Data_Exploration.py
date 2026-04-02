@@ -115,12 +115,12 @@ if not df.empty:
     st.subheader("📄 Raw Data Preview")
     st.info("Direct preview of the filtered dataset:")
 
-    # Wir nutzen hide_index=True, um Platz zu sparen, falls du die Nummern links nicht brauchst
-    # 'height' auf ca. 600 setzen, damit 15 Zeilen + Header + Menü Platz haben
+    # Wir setzen die Höhe auf 550 Pixel. 
+    # Das reicht bei Standard-Schriftgröße für ca. 15 Zeilen + Header + Menüleiste.
     st.dataframe(
         df_filtered.dropna().head(15), 
         use_container_width=True,
-        height=600  # Groß genug für 15 Zeilen, damit kein Scrollbalken in der Tabelle erscheint
+        height=550 
     )
     
     # Fügt eine Leerzeile ein
