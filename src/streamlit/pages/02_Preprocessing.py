@@ -95,7 +95,11 @@ if 'raw_data' in st.session_state:
         # 4. In Streamlit anzeigen
         st.markdown(full_html, unsafe_allow_html=True)
 
-
+    st.subheader("🔍 Analysis of Duplicate Comments")
+    # Die Top 5 der am häufigsten vorkommenden identischen Texte
+    duplicates = df['review_text'].value_counts().head(5)
+    st.write("Most frequent identical comments:")
+    st.write(duplicates)
 
 
     # --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
