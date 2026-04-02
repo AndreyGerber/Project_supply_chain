@@ -27,7 +27,7 @@ This represents a classic **Natural Language Processing (NLP)** and **Classifica
 ---
 ### 🚀 Workflow & Navigation
 Use the **sidebar on the left** to navigate through the different phases of the project:
-""")
+""", unsafe_allow_html=True)
 
 # 3. Project Phases visualized as Columns
 col1, col2, col3, col4 = st.columns(4)
