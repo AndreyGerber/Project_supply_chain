@@ -111,7 +111,9 @@ if 'raw_data' in st.session_state:
     st.subheader("🔍 Deep Dive: Why are there duplicates?")
 
     # 1. Identifiziere die System-Antworten (Die "Reply from" Zeilen)
-    system_replies = df[df['review_text'].str.contains("Reply from", na=False, case=False)]
+    # Wir suchen nur nach Texten, die mit "Reply from" STARTEN (^)
+    system_replies = df[df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)]
+
     st.write(f"**A. System Replies:** Found {len(system_replies)} rows that are just company responses.")
 
     if not system_replies.empty:
