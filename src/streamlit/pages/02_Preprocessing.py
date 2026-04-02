@@ -114,48 +114,9 @@ if 'raw_data' in st.session_state:
     system_replies = df[df['review_text'].str.contains("Reply from", na=False, case=False)]
     st.write(f"**A. System Replies:** Found {len(system_replies)} rows that are just company responses.")
 
-   if not system_replies.empty:
-    st.write("#### 🏢 Companies with System Replies & Examples")
-    
-    # Gruppieren nach Firma, Zählen und den ersten gefundenen Text nehmen
-    company_summary = system_replies.groupby('company')['review_text'].agg(
-        Count='count',
-        Example='first'
-    ).reset_index().sort_values(by='Count', ascending=False)
+    if not system_replies.empty:
+        st.dataframe(system_replies[['review_text', 'company']].head(5), hide_index=True)
 
-    # Spalten umbenennen für die Anzeige
-    company_summary.columns =
-    
-    # Darstellung als HTML-Tabelle für die Zentrierung und ohne ID-Spalte
-    html_summary = f"""
-    <style>
-        .reply-table {{ width: 100%; border-collapse: collapse; }}
-        .reply-table th, .reply-table td {{ border: 1px solid #e6e9ef; padding: 10px; }}
-        .reply-table th {{ background-color: #f0f2f6; }}
-        .reply-table td:nth-child(1) {{ width: 25%; text-align: left; }}
-        .reply-table td:nth-child(2) {{ width: 15%; text-align: center; }}
-        .reply-table td:nth-child(3) {{ width: 60%; text-align: left; font-style: italic; color: #555; }}
-    </style>
-    <table class="reply-table">
-        <thead>
-            <tr>
-                <th>Company Name</th>
-                <th>Count</th>
-                <th>Example Text Content</th>
-            </tr>
-        </thead>
-        <tbody>
-    """
-    for _, row in company_summary.iterrows():
-        html_summary += f"<tr><td>{row['Company Name']}</td><td>{row['System Reply Count']}</td><td>{row}</td></tr>"
-    
-    html_summary += "</tbody></table>"
-    
-    st.markdown(html_summary, unsafe_allow_html=True)
-    
-    st.info("💡 **Insight:** These comments clearly show technical headers instead of customer feedback. We will remove them now.")
-
-    
     # 2. Identifiziere echte Text-Duplikate (identische Kommentare)
     # Wir schauen uns nur die Texte an, die KEINE System-Antworten sind
     df_no_replies = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]
