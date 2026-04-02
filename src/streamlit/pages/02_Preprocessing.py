@@ -107,8 +107,8 @@ if 'raw_data' in st.session_state:
 
 
     st.subheader("🔍 Analysis of Duplicate Comments")
-    st.markdown("df = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]", unsafe_allow_html=True)
-
+    st.code("""df = df[~df['review_text'].str.contains("Reply from", na=False, case=False)]""", language="python")
+   
     # Die Top 5 der am häufigsten vorkommenden identischen Texte
     duplicates = df['review_text'].value_counts().head(5)
     st.write("Most frequent identical comments:")
