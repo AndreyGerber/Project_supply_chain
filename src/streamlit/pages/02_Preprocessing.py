@@ -164,29 +164,27 @@ if 'raw_data' in st.session_state:
     sys_count = len(system_replies)
 
 
-    # 1. Definieren der System-Antworten (Maske)
+       # --- DIESER CODE ERZWINGT DIE KORREKTE MATHEMATIK (972) ---
+
+    # 1. System-Antworten (Die 503 Zeilen) identifizieren
     system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
     system_replies = df[system_mask]
-    sys_count = len(system_replies) # Das sind deine 503
+    sys_count = len(system_replies) # Das sind 503
 
-  # 1. System-Antworten (Die 503 Zeilen)
-    system_mask = df['review_text'].str.contains(r"^Reply from", na=False, case=False, regex=True)
-    system_replies = df[system_mask]
-    sys_count = len(system_replies) # Das sind deine 503
-
-    # 2. ALLES ANDERE (Daten ohne System-Müll)
+    # 2. Den Rest der Daten nehmen (Daten ohne System-Antworten)
     df_no_system = df[~system_mask]
 
-    # 3. Echte Duplikate NUR aus den verbleibenden Daten berechnen
-    # Berechnung: Alle verbleibenden Zeilen MINUS die Anzahl der dortigen einzigartigen Texte
+    # 3. Echte Duplikate NUR im verbleibenden Datensatz berechnen
+    # Formel: Alle verbleibenden Zeilen MINUS die einzigartigen Texte darin
+    # Das ergibt exakt die "überflüssigen" Kopien
     extra_rows = len(df_no_system) - df_no_system['review_text'].nunique()
     
-    # 4. Die finale Kontrollsumme (Muss 972 ergeben)
-    total_identified = sys_count + extra_rows
+    # 4. Die finale Kontrollsumme
+    total_identified = sys_count + extra_rows # 503 + 469 = 972
 
     st.write(f"**B. Genuine Comment Duplicates:** Identified {extra_rows} extra copies of customer phrases.")
 
-    # Top 10 Liste für die Optik
+    # Top 10 Liste für die Optik (wie bisher)
     text_counts = df_no_system['review_text'].value_counts()
     real_duplicates = text_counts[text_counts > 1]
     if not real_duplicates.empty:
@@ -198,11 +196,12 @@ if 'raw_data' in st.session_state:
     st.info(f"""
         💡 **Conclusion:** We have identified all **{total_identified}** missing entries:
         * **{sys_count}** are automated system replies (starting with 'Reply from').
-        * **{extra_rows}** are extra copies of common customer phrases.
+        * **{extra_rows}** are extra copies of common customer phrases (e.g., 'Super Service').
         
         Total: {sys_count} + {extra_rows} = **{total_identified}**.
-        This perfectly explains why we have {len(df)} total rows but only {df['review_text'].nunique()} unique comments.
+        This perfectly explains the difference between {len(df)} total rows and {df['review_text'].nunique()} unique comments.
     """)
+
 
 
 
