@@ -51,4 +51,23 @@ with col4:
     st.caption("Interactive Prediction: Enter your own comment and let the AI predict the rating!")
 
 st.markdown("---")
-st.success("💡 **Ready to Start:** then let's move to Data Exploration.")
+font_size = "20px"
+st.markdown(
+    f"""
+    <div style="
+        background-color: #d4edda; 
+        color: #155724; 
+        padding: 15px; 
+        border-radius: 5px; 
+        border: 1px solid #c3e6cb;
+        font-size: {font_size};
+        display: flex;
+        align-items: center;
+    ">
+        💡 <span style="margin-left: 10px;">
+            <b>Ready to Start:</b> then let's move to Data Exploration.
+        </span>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
