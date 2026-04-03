@@ -442,6 +442,7 @@ html_status += "</tbody></table>"
 # 4. DER WICHTIGE TEIL: Nutze st.markdown mit unsafe_allow_html=True
 st.write("### 📋 Preprocessing Status Overview")
 st.markdown(html_status, unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
@@ -454,4 +455,4 @@ location_counts.columns = ['Location', 'Count']
 
 # Zeige die Top 10 an
 st.write("Top 10 Locations (including missing values):")
-st.dataframe(location_counts.head(10), use_container_width=True)
+st.dataframe(location_counts.head(25), use_container_width=True)
