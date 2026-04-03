@@ -343,95 +343,51 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 #Ab hier die Spalte "date" bearbeiten, um neue Features zu erstellen (Jahr, Monat, Wochentag, Saison, Tageszeit)
 
-# 1. Daten aus dem Speicher holen
+# 1. Sicherstellen, dass Daten im Session State vorhanden sind
 if 'raw_data' in st.session_state:
-    # WICHTIG: Wir erstellen eine KOPIE (.copy()), damit das Original 
-    # im session_state nicht verändert wird!
+    # Schritt A: Echte Kopie erstellen (Original bleibt unberührt)
     df_processed = st.session_state['raw_data'].copy()
-    
-    # 2. Datum-Features nur in der Kopie 'df_processed' erstellen
+
+    # Schritt B: 'date' in Datetime umwandeln (für die Extraktion)
     df_processed['date'] = pd.to_datetime(df_processed['date'], utc=True)
-    
+
+    # Schritt C: Neue Spalten hinzufügen (Englische Begriffe)
     df_processed['year'] = df_processed['date'].dt.year
-    df_processed['month'] = df_processed['date'].dt.month_name()
+    df_processed['month_name'] = df_processed['date'].dt.month_name()
     df_processed['weekday'] = df_processed['date'].dt.day_name()
 
-    # Saison-Logik
+    # Saison-Logik (Englisch)
     def get_season(month):
         if month in [12, 1, 2]: return 'Winter'
         elif month in [3, 4, 5]: return 'Spring'
         elif month in [6, 7, 8]: return 'Summer'
         else: return 'Autumn'
+    
     df_processed['season'] = df_processed['date'].dt.month.apply(get_season)
 
-    # Tageszeit-Logik
+    # Tageszeit-Logik (Englisch)
     def get_day_period(hour):
-        if 6 <= hour < 12: return 'Morning'
-        elif 12 <= hour < 18: return 'Afternoon'
-        elif 18 <= hour < 22: return 'Evening'
+        if 5 <= hour < 12: return 'Morning'
+        elif 12 <= hour < 17: return 'Afternoon'
+        elif 17 <= hour < 21: return 'Evening'
         else: return 'Night'
+
     df_processed['day_period'] = df_processed['date'].dt.hour.apply(get_day_period)
 
-    st.success(f"✅ Working copy created! (Original remains untouched)")
+    # Schritt D: Die ursprüngliche 'date' Spalte löschen
+    df_processed = df_processed.drop(columns=['date'])
 
-    # 3. Ab hier nutzen Sie nur noch 'df_processed' für Anzeigen und Berechnungen
-    st.write("### 📋 adjust our date")
+    # Schritt E: Spalten sortieren (Zeit-Features nach vorne für bessere Übersicht)
+    time_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']
+    other_cols = [col for col in df_processed.columns if col not in time_cols]
+    df_processed = df_processed[time_cols + other_cols]
+
+    # Schritt F: Ergebnis anzeigen (Erste 15 Zeilen)
+    st.write("### 🚀 Final Processed Dataset (First 15 Rows)")
+    st.dataframe(df_processed.head(15), use_container_width=True)
     
-    # Ihre HTML-Tabelle würde jetzt 'df_processed' nutzen:
-    table_rows = ""
-    for col in df_processed.columns:
-        unique_count = df_processed[col].nunique()
-        table_rows += f"<tr><td>{col}</td><td>{unique_count}</td></tr>"
-    
-    # ... (Rest Ihres HTML-Codes wie gehabt)
+    # Bestätigung der Dimensionen
+    st.info(f"The new dataframe has **{df_processed.shape[0]}** rows and **{df_processed.shape[1]}** columns.")
 
 else:
-    st.error("⚠️ No data found in memory!")
-
-
-# CSS für die Tabelle (kannst du oben im Code lassen oder hier wiederholen)
-html_style = """
-<style>
-    .custom-table { width: 100%; border-collapse: collapse; }
-    .custom-table th, .custom-table td { border: 1px solid #e6e9ef; padding: 10px; }
-    .custom-table th { background-color: #f0f2f6; text-align: left; }
-    .custom-table td:nth-child(2) { text-align: center; }
-</style>
-"""
-
-# WICHTIG: Die Schleife muss über df_processed laufen!
-table_rows = ""
-for col in df_processed.columns:
-    unique_count = df_processed[col].nunique()
-    table_rows += f"<tr><td>{col}</td><td>{unique_count}</td></tr>"
-
-full_html = f"{html_style}<table class='custom-table'><thead><tr><th>Column Name</th><th>Unique Values</th></tr></thead><tbody>{table_rows}</tbody></table>"
-
-# Tabelle rendern
-st.markdown(full_html, unsafe_allow_html=True)
-
-# OPTIONAL: Eine kleine Vorschau der echten Daten zur Kontrolle
-st.write("#### 🔎 Preview of the new columns:")
-st.dataframe(df_processed[['date', 'year', 'month_name', 'season', 'weekday', 'day_period']].head(5))
-
-
-
-# 1. Die ursprüngliche 'date' Spalte löschen (da wir nun die Details haben)
-df_processed = df_processed.drop(columns=['date'])
-
-# 2. Spaltenreihenfolge optimieren (Zeit-Features nach vorne schieben)
-# Wir definieren die gewünschte Reihenfolge der ersten Spalten
-time_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']
-other_cols = [col for col in df_processed.columns if col not in time_cols]
-
-# Neuer DF mit sortierten Spalten
-df_processed = df_processed[time_cols + other_cols]
-
-# 3. Das Endergebnis präsentieren (Die ersten 15 Zeilen)
-st.write("### 🚀 Final Processed Dataset (First 15 Rows)")
-
-# Wir nutzen st.dataframe für eine interaktive Ansicht, wie ein schöneres print(df.head(15))
-st.dataframe(df_processed.head(15), use_container_width=True)
-
-# 4. Optional: Kurze Statistik zur Bestätigung
-st.info(f"The dataset now has **{df_processed.shape[1]}** columns and **{df_processed.shape[0]}** rows.")
+    st.error("⚠️ No data found! Please load the dataset on the first page.")
