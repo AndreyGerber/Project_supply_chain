@@ -522,3 +522,7 @@ fig = px.imshow(
 
 fig.update_layout(title="🎯 Detailed Rating Distribution per Location", font=dict(size=14))
 st.plotly_chart(fig, use_container_width=True)
+
+model.fit(X_train, y_train)
+# Zeigt dir, wie wichtig das Land im Vergleich zu anderen Spalten war
+plt.barh(X.columns, model.feature_importances_)
