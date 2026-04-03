@@ -341,7 +341,7 @@ st.markdown(html_table, unsafe_allow_html=True)
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 
-
+st.markdown("---")
 #Ab hier die Spalte "date" bearbeiten, um neue Features zu erstellen (Jahr, Monat, Wochentag, Saison, Tageszeit)
 
 # 1. Sicherstellen, dass Daten im Session State vorhanden sind
@@ -446,7 +446,7 @@ st.markdown(html_status, unsafe_allow_html=True)
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 
-
+st.markdown("---")
 # ab hier wird die Spalte "location" bearbeitet, um neue Features zu erstellen (Stadt, Bundesland, Land)
 st.subheader("📍 Location Analysis")
 
@@ -575,3 +575,6 @@ html_status += "</tbody></table>"
 # 4. DER ENTSCHEIDENDE BEFEHL (KEIN st.write nutzen!)
 st.markdown(html_status, unsafe_allow_html=True)
 st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("---")
+
+
