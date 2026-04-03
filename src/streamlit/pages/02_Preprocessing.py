@@ -857,6 +857,54 @@ st.info("""
     To avoid 'Data Leakage' in our prediction model, this post-event feature will now be removed.
 """)
 
+
+
+
+# 1. Wir nutzen unsere 'df_analytics_copy', da dort die Antwort noch drin ist!
+df_analysis = df_analytics_copy.copy()
+df_analysis['has_response'] = df_analysis['supplier_response'].notna().astype(int)
+
+# 2. Pivot-Tabelle: Verified vs. Response
+# (Wir schauen: Wie viel % der Verifizierten bekommen eine Antwort?)
+pivot_v_r = df_analysis.groupby(['verified', 'has_response']).size().unstack(fill_value=0)
+pivot_v_r_norm = pivot_v_r.div(pivot_v_r.sum(axis=1), axis=0) * 100
+
+# Namen für die Achsen
+pivot_v_r_norm.index = ['Not Verified (0)', 'Verified (1)']
+pivot_v_r_norm.columns = ['No Response', 'Has Response']
+
+# 3. Die Heatmap erstellen
+fig_vr = px.imshow(
+    pivot_v_r_norm,
+    labels=dict(x="Company Reaction", y="Customer Status", color="Percentage %"),
+    color_continuous_scale='Purples', # Eine neue Farbe für neue Erkenntnisse
+    text_auto='.1f',
+    title="🛡️ Response Strategy: Do Companies care more about Verified Customers?"
+)
+
+st.plotly_chart(fig_vr, use_container_width=True)
+
+# 4. Der "Maschinen-Check": Werden die 'Echten' bevorzugt?
+rate_v = pivot_v_r_norm.loc['Verified (1)', 'Has Response']
+rate_nv = pivot_v_r_norm.loc['Not Verified (0)', 'Has Response']
+
+st.info(f"""
+    📊 **Result:** 
+    * **{rate_v:.1f}%** of verified customers got a reply.
+    * **{rate_nv:.1f}%** of unverified customers got a reply.
+""")
+
+
+
+
+
+
+
+
+
+
+
+
 df_processed = df_processed.drop(columns=['has_response'])
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
 dropped_cols = ['location', 'company', 'has_response']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
