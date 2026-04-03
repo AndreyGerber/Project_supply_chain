@@ -495,41 +495,24 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 
-# 1. Vorbereitung: Top 15 Locations ermitteln
-top_15_locs = df_processed['location'].value_counts().head(15).index
-df_heatmap = df_processed[df_processed['location'].isin(top_15_locs)].copy()
+# 1. Pivot-Tabelle wie gehabt erstellen
+pivot_table = df_heatmap.groupby(['location', 'rating']).size().unstack(fill_value=0)
 
-# 2. Daten gruppieren: Durchschnittliches Rating pro Location und Jahr (oder Monat)
-# Wir nehmen 'weekday' oder 'month_name', um eine zweite Dimension zu haben
-heatmap_data = df_heatmap.groupby(['location', 'rating']).size().unstack(fill_value=0)
+# 2. DER TRICK: Normalisieren (Jede Zeile auf 100% bringen)
+# Wir teilen jede Zeile durch ihre Summe
+pivot_percent = pivot_table.div(pivot_table.sum(axis=1), axis=0) * 100
 
-# Alternativ: Durchschnittliches Rating pro Location (einfachere Heatmap)
-# Wir erstellen eine Pivot-Tabelle: Location vs. Rating-Sterne (1, 2, 3, 4, 5)
-pivot_heatmap = df_heatmap.groupby(['location', 'rating']).size().reset_index(name='count')
-pivot_table = pivot_heatmap.pivot(index='location', columns='rating', values='count').fillna(0)
-
-# 3. Die Heatmap mit Plotly erstellen
+# 3. Heatmap neu zeichnen (jetzt mit Prozentwerten)
 fig_heat = px.imshow(
-    pivot_table,
-    labels=dict(x="Rating (Stars)", y="Location", color="Number of Reviews"),
-    x=pivot_table.columns,
-    y=pivot_table.index,
-    color_continuous_scale='YlGnBu', # Gelb-Grün-Blau (hell = wenig, dunkel = viel)
-    title="🔥 Heatmap: Connection between Location and Ratings",
-    aspect="auto"
+    pivot_percent,
+    labels=dict(x="Rating (Stars)", y="Location", color="Percentage (%)"),
+    x=pivot_percent.columns,
+    y=pivot_percent.index,
+    color_continuous_scale='RdYlGn', # Rot (schlecht) zu Grün (gut)
+    title="🔥 Relative Ratings by Location (Normalized %)",
+    aspect="auto",
+    text_auto='.1f' # Schreibt die Prozentzahl direkt in die Kästchen!
 )
 
-# 4. Design-Anpassungen
-fig_heat.update_layout(
-    font=dict(size=14),
-    height=600,
-    xaxis_title="Rating (1-5 Stars)",
-    yaxis_title="Top 15 Locations"
-)
-
-# 5. In Streamlit anzeigen
+fig_heat.update_layout(height=700, font=dict(size=14))
 st.plotly_chart(fig_heat, use_container_width=True)
-
-# Info-Box für die Interpretation
-st.info("💡 **How to read:** Darker blue areas show where most reviews are concentrated. "
-        "If a location has many dark cells at '5', they are very happy!")
