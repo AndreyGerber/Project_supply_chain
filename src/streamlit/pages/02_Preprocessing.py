@@ -757,4 +757,62 @@ st.markdown("---")
 
 
 
+#Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
+# 1. Spalte 'company' endgültig aus dem Arbeits-DF entfernen
+if 'company' in df_processed.columns:
+    df_processed = df_processed.drop(columns=['company'])
+
+# 2. Listen für die Status-Logik definieren
+# Diese Spalten sind fertig (Häkchen)
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified']
+# Diese Spalten haben wir aussortiert (Durchgestrichen + Mülleimer)
+dropped_cols = ['location', 'company'] 
+
+# Wir definieren die Liste aller Spalten, die wir am Anfang der Phase 2 hatten
+all_initial_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'location', 'company', 'rating']
+
+# 3. HTML-Tabelle mit dem exakten Design und Strikethrough-Effekt
+html_status = """
+<style>
+    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; margin-bottom: 20px;}
+    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 15px; }
+    .status-table th { background-color: #f0f2f6; font-weight: bold; }
+    .strikethrough { text-decoration: line-through; color: #9e9e9e; font-style: italic; opacity: 0.7; }
+</style>
+<table class="status-table">
+    <thead>
+        <tr>
+            <th>Column Name</th>
+            <th>Preprocessing Status</th>
+        </tr>
+    </thead>
+    <tbody>
+"""
+
+for col in all_initial_cols:
+    if col in dropped_cols:
+        row_class = 'class="strikethrough"'
+        status_icon = "🗑️ (Dropped - Low Variance/Bias)"
+    elif col in cleaned_cols:
+        row_class = ''
+        status_icon = "✅ (Ready)"
+    else:
+        row_class = ''
+        status_icon = "❌ (Pending)"
+    
+    html_status += f"<tr><td {row_class}>{col}</td><td>{status_icon}</td></tr>"
+
+html_status += "</tbody></table>"
+
+# 4. Anzeige in Streamlit
+st.markdown("### 📋 Final Preprocessing Status Overview")
+st.markdown(html_status, unsafe_allow_html=True)
+
+# 5. Aktueller Dataframe Head (15 Zeilen)
+st.write("### 🚀 Optimized Dataset (Top 15 Rows)")
+st.dataframe(df_processed.head(15), use_container_width=True)
+
+st.info(f"💡 **Maschinen-Check:** 'company' and 'location' were removed to prevent model bias. Current shape: **{df_processed.shape}**.")
+
+
 
