@@ -525,6 +525,8 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
+
+st.markdown("<br><br>", unsafe_allow_html=True)
 # 1. Die Spalte 'location' aus dem bearbeiteten DF entfernen
 df_processed = df_processed.drop(columns=['location'])
 
@@ -536,7 +538,7 @@ st.success("✅ Column 'location' was successfully dropped.")
 st.dataframe(df_processed.head(5), use_container_width=True)
 
 
-
+st.markdown("<br><br>", unsafe_allow_html=True)
 # 1. Listen definieren
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Spalten, die wir bereinigt haben
 dropped_cols = ['location']
@@ -572,4 +574,4 @@ html_status += "</tbody></table>"
 
 # 4. DER ENTSCHEIDENDE BEFEHL (KEIN st.write nutzen!)
 st.markdown(html_status, unsafe_allow_html=True)
-
+st.markdown("<br><br>", unsafe_allow_html=True)
