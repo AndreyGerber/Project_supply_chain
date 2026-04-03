@@ -721,27 +721,8 @@ fig_ver_abs.update_layout(
 st.plotly_chart(fig_ver_abs, use_container_width=True, key="heatmap_absolute")
 
 
-# 1. Daten für die Firmen-Analyse vorbereiten
-# Wir schauen uns das Durchschnitts-Rating pro Firma an
-company_stats = df_processed.groupby('company')['rating'].agg(['mean', 'count']).reset_index()
-company_stats.columns = ['Company', 'Avg Rating', 'Review Count']
-company_stats = company_stats.sort_values(by='Avg Rating', ascending=False)
 
-# 2. Visualisierung: Durchschnittliches Rating pro Firma
-import plotly.express as px
-fig_comp = px.bar(
-    company_stats,
-    x='Avg Rating',
-    y='Company',
-    orientation='h',
-    title='🏢 Average Rating by Company',
-    text_auto='.2f',
-    color='Avg Rating',
-    color_continuous_scale='RdYlGn'
-)
-st.plotly_chart(fig_comp, use_container_width=True)
-
-# 3. DIE BEREINIGTE STATUS-TABELLE (Ohne 'location')
+# DIE BEREINIGTE STATUS-TABELLE (Ohne 'location')
 # Wir definieren nur die Spalten, die wir wirklich behalten haben
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'company']
 
