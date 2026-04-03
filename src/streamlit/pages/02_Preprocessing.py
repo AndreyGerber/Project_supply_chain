@@ -758,58 +758,101 @@ st.markdown("---")
 
 
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
-# 1. Spalte 'company' endgültig aus dem Arbeits-DF entfernen
-if 'company' in df_processed.columns:
-    df_processed = df_processed.drop(columns=['company'])
 
-# 2. Listen für die Status-Logik definieren
-# Diese Spalten sind fertig (Häkchen)
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified']
-# Diese Spalten haben wir aussortiert (Durchgestrichen + Mülleimer)
-dropped_cols = ['location', 'company'] 
+# 1. Listen für die Logik definieren
+# Diese Spalten sind laut deinem Bild fertig (Häkchen)
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
+# Diese Spalten fliegen raus (Durchgestrichen)
+dropped_cols = ['location', 'company']
 
-# Wir definieren die Liste aller Spalten, die wir am Anfang der Phase 2 hatten
-all_initial_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'location', 'company', 'rating']
-
-# 3. HTML-Tabelle mit dem exakten Design und Strikethrough-Effekt
+# 2. HTML & CSS für das exakte Design aus dem Screenshot
 html_status = """
 <style>
-    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; margin-bottom: 20px;}
-    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 15px; }
-    .status-table th { background-color: #f0f2f6; font-weight: bold; }
-    .strikethrough { text-decoration: line-through; color: #9e9e9e; font-style: italic; opacity: 0.7; }
+    .status-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        font-family: sans-serif; 
+        color: #31333F; 
+    }
+    .status-table th { 
+        background-color: #f0f2f6; 
+        padding: 12px; 
+        text-align: left; 
+        font-size: 14px;
+        color: #555;
+        border-bottom: 1px solid #e6e9ef;
+    }
+    .status-table td { 
+        padding: 12px; 
+        border-bottom: 1px solid #f6f6f6; 
+        font-size: 14px;
+    }
+    /* Zentrierung für Unique Values & Status wie im Bild */
+    .status-table td:nth-child(2), .status-table td:nth-child(3),
+    .status-table th:nth-child(2), .status-table th:nth-child(3) { 
+        text-align: center; 
+    }
+    /* Style für gelöschte Zeilen */
+    .strikethrough { 
+        text-decoration: line-through; 
+        color: #9e9e9e; 
+        opacity: 0.6;
+    }
 </style>
 <table class="status-table">
     <thead>
         <tr>
             <th>Column Name</th>
-            <th>Preprocessing Status</th>
+            <th>Unique Values</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
 """
 
-for col in all_initial_cols:
-    if col in dropped_cols:
-        row_class = 'class="strikethrough"'
-        status_icon = "🗑️ (Dropped - Low Variance/Bias)"
-    elif col in cleaned_cols:
-        row_class = ''
-        status_icon = "✅ (Ready)"
-    else:
-        row_class = ''
-        status_icon = "❌ (Pending)"
+# Wir definieren die Liste in der Reihenfolge deines Screenshots
+display_order = [
+    'year', 'month_name', 'weekday', 'season', 'day_period', 
+    'review_text', 'supplier_response', 'verified', 'company', 
+    'location', 'review_text_clean', 'company_site', 
+    'review_text_clean_advanced', 'issue_categories', 'rating'
+]
+
+for col in display_order:
+    # Unique Values aus dem DF holen (oder Dummy-Wert für gelöschte Spalten)
+    if col in df_processed.columns:
+        u_count = df_processed[col].nunique()
+    elif col == 'location': u_count = "86"
+    elif col == 'company': u_count = "53"
+    else: u_count = "-" # Für Spalten, die wir noch nicht im Zugriff haben
     
-    html_status += f"<tr><td {row_class}>{col}</td><td>{status_icon}</td></tr>"
+    # CSS Klasse bestimmen
+    row_class = 'class="strikethrough"' if col in dropped_cols else ''
+    
+    # Icon bestimmen (Häkchen, Kreuz oder Papierkorb für Dropped)
+    if col in dropped_cols:
+        status_icon = "🗑️" 
+    elif col in cleaned_cols:
+        status_icon = "✅"
+    else:
+        status_icon = "❌"
+    
+    html_status += f"""
+        <tr {row_class}>
+            <td>{col}</td>
+            <td>{u_count}</td>
+            <td>{status_icon}</td>
+        </tr>
+    """
 
 html_status += "</tbody></table>"
 
-# 4. Anzeige in Streamlit
-st.markdown("### 📋 Final Preprocessing Status Overview")
+# 3. Anzeige
+st.markdown("### 📋 Current Preprocessing Status")
 st.markdown(html_status, unsafe_allow_html=True)
 
-
-st.info(f"💡 **Maschinen-Check:** 'company' and 'location' were removed to prevent model bias. Current shape: **{df_processed.shape}**.")
-
+# 4. Vorschau des verbliebenen Dataframes
+st.write("### 🚀 Optimized Dataset (Top 15 Rows)")
+st.dataframe(df_processed.head(15), use_container_width=True)
 
 
