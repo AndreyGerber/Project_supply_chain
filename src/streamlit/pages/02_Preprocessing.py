@@ -758,99 +758,48 @@ st.markdown("---")
 
 
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
+df_processed = df_processed.drop(columns=['company'])
 
-# 1. Definitionen für die Tabelle
-# Diese sind fertig (Häkchen)
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
-# Diese sind gelöscht (Durchgestrichen)
-dropped_cols = ['location', 'company']
 
-# 2. Der HTML-String mit dem exakten Design
+# 2. Update deiner Status-Tabelle (wir entfernen sie aus der Liste der Spalten)
+# Sie wird nun gar nicht mehr in der Tabelle auftauchen.
+st.success("✅ Column 'company' was successfully dropped.")
+
+st.markdown("<br><br>", unsafe_allow_html=True)
+# 1. Listen definieren
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Spalten, die wir bereinigt haben
+dropped_cols = ['company']
+
+# 2. Den HTML-Block EXAKT zusammenbauen
 html_status = """
 <style>
-    .status-table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        font-family: sans-serif; 
-        color: #31333F; 
-    }
-    .status-table th { 
-        background-color: #f0f2f6; 
-        padding: 12px; 
-        text-align: left; 
-        font-size: 14px;
-        color: #555;
-        border-bottom: 1px solid #e6e9ef;
-    }
-    .status-table td { 
-        padding: 12px; 
-        border-bottom: 1px solid #f6f6f6; 
-        font-size: 14px;
-    }
-    /* Zentrierung für Unique Values & Status */
-    .status-table td:nth-child(2), .status-table td:nth-child(3),
-    .status-table th:nth-child(2), .status-table th:nth-child(3) { 
-        text-align: center; 
-    }
-    /* Style für durchgestrichene Zeilen */
-    .strikethrough { 
-        text-decoration: line-through; 
-        color: #9e9e9e; 
-        opacity: 0.6;
-    }
+    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
+    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 14px; }
+    .status-table th { background-color: #f0f2f6; font-weight: bold; }
+    .strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.6; }
 </style>
 <table class="status-table">
     <thead>
         <tr>
             <th>Column Name</th>
-            <th>Unique Values</th>
             <th>Status</th>
         </tr>
     </thead>
     <tbody>
 """
 
-# Die Liste aller Spalten in der gewünschten Reihenfolge
-display_order = [
-    'year', 'month_name', 'weekday', 'season', 'day_period', 
-    'review_text', 'supplier_response', 'verified', 'company', 
-    'location', 'review_text_clean', 'company_site', 
-    'review_text_clean_advanced', 'issue_categories', 'rating'
-]
-
-for col in display_order:
-    # Check ob die Spalte im aktuellen df_processed ist, sonst Dummy-Werte für die Optik
-    if col in df_processed.columns:
-        u_count = df_processed[col].nunique()
-    elif col == 'location': u_count = "86"
-    elif col == 'company': u_count = "53"
-    else: u_count = "-"
-
-    # CSS Klasse setzen (Dropped = Durchgestrichen)
-    row_class = 'class="strikethrough"' if col in dropped_cols else ''
-    
-    # Icon Logik
+# 3. Schleife über alle Spalten für die Zeilen
+for col in list(df_processed.columns) + dropped_cols:
     if col in dropped_cols:
-        status_icon = "🗑️" # Oder "❌" falls du das Kreuz bevorzugst
+        html_status += f"<tr><td class='strikethrough'>{col}</td><td>🗑️ (Dropped)</td></tr>"
     elif col in cleaned_cols:
-        status_icon = "✅"
+        html_status += f"<tr><td>{col}</td><td>✅</td></tr>"
     else:
-        status_icon = "❌"
-    
-    html_status += f"""
-        <tr {row_class}>
-            <td>{col}</td>
-            <td>{u_count}</td>
-            <td>{status_icon}</td>
-        </tr>
-    """
+        html_status += f"<tr><td>{col}</td><td>❌</td></tr>"
 
 html_status += "</tbody></table>"
 
-# --- ANZEIGE ---
-st.markdown("### 📋 Preprocessing Status (Optimized)")
+# 4. DER ENTSCHEIDENDE BEFEHL (KEIN st.write nutzen!)
 st.markdown(html_status, unsafe_allow_html=True)
-
-# Daten-Vorschau direkt darunter
-st.write("### 🚀 Dataset Preview (Top 15 Rows)")
-st.dataframe(df_processed.head(15), use_container_width=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("---")
