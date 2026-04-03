@@ -1044,3 +1044,51 @@ st.dataframe(
 # 3. Kleiner Helfer-Text für die Analyse
 st.info(f"💡 **Insight:** You are seeing all **{len(issue_full_list)}** unique entries. Many look like technical 'Counter' objects. You can click on the column headers to sort them!")
 
+
+
+# 1. Spalte 'issue_categories' aus dem Arbeits-DF löschen
+if 'issue_categories' in df_processed.columns:
+    df_processed = df_processed.drop(columns=['issue_categories'])
+
+# 2. Professionelle Info-Box (English)
+st.info("""
+    💡 **Feature Selection Update:** 
+    The 'issue_categories' column has been removed. Approximately **2/3 of the data (4,169 rows)** 
+    contained no classification (empty Counter objects). The remaining entries were 
+    technically corrupted, making the feature unreliable for model training.
+""")
+
+
+
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
+dropped_cols = ['location', 'company', 'supplier_response', 'has_response', 'company_site', 'issue_categories']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+
+# 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
+html_status = """<style>
+.status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
+.status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 16px; }
+.status-table th { background-color: #f0f2f6; font-weight: bold; }
+.strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.7; font-style: italic; }
+</style>
+<table class="status-table">
+<thead><tr><th>Column Name</th><th>Unique Values</th><th>Status</th></tr></thead>
+<tbody>"""
+
+# 3. Schleife über alle Spalten
+display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+
+for col in display_cols:
+    is_dropped = col in dropped_cols
+    row_class = 'class="strikethrough"' if is_dropped else ''
+    u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
+    status_icon = "🗑️" if is_dropped else ("✅" if col in cleaned_cols else "❌")
+    
+    html_status += f'<tr {row_class}><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>'
+
+html_status += "</tbody></table>"
+
+st.markdown(html_status, unsafe_allow_html=True)
+
+
+st.markdown("---")
+st.markdown("<br><br>", unsafe_allow_html=True)
