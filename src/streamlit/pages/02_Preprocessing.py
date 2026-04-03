@@ -657,7 +657,7 @@ fig_ver_heat.update_layout(
 )
 
 # 4. In Streamlit anzeigen
-st.plotly_chart(fig_ver_heat, use_container_width=True)
+st.plotly_chart(fig_ver_heat, use_container_width=True, key="heatmap_percent")
 
 # 5. Die Spalte 'verified' in der Status-Tabelle abhaken
 if 'verified' not in cleaned_cols:
@@ -718,4 +718,4 @@ fig_ver_abs.update_layout(
     font=dict(size=14)
 )
 
-st.plotly_chart(fig_ver_abs, use_container_width=True)
+st.plotly_chart(fig_ver_abs, use_container_width=True, key="heatmap_absolute")
