@@ -722,41 +722,8 @@ st.plotly_chart(fig_ver_abs, use_container_width=True, key="heatmap_absolute")
 
 
 
-# DIE BEREINIGTE STATUS-TABELLE (Ohne 'location')
-# Wir definieren nur die Spalten, die wir wirklich behalten haben
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified' , 'review_text_clean', 'review_text_clean_advanced']  # Alle Spalten, die wir bereinigt oder behalten haben
 
-html_status = """
-<style>
-    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
-    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 16px; }
-    .status-table th { background-color: #f0f2f6; font-weight: bold; }
-</style>
-<table class="status-table">
-    <thead>
-        <tr>
-            <th>Column Name</th>
-            <th>Unique Values</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-"""
-
-for col in df_processed.columns:
-    u_count = df_processed[col].nunique()
-    status_icon = "✅" if col in cleaned_cols else "❌"
-    html_status += f"<tr><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>"
-
-html_status += "</tbody></table>"
-
-st.markdown("### 📋 Current Preprocessing Status")
-st.markdown(html_status, unsafe_allow_html=True)
-st.markdown("---")
-
-
-
-st.info("💡 **Feature Selection:** The 'company' column has been removed, as it shows no significant correlation with the rating and could introduce model bias.")
+st.info("💡 **Feature Selection:** The 'company' column will been removed too, as it shows no significant correlation with the rating and could introduce model bias.")
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
 # 1. Listen definieren
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
