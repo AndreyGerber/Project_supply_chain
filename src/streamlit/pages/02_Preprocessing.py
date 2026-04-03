@@ -389,48 +389,7 @@ if 'raw_data' in st.session_state:
     
     
     # Bestätigung der Dimensionen
-        html_status = """
-    <style>
-        .status-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            font-family: sans-serif; 
-            color: #31333F; 
-        }
-        /* SCHRIFTGRÖSSE FÜR ÜBERSCHRIFTEN (th) */
-        .status-table th { 
-            background-color: #f0f2f6; 
-            padding: 15px; 
-            text-align: left; 
-            font-size: 18px;  /* Hier anpassen */
-            font-weight: bold;
-        }
-        /* SCHRIFTGRÖSSE FÜR ZEILEN (td) */
-        .status-table td { 
-            border: 1px solid #e6e9ef; 
-            padding: 15px; 
-            text-align: left; 
-            font-size: 16px;  /* Hier anpassen */
-        }
-        /* Zentrierung für Unique Values & Status */
-        .status-table td:nth-child(2), .status-table td:nth-child(3) { 
-            text-align: center; 
-        }
-    </style>
-    <table class="status-table">
-        <thead>
-            <tr>
-                <th>Column Name</th>
-                <th>Unique Values</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-    """
-
-    # ... (deine restliche Schleife bleibt gleich)
-
-    st.markdown(html_status, unsafe_allow_html=True)
+    st.info(f"The new dataframe has **{df_processed.shape[0]}** rows and **{df_processed.shape[1]}** columns.")
 
 else:
     st.error("⚠️ No data found! Please load the dataset on the first page.")
