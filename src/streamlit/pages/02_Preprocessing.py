@@ -578,3 +578,51 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("---")
 
 
+
+
+
+
+#ab hier wird die Spalte "verified" bearbeitet, um neue Features zu erstellen (True/False, Ja/Nein, 1/0) 
+#und die Spalte "review_text" wird bereinigt (cleaned) und in "review_text_clean" gespeichert. 
+#Es wird auch eine erweiterte Bereinigung durchgeführt, um Emojis und Sonderzeichen zu entfernen, 
+#und das Ergebnis wird in "review_text_clean_advanced" gespeichert.
+
+# 1. Daten vorbereiten
+# Wir gruppieren nach 'verified' und 'rating' und zählen die Vorkommen
+verified_analysis = df_processed.groupby(['verified', 'rating']).size().reset_index(name='count')
+
+# Um die Grafik schöner zu machen, benennen wir 0 und 1 um
+verified_analysis['status'] = verified_analysis['verified'].map({0: 'Not Verified (0)', 1: 'Verified (1)'})
+
+# 2. Ein gestapeltes Balkendiagramm erstellen (Prozentual für bessere Vergleichbarkeit)
+fig_ver = px.bar(
+    verified_analysis, 
+    x='status', 
+    y='count', 
+    color='rating',
+    title='🛡️ Verified Status vs. Rating Distribution',
+    labels={'count': 'Number of Reviews', 'status': 'Verification Status', 'rating': 'Stars'},
+    barmode='relative', # 'group' für nebeneinander, 'relative' für gestapelt
+    color_continuous_scale='RdYlGn' # Rot für 1 Stern, Grün für 5 Sterne
+)
+
+# 3. Design-Anpassungen
+fig_ver.update_layout(
+    font=dict(size=14),
+    xaxis_title="",
+    yaxis_title="Count of Reviews",
+    legend_title="Rating"
+)
+
+# 4. In Streamlit anzeigen
+st.plotly_chart(fig_ver, use_container_width=True)
+
+# 5. Statistische Kurzzusammenfassung
+avg_verified = df_processed[df_processed['verified'] == 1]['rating'].mean()
+avg_not_verified = df_processed[df_processed['verified'] == 0]['rating'].mean()
+
+st.info(f"""
+💡 **Quick Stats:**
+* Average Rating (Verified): **{avg_verified:.2f} ⭐**
+* Average Rating (Not Verified): **{avg_not_verified:.2f} ⭐**
+""")
