@@ -339,37 +339,3 @@ st.markdown(html_table, unsafe_allow_html=True)
 
 
 st.markdown("<br><br>", unsafe_allow_html=True)
-#ab hier wird die zweite Spalte "date" bereinigt, damit sie als Zeitstempel erkannt wird. 
-#Das ist wichtig für spätere Analysen, z.B. zeitliche Trends in den Bewertungen.
-
-
-# 1. Umwandlung in echtes Datetime-Format (Wichtig für die Extraktion)
-df['date'] = pd.to_datetime(df['date'], utc=True)
-
-# 2. Jahr, Monat und Wochentag (Englisch) extrahieren
-df['year'] = df['date'].dt.year
-df['month_name'] = df['date'].dt.month_name() # "January", "February"...
-df['weekday'] = df['date'].dt.day_name()     # "Monday", "Tuesday"...
-
-# 3. Logik für die Saison (Season) - Englisch
-def get_season(month):
-    if month in [12, 1, 2]: return 'Winter'
-    elif month in [3, 4, 5]: return 'Spring'
-    elif month in [6, 7, 8]: return 'Summer'
-    else: return 'Autumn'
-
-df['season'] = df['date'].dt.month.apply(get_season)
-
-# 4. Logik für die Tageszeit (Time of Day) - Englisch
-def get_day_period(hour):
-    if 5 <= hour < 12: return 'Morning'
-    elif 12 <= hour < 17: return 'Afternoon'
-    elif 17 <= hour < 21: return 'Evening'
-    else: return 'Night'
-
-df['day_period'] = df['date'].dt.hour.apply(get_day_period)
-
-# 5. Kontrolle der neuen Spalten in Streamlit
-st.write("### 📅 New Date Features added")
-st.dataframe(df[['date', 'year', 'month_name', 'season', 'weekday', 'day_period']].head(10), use_container_width=True)
-
