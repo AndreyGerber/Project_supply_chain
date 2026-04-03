@@ -383,7 +383,7 @@ if 'raw_data' in st.session_state:
     df_processed = df_processed[time_cols + other_cols]
 
     # Schritt F: Ergebnis anzeigen (Erste 15 Zeilen)
-    st.write("### 🚀 Final Processed Dataset (First 15 Rows)")
+    st.write("### 🚀 Lets work on our date-data")
     st.dataframe(df_processed.head(15), use_container_width=True)
     
     # Bestätigung der Dimensionen
