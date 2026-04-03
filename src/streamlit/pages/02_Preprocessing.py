@@ -789,7 +789,8 @@ html_status += "</tbody></table>"
 # --- DER EINZIG RICHTIGE BEFEHL ---
 st.markdown(html_status, unsafe_allow_html=True)
 
-
+st.markdown("---")
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
