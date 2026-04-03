@@ -387,3 +387,31 @@ if 'raw_data' in st.session_state:
 
 else:
     st.error("⚠️ No data found in memory!")
+
+# --- TABELLE ANZEIGEN ---
+st.write("### 📋 Updated Overview (Working Copy)")
+
+# CSS für die Tabelle (kannst du oben im Code lassen oder hier wiederholen)
+html_style = """
+<style>
+    .custom-table { width: 100%; border-collapse: collapse; }
+    .custom-table th, .custom-table td { border: 1px solid #e6e9ef; padding: 10px; }
+    .custom-table th { background-color: #f0f2f6; text-align: left; }
+    .custom-table td:nth-child(2) { text-align: center; }
+</style>
+"""
+
+# WICHTIG: Die Schleife muss über df_processed laufen!
+table_rows = ""
+for col in df_processed.columns:
+    unique_count = df_processed[col].nunique()
+    table_rows += f"<tr><td>{col}</td><td>{unique_count}</td></tr>"
+
+full_html = f"{html_style}<table class='custom-table'><thead><tr><th>Column Name</th><th>Unique Values</th></tr></thead><tbody>{table_rows}</tbody></table>"
+
+# Tabelle rendern
+st.markdown(full_html, unsafe_allow_html=True)
+
+# OPTIONAL: Eine kleine Vorschau der echten Daten zur Kontrolle
+st.write("#### 🔎 Preview of the new columns:")
+st.dataframe(df_processed[['date', 'year', 'month_name', 'season', 'weekday', 'day_period']].head(5))
