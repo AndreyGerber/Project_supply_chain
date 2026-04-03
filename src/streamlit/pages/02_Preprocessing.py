@@ -1116,5 +1116,5 @@ st.write("### 🏆 Final Processed Dataset (Top 15 Rows)")
 st.dataframe(df_final_view.head(15), use_container_width=True)
 
 # 3. Abschluss-Info der Maschine
-st.success(f"🏁 **Phase 2 Complete:** Your dataset is now high-octane fuel for Machine Learning! "
+st.success(f"🏁 **Phase \"Preprocessing\" Complete:** Our dataset is now high-octane fuel for Machine Learning! "
            f"Total: **{df_processed.shape[0]}** reviews and **{df_processed.shape[1]}** clean features.")
