@@ -1115,6 +1115,8 @@ st.write("### 🏆 Final Processed Dataset (Top 15 Rows)")
 # Wir nutzen use_container_width=True für die volle Breite
 st.dataframe(df_final_view.head(15), use_container_width=True)
 
+
+st.markdown("<br><br><br>", unsafe_allow_html=True)
 # 3. Abschluss-Info der Maschine
 st.success(f"🏁 **Phase \"Preprocessing\" Complete:** Our dataset is now high-octane fuel for Machine Learning! "
            f"Total: **{df_processed.shape[0]}** reviews and **{df_processed.shape[1]}** clean features.")
