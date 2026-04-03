@@ -788,3 +788,52 @@ html_status += "</tbody></table>"
 
 # --- DER EINZIG RICHTIGE BEFEHL ---
 st.markdown(html_status, unsafe_allow_html=True)
+
+
+
+
+
+
+# supplier response analysieren, ob sie einen Einfluss auf die Bewertung hat (z.B. haben Kunden, die eine Antwort erhalten haben, tendenziell bessere Bewertungen?)
+
+
+
+# 1. Daten transformieren: Hat geantwortet (1) oder nicht (0)
+# Wir prüfen, ob der Wert in 'supplier_response' leer (NaN) oder None ist
+df_processed['has_response'] = df_processed['supplier_response'].notna().astype(int)
+
+# 2. Pivot-Tabelle erstellen: Antwort-Status vs. Rating
+pivot_resp = df_processed.groupby(['has_response', 'rating']).size().unstack(fill_value=0)
+
+# 3. Normalisierung (Prozentual pro Zeile), um Trends trotz unterschiedlicher Mengen zu sehen
+pivot_resp_norm = pivot_resp.div(pivot_resp.sum(axis=1), axis=0) * 100
+pivot_resp_norm.index = ['No Response (0)', 'Has Response (1)']
+
+# 4. Die Heatmap erstellen
+fig_resp = px.imshow(
+    pivot_resp_norm,
+    labels=dict(x="Rating (Stars)", y="Supplier Response Status", color="Percentage %"),
+    x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+    y=pivot_resp_norm.index,
+    color_continuous_scale='RdYlGn', 
+    text_auto='.1f',
+    aspect="auto"
+)
+
+fig_resp.update_layout(
+    title="🎯 Heatmap: Influence of Supplier Response on Ratings (%)",
+    font=dict(size=14),
+    height=400
+)
+
+st.plotly_chart(fig_resp, use_container_width=True)
+
+# 5. Statistischer Check: Durchschnitts-Rating vergleichen
+avg_resp = df_processed[df_processed['has_response'] == 1]['rating'].mean()
+avg_no_resp = df_processed[df_processed['has_response'] == 0]['rating'].mean()
+
+st.info(f"""
+💡 **Quick Insight:**
+* Average Rating with Response: **{avg_resp:.2f} ⭐**
+* Average Rating without Response: **{avg_no_resp:.2f} ⭐**
+""")
