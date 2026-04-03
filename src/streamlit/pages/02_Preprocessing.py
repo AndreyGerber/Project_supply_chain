@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 import re
 import streamlit as st
 import os
+import plotly.express as px
 
 # 1. NLTK Ressourcen laden (für Stopwords)
 @st.cache_resource
