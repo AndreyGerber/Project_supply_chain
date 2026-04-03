@@ -395,7 +395,7 @@ else:
 
 
 # 1. Liste der erledigten Spalten
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text']
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Füge hier weitere Spalten hinzu, die du bereinigt hast
 
 # 2. HTML-Tabelle zusammenbauen
 html_status = """
