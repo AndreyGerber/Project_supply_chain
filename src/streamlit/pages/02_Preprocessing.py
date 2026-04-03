@@ -1027,21 +1027,32 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 # issue categories analysieren (z.B. wie viele Bewertungen pro Kategorie, welche Kategorien haben die besten/schlechtesten Bewertungen, etc.)
 
-# 1. Top 20 Issue Categories visualisieren
+import plotly.express as px
+
+# 1. Daten vorbereiten (Top 20 Kategorien für ein vertikales Chart)
 issue_counts = df_processed['issue_categories'].value_counts().head(20).reset_index()
 issue_counts.columns = ['Issue Category', 'Count']
 
-import plotly.express as px
-fig_issue = px.bar(
+# 2. Vertikales Balkendiagramm erstellen
+fig_issue_v = px.bar(
     issue_counts, 
-    x='Count', 
-    y='Issue Category', 
-    orientation='h',
-    title='🔍 Top 20 Issue Categories',
+    x='Issue Category', 
+    y='Count', 
+    title='🔍 Top 20 Issue Categories (Vertical)',
+    text='Count',
     color='Count',
     color_continuous_scale='Purples'
 )
-st.plotly_chart(fig_issue, use_container_width=True)
 
-# 2. Kurze Analyse der Maschine
-st.info("💡 **Machine Insight:** If these categories are distinct and meaningful, we keep them. If they are overlapping or messy, we drop them to focus purely on the raw text.")
+# 3. Design-Anpassungen (Schrift & Rotation der Labels)
+fig_issue_v.update_layout(
+    xaxis_tickangle=-45,   # Schräg stellen, damit die langen Kategorienamen lesbar bleiben
+    font=dict(size=14),
+    height=500,
+    xaxis_title="Category Name",
+    yaxis_title="Frequency",
+    template="plotly_white"
+)
+
+# 4. In Streamlit anzeigen
+st.plotly_chart(fig_issue_v, use_container_width=True)
