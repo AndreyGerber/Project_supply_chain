@@ -391,3 +391,52 @@ if 'raw_data' in st.session_state:
 
 else:
     st.error("⚠️ No data found! Please load the dataset on the first page.")
+
+
+
+# 1. Definieren, welche Spalten als "erledigt" markiert werden sollen
+# 'review_text' war bei dir schon grün, die neuen Zeit-Spalten kommen jetzt dazu
+cleaned_cols = [
+    'review_text', 'review_text_clean', 'review_text_clean_advanced',
+    'year', 'month_name', 'weekday', 'season', 'day_period'
+]
+
+# 2. HTML & CSS für die Status-Tabelle
+html_status = """
+<style>
+    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; }
+    .status-table th, .status-table td { border: 1px solid #e6e9ef; padding: 12px; text-align: left; }
+    .status-table th { background-color: #f0f2f6; }
+    .status-table td:nth-child(2), .status-table td:nth-child(3) { text-align: center; }
+</style>
+<table class="status-table">
+    <thead>
+        <tr>
+            <th>Column Name</th>
+            <th>Unique Values</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+"""
+
+# 3. Zeilen dynamisch basierend auf df_processed erstellen
+for col in df_processed.columns:
+    unique_count = df_processed[col].nunique()
+    
+    # Check: Wenn Spalte in unserer Liste ist -> Grünes Häkchen, sonst rotes X
+    status_icon = "✅" if col in cleaned_cols else "❌"
+    
+    html_status += f"""
+        <tr>
+            <td>{col}</td>
+            <td>{unique_count}</td>
+            <td>{status_icon}</td>
+        </tr>
+    """
+
+html_status += "</tbody></table>"
+
+# 4. In Streamlit anzeigen
+st.write("### 📋 Preprocessing Status Overview")
+st.markdown(html_status, unsafe_allow_html=True)
