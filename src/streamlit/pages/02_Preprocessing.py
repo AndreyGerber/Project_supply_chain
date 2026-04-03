@@ -262,7 +262,7 @@ st.session_state['raw_data'] = df # Speicher das gesäuberte DF wieder ab
 
 
 
-st.markdown(html_table, unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
 st.write("### 📋 Preprocessing Status Overview")
 
