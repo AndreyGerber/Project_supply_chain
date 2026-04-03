@@ -719,3 +719,59 @@ fig_ver_abs.update_layout(
 )
 
 st.plotly_chart(fig_ver_abs, use_container_width=True, key="heatmap_absolute")
+
+
+# 1. Daten für die Firmen-Analyse vorbereiten
+# Wir schauen uns das Durchschnitts-Rating pro Firma an
+company_stats = df_processed.groupby('company')['rating'].agg(['mean', 'count']).reset_index()
+company_stats.columns = ['Company', 'Avg Rating', 'Review Count']
+company_stats = company_stats.sort_values(by='Avg Rating', ascending=False)
+
+# 2. Visualisierung: Durchschnittliches Rating pro Firma
+import plotly.express as px
+fig_comp = px.bar(
+    company_stats,
+    x='Avg Rating',
+    y='Company',
+    orientation='h',
+    title='🏢 Average Rating by Company',
+    text_auto='.2f',
+    color='Avg Rating',
+    color_continuous_scale='RdYlGn'
+)
+st.plotly_chart(fig_comp, use_container_width=True)
+
+# 3. DIE BEREINIGTE STATUS-TABELLE (Ohne 'location')
+# Wir definieren nur die Spalten, die wir wirklich behalten haben
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'company']
+
+html_status = """
+<style>
+    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
+    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 16px; }
+    .status-table th { background-color: #f0f2f6; font-weight: bold; }
+</style>
+<table class="status-table">
+    <thead>
+        <tr>
+            <th>Column Name</th>
+            <th>Unique Values</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+"""
+
+for col in df_processed.columns:
+    u_count = df_processed[col].nunique()
+    status_icon = "✅" if col in cleaned_cols else "❌"
+    html_status += f"<tr><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>"
+
+html_status += "</tbody></table>"
+
+st.markdown("### 📋 Current Preprocessing Status")
+st.markdown(html_status, unsafe_allow_html=True)
+
+# 4. Der gewünschte df.head(15)
+st.write("### 🚀 Remaining Dataset (Top 15 Rows)")
+st.dataframe(df_processed.head(15), use_container_width=True)
