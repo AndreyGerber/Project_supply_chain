@@ -756,7 +756,7 @@ st.markdown("---")
 
 
 
-
+st.info("💡 **Feature Selection:** The 'company' column has been removed, as it shows no significant correlation with the rating and could introduce model bias.")
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
 # 1. Listen definieren
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
