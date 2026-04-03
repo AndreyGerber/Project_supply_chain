@@ -759,45 +759,17 @@ st.markdown("---")
 
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
 
-# 1. Listen für die Logik definieren
-# Diese Spalten sind laut deinem Bild fertig (Häkchen)
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
-# Diese Spalten fliegen raus (Durchgestrichen)
+# 1. Listen definieren
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified']
 dropped_cols = ['location', 'company']
 
-# 2. HTML & CSS für das exakte Design aus dem Screenshot
+# 2. HTML & CSS exakt zusammenbauen
 html_status = """
 <style>
-    .status-table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        font-family: sans-serif; 
-        color: #31333F; 
-    }
-    .status-table th { 
-        background-color: #f0f2f6; 
-        padding: 12px; 
-        text-align: left; 
-        font-size: 14px;
-        color: #555;
-        border-bottom: 1px solid #e6e9ef;
-    }
-    .status-table td { 
-        padding: 12px; 
-        border-bottom: 1px solid #f6f6f6; 
-        font-size: 14px;
-    }
-    /* Zentrierung für Unique Values & Status wie im Bild */
-    .status-table td:nth-child(2), .status-table td:nth-child(3),
-    .status-table th:nth-child(2), .status-table th:nth-child(3) { 
-        text-align: center; 
-    }
-    /* Style für gelöschte Zeilen */
-    .strikethrough { 
-        text-decoration: line-through; 
-        color: #9e9e9e; 
-        opacity: 0.6;
-    }
+    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
+    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 15px; }
+    .status-table th { background-color: #f0f2f6; font-weight: bold; }
+    .strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.6; font-style: italic; }
 </style>
 <table class="status-table">
     <thead>
@@ -810,32 +782,18 @@ html_status = """
     <tbody>
 """
 
-# Wir definieren die Liste in der Reihenfolge deines Screenshots
-display_order = [
-    'year', 'month_name', 'weekday', 'season', 'day_period', 
-    'review_text', 'supplier_response', 'verified', 'company', 
-    'location', 'review_text_clean', 'company_site', 
-    'review_text_clean_advanced', 'issue_categories', 'rating'
-]
+# 3. Schleife über die Spalten
+# Wir nehmen alle Spalten aus dem DF und fügen die gelöschten manuell für die Anzeige hinzu
+display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
-for col in display_order:
-    # Unique Values aus dem DF holen (oder Dummy-Wert für gelöschte Spalten)
-    if col in df_processed.columns:
-        u_count = df_processed[col].nunique()
-    elif col == 'location': u_count = "86"
-    elif col == 'company': u_count = "53"
-    else: u_count = "-" # Für Spalten, die wir noch nicht im Zugriff haben
+for col in display_cols:
+    # Check ob gelöscht
+    is_dropped = col in dropped_cols
+    row_class = 'class="strikethrough"' if is_dropped else ''
     
-    # CSS Klasse bestimmen
-    row_class = 'class="strikethrough"' if col in dropped_cols else ''
-    
-    # Icon bestimmen (Häkchen, Kreuz oder Papierkorb für Dropped)
-    if col in dropped_cols:
-        status_icon = "🗑️" 
-    elif col in cleaned_cols:
-        status_icon = "✅"
-    else:
-        status_icon = "❌"
+    # Werte & Icons
+    u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
+    status_icon = "🗑️" if is_dropped else ("✅" if col in cleaned_cols else "❌")
     
     html_status += f"""
         <tr {row_class}>
@@ -847,12 +805,11 @@ for col in display_order:
 
 html_status += "</tbody></table>"
 
-# 3. Anzeige
+# --- DER ENTSCHEIDENDE SCHRITT ---
 st.markdown("### 📋 Current Preprocessing Status")
-st.markdown(html_status, unsafe_allow_html=True)
+st.markdown(html_status, unsafe_allow_html=True) 
 
-# 4. Vorschau des verbliebenen Dataframes
+# Und dein df.head(15) direkt darunter
 st.write("### 🚀 Optimized Dataset (Top 15 Rows)")
 st.dataframe(df_processed.head(15), use_container_width=True)
-
 
