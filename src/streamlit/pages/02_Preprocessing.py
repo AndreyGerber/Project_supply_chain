@@ -724,7 +724,7 @@ st.plotly_chart(fig_ver_abs, use_container_width=True, key="heatmap_absolute")
 
 # DIE BEREINIGTE STATUS-TABELLE (Ohne 'location')
 # Wir definieren nur die Spalten, die wir wirklich behalten haben
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'company', 'review_text_clean', 'review_text_clean_advanced']  # Alle Spalten, die wir bereinigt oder behalten haben
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified' , 'review_text_clean', 'review_text_clean_advanced']  # Alle Spalten, die wir bereinigt oder behalten haben
 
 html_status = """
 <style>
@@ -752,7 +752,9 @@ html_status += "</tbody></table>"
 
 st.markdown("### 📋 Current Preprocessing Status")
 st.markdown(html_status, unsafe_allow_html=True)
+st.markdown("---")
 
-# 4. Der gewünschte df.head(15)
-st.write("### 🚀 Remaining Dataset (Top 15 Rows)")
-st.dataframe(df_processed.head(15), use_container_width=True)
+
+
+
+
