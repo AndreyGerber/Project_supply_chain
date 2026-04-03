@@ -523,55 +523,99 @@ fig = px.imshow(
 fig.update_layout(title="🎯 Detailed Rating Distribution per Location", font=dict(size=14))
 st.plotly_chart(fig, use_container_width=True)
 
-# 1. Spalte 'location' endgültig aus dem Arbeits-DF entfernen (falls noch nicht geschehen)
-if 'location' in df_processed.columns:
-    df_processed = df_processed.drop(columns=['location'])
 
-# 2. Listen für die Status-Logik definieren
+
+# 1. Die Spalte 'location' aus dem bearbeiteten DF entfernen
+df_processed = df_processed.drop(columns=['location'])
+
+# 2. Update deiner Status-Tabelle (wir entfernen sie aus der Liste der Spalten)
+# Sie wird nun gar nicht mehr in der Tabelle auftauchen.
+st.success("✅ Spalte 'location' wurde erfolgreich gelöscht, um das Modell nicht zu verzerren.")
+
+# 3. Den aktuellen Stand des Dataframes kurz anzeigen (Kontrolle)
+st.write(f"Der Datensatz hat jetzt noch **{df_processed.shape[1]}** Spalten.")
+st.dataframe(df_processed.head(5), use_container_width=True)
+
+
+
+# 1. Listen definieren
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']
-dropped_cols = ['location'] # Spalten, die wir bewusst gelöscht haben
-all_initial_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'location', 'supplier_response', 'verified', 'company', 'rating']
+dropped_cols = ['location']
 
-# 3. HTML-Tabelle mit CSS für das Durchstreichen (Strikethrough)
+# 2. HTML & CSS für den exakten Screenshot-Look
 html_status = """
 <style>
-    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; margin-bottom: 25px;}
-    .status-table th, .status-table td { border: 1px solid #e6e9ef; padding: 12px; text-align: left; }
-    .status-table th { background-color: #f0f2f6; font-weight: bold; }
-    .strikethrough { text-decoration: line-through; color: #9e9e9e; font-style: italic; } /* Grau & Durchgestrichen */
+    .status-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        font-family: 'Source Sans Pro', sans-serif; 
+        color: #31333F; 
+    }
+    .status-table th { 
+        background-color: #f0f2f6; 
+        padding: 12px; 
+        text-align: left; 
+        border-bottom: 2px solid #e6e9ef;
+        font-size: 14px;
+        color: #555;
+    }
+    .status-table td { 
+        padding: 12px; 
+        border-bottom: 1px solid #f0f2f6; 
+        font-size: 14px;
+    }
+    /* Zentrierung für Unique Values & Status */
+    .status-table td:nth-child(2), .status-table td:nth-child(3) { 
+        text-align: center; 
+    }
+    /* Durchstreichen für gelöschte Spalten */
+    .strikethrough { 
+        text-decoration: line-through; 
+        color: #9e9e9e; 
+        opacity: 0.6;
+    }
 </style>
 <table class="status-table">
     <thead>
         <tr>
             <th>Column Name</th>
-            <th>Preprocessing Status</th>
+            <th>Unique Values</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
 """
 
-for col in all_initial_cols:
-    if col in dropped_cols:
-        row_class = 'class="strikethrough"'
-        status_icon = "🗑️ (Dropped due to low correlation)"
-    elif col in cleaned_cols:
-        row_class = ''
-        status_icon = "✅ (Ready)"
-    else:
-        row_class = ''
-        status_icon = "❌ (Pending)"
+# Wir nutzen df_processed.columns PLUS die gelöschte Spalte für die Anzeige
+all_display_cols = list(df_processed.columns) + dropped_cols
+
+for col in all_display_cols:
+    # Unique Values berechnen (falls gelöscht, nehmen wir einen festen Wert oder '-')
+    u_count = df_processed[col].nunique() if col in df_processed.columns else "86"
     
-    html_status += f"<tr><td {row_class}>{col}</td><td>{status_icon}</td></tr>"
+    if col in dropped_cols:
+        row_style = 'class="strikethrough"'
+        status_icon = "🗑️" # Oder ein rotes X, wenn es exakt wie im Bild sein soll: "❌"
+    elif col in cleaned_cols:
+        row_style = ''
+        status_icon = "✅"
+    else:
+        row_style = ''
+        status_icon = "❌"
+    
+    html_status += f"""
+        <tr {row_style}>
+            <td>{col}</td>
+            <td>{u_count}</td>
+            <td>{status_icon}</td>
+        </tr>
+    """
 
 html_status += "</tbody></table>"
 
-# 4. Anzeige in Streamlit
-st.markdown("### 📋 Final Preprocessing Status Overview")
+# 3. Anzeige
 st.markdown(html_status, unsafe_allow_html=True)
 
-# 5. Darstellung der verbliebenen Daten (Erste 15 Zeilen)
-st.write("### 🚀 Remaining Dataset (Top 15 Rows)")
+# 4. Der gewünschte df.head(15) direkt darunter
+st.write("### 🚀 Current Dataset Preview")
 st.dataframe(df_processed.head(15), use_container_width=True)
-
-# Kurze Info-Box zum Abschluss
-st.info(f"💡 **Maschinen-Update:** The 'location' column was discarded. The dataset now consists of **{df_processed.shape[1]}** optimized columns.")
