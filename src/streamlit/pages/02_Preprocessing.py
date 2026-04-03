@@ -836,3 +836,82 @@ fig_resp_abs.update_layout(
 # 3. Anzeige in Streamlit
 st.plotly_chart(fig_resp_abs, use_container_width=True, key="response_heatmap_absolute")
 
+
+
+# 1. Sicherheitskopie für die Business-Analyse erstellen (bevor wir löschen)
+df_analytics_copy = df_processed.copy()
+
+# 2. Professionelle Info-Box (Business Insight)
+st.info("""
+    💡 **Business Intelligence Insight:** 
+    Companies show a strong reactive pattern: they prioritize responding to **negative reviews** (1-star) 
+    as part of crisis management, while positive feedback often remains unacknowledged. 
+    To avoid 'Data Leakage' in our prediction model, this post-event feature will now be removed.
+""")
+
+# 3. Spalte 'supplier_response' (und falls vorhanden 'has_response') aus dem Arbeits-DF löschen
+cols_to_drop = ['supplier_response', 'has_response']
+for col in cols_to_drop:
+    if col in df_processed.columns:
+        df_processed = df_processed.drop(columns=[col])
+
+# 4. Listen für die Status-Tabelle definieren
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified']
+dropped_cols = ['location', 'company', 'supplier_response']
+
+# 5. HTML Status-Tabelle mit Strikethrough-Logik
+html_status = """
+<style>
+    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
+    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 15px; }
+    .status-table th { background-color: #f0f2f6; font-weight: bold; }
+    .strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.6; font-style: italic; }
+</style>
+<table class="status-table">
+    <thead>
+        <tr>
+            <th>Column Name</th>
+            <th>Unique Values</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+"""
+
+# Alle anzuzeigenden Spalten (Aktive + die drei gedroppten)
+display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+
+for col in display_cols:
+    is_dropped = col in dropped_cols
+    row_class = 'class="strikethrough"' if is_dropped else ''
+    
+    # Unique Count (Dummy für gelöschte Spalten)
+    u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
+    
+    # Icon Logik
+    if is_dropped:
+        status_icon = "🗑️ (Dropped)"
+    elif col in cleaned_cols:
+        status_icon = "✅ (Ready)"
+    else:
+        status_icon = "❌ (Pending)"
+    
+    html_status += f"""
+        <tr {row_class}>
+            <td>{col}</td>
+            <td>{u_count}</td>
+            <td>{status_icon}</td>
+        </tr>
+    """
+
+html_status += "</tbody></table>"
+
+# Tabelle und Daten-Vorschau rendern
+st.markdown("### 📋 Final Feature Selection Status")
+st.markdown(html_status, unsafe_allow_html=True)
+
+st.write("### 🚀 Optimized Dataset (Top 15 Rows)")
+st.dataframe(df_processed.head(15), use_container_width=True)
+
+st.markdown("---")
+st.markdown("<br><br>", unsafe_allow_html=True)
