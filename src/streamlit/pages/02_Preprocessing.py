@@ -1053,7 +1053,7 @@ if 'issue_categories' in df_processed.columns:
 # 2. Professionelle Info-Box (English)
 st.info("""
     💡 **Feature Selection Update:** 
-    The 'issue_categories' column has been removed. Approximately **2/3 of the data (4,169 rows)** 
+    The 'issue_categories' column will been removed. Approximately **2/3 of the data (4,169 rows)** 
     contained no classification (empty Counter objects). The remaining entries were 
     technically corrupted, making the feature unreliable for model training.
 """)
@@ -1061,6 +1061,7 @@ st.info("""
 
 
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
+#aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
 dropped_cols = ['location', 'company', 'supplier_response', 'has_response', 'company_site', 'issue_categories']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
@@ -1081,8 +1082,8 @@ for col in display_cols:
     is_dropped = col in dropped_cols
     row_class = 'class="strikethrough"' if is_dropped else ''
     u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
-    status_icon = "🗑️" if is_dropped else ("✅" if col in cleaned_cols else "❌")
-    
+    status_icon = "🗑️" if col in dropped_cols else ("🎯" if col == "rating" else ("✅" if col in cleaned_cols else "❌"))
+
     html_status += f'<tr {row_class}><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>'
 
 html_status += "</tbody></table>"
