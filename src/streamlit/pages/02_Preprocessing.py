@@ -758,59 +758,33 @@ st.markdown("---")
 
 
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
-df_processed = df_processed.drop(columns=['company'])
-
+# 1. Listen definieren
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
-dropped_cols = ['company', 'location'] # Hier die "Dropped" Spalten eintragen
+dropped_cols = ['location', 'company']
 
-html_status = """
-<style>
-    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
-    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 16px; }
-    .status-table th { background-color: #f0f2f6; font-weight: bold; }
-    /* NEU: Style für durchgestrichene Zeilen */
-    .strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.7; }
+# 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
+html_status = """<style>
+.status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
+.status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 16px; }
+.status-table th { background-color: #f0f2f6; font-weight: bold; }
+.strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.7; font-style: italic; }
 </style>
 <table class="status-table">
-    <thead>
-        <tr>
-            <th>Column Name</th>
-            <th>Unique Values</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-"""
+<thead><tr><th>Column Name</th><th>Unique Values</th><th>Status</th></tr></thead>
+<tbody>"""
 
-# Wir loopen über die aktuellen Spalten + die gedroppten für die Anzeige
-all_cols_to_show = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+# 3. Schleife über alle Spalten
+display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
-for col in all_cols_to_show:
-    # Check ob die Spalte gedroppt wurde
+for col in display_cols:
     is_dropped = col in dropped_cols
     row_class = 'class="strikethrough"' if is_dropped else ''
-    
-    # Unique Values (für gedroppte Spalten ein "-" oder fixen Wert)
     u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
+    status_icon = "🗑️" if is_dropped else ("✅" if col in cleaned_cols else "❌")
     
-    # Status Icon bestimmen
-    if is_dropped:
-        status_icon = "🗑️" # Oder ❌, wenn du willst
-    elif col in cleaned_cols:
-        status_icon = "✅"
-    else:
-        status_icon = "❌"
-    
-    html_status += f"""
-        <tr {row_class}>
-            <td>{col}</td>
-            <td>{u_count}</td>
-            <td>{status_icon}</td>
-        </tr>
-    """
+    html_status += f'<tr {row_class}><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>'
 
 html_status += "</tbody></table>"
 
-st.markdown("### 📋 Current Preprocessing Status")
+# --- DER EINZIG RICHTIGE BEFEHL ---
 st.markdown(html_status, unsafe_allow_html=True)
-st.markdown("---")
