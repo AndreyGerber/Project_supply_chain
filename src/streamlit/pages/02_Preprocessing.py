@@ -377,7 +377,13 @@ if 'raw_data' in st.session_state:
     # 3. Ab hier nutzen Sie nur noch 'df_processed' für Anzeigen und Berechnungen
     st.write("### 📋 adjust our date")
     
-
+    # Ihre HTML-Tabelle würde jetzt 'df_processed' nutzen:
+    table_rows = ""
+    for col in df_processed.columns:
+        unique_count = df_processed[col].nunique()
+        table_rows += f"<tr><td>{col}</td><td>{unique_count}</td></tr>"
+    
+    # ... (Rest Ihres HTML-Codes wie gehabt)
 
 else:
     st.error("⚠️ No data found in memory!")
