@@ -250,40 +250,6 @@ st.info(f"""
 
 
 
-
-
-
-st.subheader("🔍 Analysis of Duplicate Comments")
-
-
-
-# Die Top 5 der am häufigsten vorkommenden identischen Texte
-st.write("Most frequent identical comments:")
-
-# 1. Daten vorbereiten (Top 5 Duplikate finden)
-# Wir wandeln das Ergebnis von value_counts() direkt in ein DataFrame um
-duplicates_df = df['review_text'].value_counts().head(5).reset_index()
-duplicates_df.columns = ['review_text', 'count']
-
-# 2. Saubere Darstellung in zwei Spalten
-st.dataframe(
-    duplicates_df,
-    use_container_width=True,
-    hide_index=True,  # Entfernt die ID-Spalte links
-    column_config={
-        "review_text": st.column_config.TextColumn(
-            "Review Content", 
-            width="large"
-        ),
-        "count": st.column_config.NumberColumn(
-            "Occurrence (count)", 
-            width="small",
-            format="%d"
-        )
-    }
-)
-
-
 st.subheader("🧹 Data Cleaning: Removing System Replies")
 
 # Wir filtern alle Zeilen heraus, die mit "Reply from" beginnen
@@ -293,6 +259,8 @@ removed_count = initial_count - len(df)
 
 st.warning(f"Removed {removed_count} rows containing company replies instead of customer comments.")
 st.session_state['raw_data'] = df # Speicher das gesäuberte DF wieder ab
+
+
 
 
 
