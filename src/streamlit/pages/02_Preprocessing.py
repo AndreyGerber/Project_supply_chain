@@ -1021,3 +1021,27 @@ st.markdown(html_status, unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown("<br><br>", unsafe_allow_html=True)
+
+
+
+
+# issue categories analysieren (z.B. wie viele Bewertungen pro Kategorie, welche Kategorien haben die besten/schlechtesten Bewertungen, etc.)
+
+# 1. Top 20 Issue Categories visualisieren
+issue_counts = df_processed['issue_categories'].value_counts().head(20).reset_index()
+issue_counts.columns = ['Issue Category', 'Count']
+
+import plotly.express as px
+fig_issue = px.bar(
+    issue_counts, 
+    x='Count', 
+    y='Issue Category', 
+    orientation='h',
+    title='🔍 Top 20 Issue Categories',
+    color='Count',
+    color_continuous_scale='Purples'
+)
+st.plotly_chart(fig_issue, use_container_width=True)
+
+# 2. Kurze Analyse der Maschine
+st.info("💡 **Machine Insight:** If these categories are distinct and meaningful, we keep them. If they are overlapping or messy, we drop them to focus purely on the raw text.")
