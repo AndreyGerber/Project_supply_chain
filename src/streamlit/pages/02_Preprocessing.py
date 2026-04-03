@@ -459,30 +459,37 @@ st.write("Top 25 Locations (including missing values):")
 st.dataframe(location_counts.head(25), use_container_width=True)
 
 
-# 1. Daten vorbereiten (Top 15 Orte für bessere Übersicht)
-top_locations = df_processed['location'].value_counts().head(15).reset_index()
+
+
+
+# 1. Daten vorbereiten (WICHTIG: dropna=False, damit 'None' gezählt wird)
+top_locations = df_processed['location'].value_counts(dropna=False).head(15).reset_index()
 top_locations.columns = ['Location', 'Count']
 
-# 2. Vertikales Balkendiagramm erstellen
+# 2. 'None' oder NaN-Werte für das Diagramm schöner benennen
+top_locations['Location'] = top_locations['Location'].fillna('Unknown')
+
+# 3. Vertikales Balkendiagramm (Einfarbig)
 fig = px.bar(
     top_locations, 
     x='Location', 
     y='Count', 
-    title='📍 Top 15 Review Locations (Vertical)',
-    text='Count',          # Zahlen direkt auf die Balken schreiben
-    color='Count',         # Farbe nach Häufigkeit
-    color_continuous_scale='Viridis' # Ein schöner Farbverlauf
+    title='📍 Top 15 Review Locations (including Unknown)',
+    text='Count',
+    # Wir entfernen 'color', um es einfarbig zu machen
+    color_discrete_sequence=['#636EFA'] # Ein schönes Standard-Blau
 )
 
-# 3. Design-Feinschliff (Größere Schrift & Layout)
+# 4. Design-Feinschliff
 fig.update_layout(
-    xaxis_tickangle=-45,   # Städtenamen schräg stellen, damit sie sich nicht überlappen
+    xaxis_tickangle=-45,
     font=dict(size=14),
     height=500,
     xaxis_title="City / Location",
     yaxis_title="Number of Reviews",
-    template="plotly_white"
+    template="plotly_white",
+    showlegend=False # Legende weg, da nur eine Farbe
 )
 
-# 4. In Streamlit anzeigen
+# 5. In Streamlit anzeigen
 st.plotly_chart(fig, use_container_width=True)
