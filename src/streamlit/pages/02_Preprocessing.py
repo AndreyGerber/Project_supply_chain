@@ -808,8 +808,3 @@ html_status += "</tbody></table>"
 # --- DER ENTSCHEIDENDE SCHRITT ---
 st.markdown("### 📋 Current Preprocessing Status")
 st.markdown(html_status, unsafe_allow_html=True) 
-
-# Und dein df.head(15) direkt darunter
-st.write("### 🚀 Optimized Dataset (Top 15 Rows)")
-st.dataframe(df_processed.head(15), use_container_width=True)
-
