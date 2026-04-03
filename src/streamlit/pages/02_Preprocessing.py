@@ -759,11 +759,11 @@ st.markdown("---")
 
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
 
-# 1. Listen für die Logik (Stelle sicher, dass diese Variablen definiert sind)
+# 1. Listen definieren
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified']
 dropped_cols = ['location', 'company']
 
-# 2. HTML & CSS zusammenbauen
+# 2. Den HTML-String zusammenbauen
 html_status = """
 <style>
     .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
@@ -782,18 +782,15 @@ html_status = """
     <tbody>
 """
 
-# 3. Schleife über alle Spalten (Aktive + Gelöschte für die Anzeige)
-# Wir erstellen eine Liste aller anzuzeigenden Spalten
-all_to_show = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+# 3. Schleife über alle Spalten (Aktive + die zwei gelöschten)
+display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
-for col in all_to_show:
+for col in display_cols:
     is_dropped = col in dropped_cols
     row_class = 'class="strikethrough"' if is_dropped else ''
     
-    # Werte bestimmen
     u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
     
-    # Icon bestimmen
     if is_dropped:
         status_icon = "🗑️"
     elif col in cleaned_cols:
@@ -811,7 +808,9 @@ for col in all_to_show:
 
 html_status += "</tbody></table>"
 
-# --- DER ENTSCHEIDENDE SCHRITT ---
-# Nutze NUR diesen Befehl, kein st.write(html_status)!
+# --- DER WICHTIGSTE TEIL: HIER WIRD DIE TABELLE GEZEICHNET ---
+st.markdown("### 📋 Current Preprocessing Status")
 st.markdown(html_status, unsafe_allow_html=True) 
+
+
 
