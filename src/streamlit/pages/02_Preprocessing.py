@@ -808,3 +808,31 @@ st.info(f"""
 * Average Rating with Response: **{avg_resp:.2f} ⭐**
 * Average Rating without Response: **{avg_no_resp:.2f} ⭐**
 """)
+
+
+
+# 1. Daten vorbereiten (Absolutzahlen)
+# Wir nutzen die Spalte 'has_response' (0 = Nein, 1 = Ja)
+pivot_resp_abs = df_processed.groupby(['has_response', 'rating']).size().unstack(fill_value=0)
+pivot_resp_abs.index = ['No Response (0)', 'Has Response (1)']
+
+# 2. Die Heatmap mit Absolutzahlen erstellen
+fig_resp_abs = px.imshow(
+    pivot_resp_abs,
+    labels=dict(x="Rating (Stars)", y="Supplier Response Status", color="Count of Reviews"),
+    x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+    y=pivot_resp_abs.index,
+    color_continuous_scale='Blues', # Blau für Mengenverteilung
+    text_auto=True,                 # Zeigt die echten Ganzzahlen in den Feldern
+    aspect="auto"
+)
+
+fig_resp_abs.update_layout(
+    title="📊 Absolute Counts: Supplier Response vs. Rating",
+    font=dict(size=14),
+    height=400
+)
+
+# 3. Anzeige in Streamlit
+st.plotly_chart(fig_resp_abs, use_container_width=True, key="response_heatmap_absolute")
+
