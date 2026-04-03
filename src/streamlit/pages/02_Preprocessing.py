@@ -339,7 +339,36 @@ st.markdown(html_table, unsafe_allow_html=True)
 
 
 
+#ab hier wird die zweite Spalte "date" bereinigt, damit sie als Zeitstempel erkannt wird. 
+#Das ist wichtig für spätere Analysen, z.B. zeitliche Trends in den Bewertungen.
 
-# --- AB HIER GEHT ES GLEICH WEITER MIT DEM CLEANING ---
-st.divider()
 
+# 1. Sicherstellen, dass die Spalte im Datetime-Format ist
+df['date'] = pd.to_datetime(df['date'])
+
+# 2. Jahr, Monat und Wochentag extrahieren
+df['year'] = df['date'].dt.year
+df['month'] = df['date'].dt.month
+df['weekday'] = df['date'].dt.day_name() # Englisch: Monday, Tuesday...
+
+# 3. Saison (Season) definieren
+def get_season(month):
+    if month in [12, 1, 2]: return 'Winter'
+    elif month in [3, 4, 5]: return 'Spring'
+    elif month in [6, 7, 8]: return 'Summer'
+    else: return 'Autumn'
+
+df['season'] = df['month'].apply(get_season)
+
+# 4. Tageszeit (Time of Day) definieren
+def get_day_period(hour):
+    if 5 <= hour < 12: return 'Morning'
+    elif 12 <= hour < 17: return 'Afternoon'
+    elif 17 <= hour < 21: return 'Evening'
+    else: return 'Night'
+
+df['day_period'] = df['date'].dt.hour.apply(get_day_period)
+
+# Vorschau zur Kontrolle
+st.write("### 📅 Feature Engineering: Dates")
+st.dataframe(df[['date', 'year', 'month', 'season', 'weekday', 'day_period']].head(10))
