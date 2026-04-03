@@ -498,35 +498,27 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
-import seaborn as sns
-import matplotlib.pyplot as plt
+# 1. Daten vorbereiten (Nur Top-Länder)
+top_locs = df_processed['location'].value_counts().head(10).index
+df_sub = df_processed[df_processed['location'].isin(top_locs)]
 
-st.write("### 📊 Mathematical Correlation (Pearson)")
+# 2. Eine Pivot-Tabelle erstellen: Länder vs. JEDE Rating-Stufe (1-5)
+# Das zählt, wie oft jedes Rating in jedem Land vorkommt
+pivot_matrix = df_sub.groupby(['location', 'rating']).size().unstack(fill_value=0)
 
-# 1. Vorbereitung: Nur die Top 10 Locations nehmen (sonst wird die Matrix zu riesig)
-top_10_locs = df_processed['location'].value_counts().head(10).index
-df_corr = df_processed[df_processed['location'].isin(top_10_locs)].copy()
+# 3. Normalisieren (Prozentual pro Zeile), damit DE nicht alles dominiert
+pivot_norm = pivot_matrix.div(pivot_matrix.sum(axis=1), axis=0) * 100
 
-# 2. Dummy-Variablen erstellen (Wandelt 'DE', 'CH' etc. in Spalten mit 0 und 1 um)
-# Wir korrelieren diese dann mit der Spalte 'rating'
-df_dummies = pd.get_dummies(df_corr[['location', 'rating']], columns=['location'])
+# 4. Die Heatmap zeichnen (Jetzt siehst du alle 5 Stufen!)
+fig = px.imshow(
+    pivot_norm,
+    labels=dict(x="Rating (Stars)", y="Location", color="Percentage %"),
+    x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+    y=pivot_norm.index,
+    color_continuous_scale='RdYlGn', # Rot zu Grün
+    text_auto='.1f', # Zeigt die Prozente im Kästchen
+    aspect="auto"
+)
 
-# 3. Korrelationsmatrix berechnen
-corr_matrix = df_dummies.corr()
-
-# 4. Wir interessieren uns nur für die Korrelation zum 'rating'
-rating_corr = corr_matrix[['rating']].sort_values(by='rating', ascending=False)
-
-# 5. Darstellung als Heatmap (Seaborn für den klassischen Look)
-fig, ax = plt.subplots(figsize=(10, 8))
-sns.heatmap(rating_corr, annot=True, cmap='RdBu', center=0, ax=ax)
-ax.set_title("Correlation: Location vs. Rating")
-
-st.pyplot(fig)
-
-st.info("""
-💡 **Wie man das liest:** 
-* Ein Wert nahe **1.0** (Dunkelblau) bedeutet: Dieser Ort führt fast immer zu 5 Sternen.
-* Ein Wert nahe **-1.0** (Dunkelrot) bedeutet: Dieser Ort führt fast immer zu 1 Stern.
-* Ein Wert nahe **0** (Weiß) bedeutet: **Es gibt absolut keinen Zusammenhang.**
-""")
+fig.update_layout(title="🎯 Detailed Rating Distribution per Location", font=dict(size=14))
+st.plotly_chart(fig, use_container_width=True)
