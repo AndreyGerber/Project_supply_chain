@@ -938,3 +938,39 @@ st.markdown(html_status, unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown("<br><br>", unsafe_allow_html=True)
+
+
+
+
+
+# Abalyse von "company size" (Anzahl der Bewertungen pro Unternehmen) und "review length" (Anzahl der Wörter pro Bewertung) in Bezug auf die Bewertung (rating)
+
+# 1. Daten für die Verteilung der Firmen-Webseiten vorbereiten
+site_counts = df_processed['company_site'].value_counts().reset_index()
+site_counts.columns = ['Company Site', 'Review Count']
+
+# 2. Vertikales Balkendiagramm erstellen (Einfarbig Blau für den sauberen Look)
+fig_site = px.bar(
+    site_counts, 
+    x='Company Site', 
+    y='Review Count', 
+    title='🌐 Distribution of Reviews by Company Site',
+    text='Review Count',
+    color_discrete_sequence=['#636EFA']
+)
+
+# 3. Design-Anpassungen (Schrift & Lesbarkeit)
+fig_site.update_layout(
+    xaxis_tickangle=-45,   # Schräg stellen, falls die URLs lang sind
+    font=dict(size=14),
+    height=500,
+    xaxis_title="Website URL",
+    yaxis_title="Number of Reviews",
+    template="plotly_white"
+)
+
+# 4. In Streamlit anzeigen
+st.plotly_chart(fig_site, use_container_width=True)
+
+# 5. Der Maschinen-Check: Lohnt sich die Spalte für das Modell?
+st.info(f"💡 **Insight:** We have {len(site_counts)} unique sites. If one or two sites dominate the whole dataset, we might consider dropping this column as well to avoid bias.")
