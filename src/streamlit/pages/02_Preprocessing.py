@@ -767,7 +767,7 @@ st.success("✅ Column 'company' was successfully dropped.")
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 # 1. Listen definieren
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Spalten, die wir bereinigt haben
+cleaned_cols = ['year', 'month_name', 'weekday', 'verified', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Spalten, die wir bereinigt haben
 dropped_cols = ['company']
 
 # 2. Den HTML-Block EXAKT zusammenbauen
