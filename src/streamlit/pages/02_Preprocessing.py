@@ -759,27 +759,98 @@ st.markdown("---")
 
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
 
-# 1. Die Info-Box mit der aktuellen Größe des Dataframes (Schriftgröße 20px)
-info_html = f"""
-<div style="
-    background-color: #e8f4f8; 
-    border-radius: 5px; 
-    padding: 15px; 
-    border: 1px solid #c5e1eb; 
-    color: #1e3a45; 
-    font-size: 20px; 
-    font-family: sans-serif;
-    margin-bottom: 25px;">
-    ℹ️ The optimized dataframe now has <b>{df_processed.shape[0]}</b> rows and <b>{df_processed.shape[1]}</b> columns.
-</div>
+# 1. Definitionen für die Tabelle
+# Diese sind fertig (Häkchen)
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
+# Diese sind gelöscht (Durchgestrichen)
+dropped_cols = ['location', 'company']
+
+# 2. Der HTML-String mit dem exakten Design
+html_status = """
+<style>
+    .status-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        font-family: sans-serif; 
+        color: #31333F; 
+    }
+    .status-table th { 
+        background-color: #f0f2f6; 
+        padding: 12px; 
+        text-align: left; 
+        font-size: 14px;
+        color: #555;
+        border-bottom: 1px solid #e6e9ef;
+    }
+    .status-table td { 
+        padding: 12px; 
+        border-bottom: 1px solid #f6f6f6; 
+        font-size: 14px;
+    }
+    /* Zentrierung für Unique Values & Status */
+    .status-table td:nth-child(2), .status-table td:nth-child(3),
+    .status-table th:nth-child(2), .status-table th:nth-child(3) { 
+        text-align: center; 
+    }
+    /* Style für durchgestrichene Zeilen */
+    .strikethrough { 
+        text-decoration: line-through; 
+        color: #9e9e9e; 
+        opacity: 0.6;
+    }
+</style>
+<table class="status-table">
+    <thead>
+        <tr>
+            <th>Column Name</th>
+            <th>Unique Values</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
 """
-st.markdown(info_html, unsafe_allow_html=True)
 
-# 2. Die finale Vorschau der Daten (Erste 15 Zeilen)
-st.write("### 🚀 Optimized Dataset Preview (Top 15 Rows)")
+# Die Liste aller Spalten in der gewünschten Reihenfolge
+display_order = [
+    'year', 'month_name', 'weekday', 'season', 'day_period', 
+    'review_text', 'supplier_response', 'verified', 'company', 
+    'location', 'review_text_clean', 'company_site', 
+    'review_text_clean_advanced', 'issue_categories', 'rating'
+]
+
+for col in display_order:
+    # Check ob die Spalte im aktuellen df_processed ist, sonst Dummy-Werte für die Optik
+    if col in df_processed.columns:
+        u_count = df_processed[col].nunique()
+    elif col == 'location': u_count = "86"
+    elif col == 'company': u_count = "53"
+    else: u_count = "-"
+
+    # CSS Klasse setzen (Dropped = Durchgestrichen)
+    row_class = 'class="strikethrough"' if col in dropped_cols else ''
+    
+    # Icon Logik
+    if col in dropped_cols:
+        status_icon = "🗑️" # Oder "❌" falls du das Kreuz bevorzugst
+    elif col in cleaned_cols:
+        status_icon = "✅"
+    else:
+        status_icon = "❌"
+    
+    html_status += f"""
+        <tr {row_class}>
+            <td>{col}</td>
+            <td>{u_count}</td>
+            <td>{status_icon}</td>
+        </tr>
+    """
+
+html_status += "</tbody></table>"
+
+# --- ANZEIGE ---
+st.markdown("### 📋 Preprocessing Status (Optimized)")
+st.markdown(html_status, unsafe_allow_html=True)
+
+# Daten-Vorschau direkt darunter
+st.write("### 🚀 Dataset Preview (Top 15 Rows)")
 st.dataframe(df_processed.head(15), use_container_width=True)
-
-# 3. Kleiner Hinweis, was gelöscht wurde (optional, nur als Text)
-st.caption("Note: Columns 'location' and 'company' have been removed to improve model performance.")
-
-
