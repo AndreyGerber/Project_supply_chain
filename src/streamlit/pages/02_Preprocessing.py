@@ -1103,7 +1103,7 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 # Wir schieben die Zeit-Features und Verified nach vorne, Text und Rating ans Ende
 final_order = [
     'year', 'month_name', 'weekday', 'season', 'day_period', 
-    'verified', 'review_text', 'rating'
+    'verified', 'review_text', 'review_text_clean', 'review_text_clean_advanced', 'rating'
 ]
 
 # Nur die Spalten nehmen, die auch wirklich im DF existieren
