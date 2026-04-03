@@ -533,7 +533,6 @@ df_processed = df_processed.drop(columns=['location'])
 st.success("✅ Column 'location' was successfully dropped.")
 
 # 3. Den aktuellen Stand des Dataframes kurz anzeigen (Kontrolle)
-st.write(f"Der Datensatz hat jetzt noch **{df_processed.shape[1]}** Spalten.")
 st.dataframe(df_processed.head(5), use_container_width=True)
 
 
@@ -574,6 +573,3 @@ html_status += "</tbody></table>"
 # 4. DER ENTSCHEIDENDE BEFEHL (KEIN st.write nutzen!)
 st.markdown(html_status, unsafe_allow_html=True)
 
-# 5. Die Vorschau darunter
-st.write("### 🚀 Remaining Dataset (Top 15 Rows)")
-st.dataframe(df_processed.head(15), use_container_width=True)
