@@ -338,7 +338,7 @@ st.markdown(html_table, unsafe_allow_html=True)
 
 
 
-
+st.markdown("<br><br>", unsafe_allow_html=True)
 #ab hier wird die zweite Spalte "date" bereinigt, damit sie als Zeitstempel erkannt wird. 
 #Das ist wichtig für spätere Analysen, z.B. zeitliche Trends in den Bewertungen.
 
