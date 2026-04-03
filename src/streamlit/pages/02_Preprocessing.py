@@ -466,8 +466,8 @@ top_locations.columns = ['Location', 'Number of Reviews']
 # 2. Interaktives Balkendiagramm mit Plotly erstellen
 fig = px.bar(
     top_locations, 
-    x='Number of Reviews', 
-    y='Location', 
+    y='Number of Reviews', 
+    x='Location', 
     orientation='h',  # Horizontal für bessere Lesbarkeit der Städtenamen
     title='📍 Top 15 Review Locations',
     text='Number of Reviews',
