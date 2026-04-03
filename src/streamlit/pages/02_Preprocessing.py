@@ -759,58 +759,28 @@ st.markdown("---")
 
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
 
-# 1. Listen definieren
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified']
-dropped_cols = ['location', 'company']
-
-# 2. Den HTML-String zusammenbauen
-html_status = """
-<style>
-    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
-    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 15px; }
-    .status-table th { background-color: #f0f2f6; font-weight: bold; }
-    .strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.6; font-style: italic; }
-</style>
-<table class="status-table">
-    <thead>
-        <tr>
-            <th>Column Name</th>
-            <th>Unique Values</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
+# 1. Die Info-Box mit der aktuellen Größe des Dataframes (Schriftgröße 20px)
+info_html = f"""
+<div style="
+    background-color: #e8f4f8; 
+    border-radius: 5px; 
+    padding: 15px; 
+    border: 1px solid #c5e1eb; 
+    color: #1e3a45; 
+    font-size: 20px; 
+    font-family: sans-serif;
+    margin-bottom: 25px;">
+    ℹ️ The optimized dataframe now has <b>{df_processed.shape[0]}</b> rows and <b>{df_processed.shape[1]}</b> columns.
+</div>
 """
+st.markdown(info_html, unsafe_allow_html=True)
 
-# 3. Schleife über alle Spalten (Aktive + die zwei gelöschten)
-display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+# 2. Die finale Vorschau der Daten (Erste 15 Zeilen)
+st.write("### 🚀 Optimized Dataset Preview (Top 15 Rows)")
+st.dataframe(df_processed.head(15), use_container_width=True)
 
-for col in display_cols:
-    is_dropped = col in dropped_cols
-    row_class = 'class="strikethrough"' if is_dropped else ''
-    
-    u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
-    
-    if is_dropped:
-        status_icon = "🗑️"
-    elif col in cleaned_cols:
-        status_icon = "✅"
-    else:
-        status_icon = "❌"
-    
-    html_status += f"""
-        <tr {row_class}>
-            <td>{col}</td>
-            <td>{u_count}</td>
-            <td>{status_icon}</td>
-        </tr>
-    """
-
-html_status += "</tbody></table>"
-
-# --- DER WICHTIGSTE TEIL: HIER WIRD DIE TABELLE GEZEICHNET ---
-st.markdown("### 📋 Current Preprocessing Status")
-st.markdown(html_status, unsafe_allow_html=True) 
+# 3. Kleiner Hinweis, was gelöscht wurde (optional, nur als Text)
+st.caption("Note: Columns 'location' and 'company' have been removed to improve model performance.")
 
 
 
