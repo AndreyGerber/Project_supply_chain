@@ -699,18 +699,17 @@ if 'verified' not in cleaned_cols:
 
 
 
-# 1. Wir nutzen die Original-Tabelle (ohne die Division durch die Summe)
 pivot_ver2 = df_processed.groupby(['verified', 'rating']).size().unstack(fill_value=0)
-pivot_ver.index = ['Not Verified (0)', 'Verified (1)']
+pivot_ver2.index = ['Not Verified (0)', 'Verified (1)']
 
-# 2. Die Heatmap mit Absolutzahlen erstellen
+# 2. Deine Heatmap (die schon im Screenshot steht)
 fig_ver_abs = px.imshow(
-    pivot_ver, # <--- Hier die Änderung!
+    pivot_ver2, # Hier nutzt du jetzt die neue Variable
     labels=dict(x="Rating (Stars)", y="Verification Status", color="Count of Reviews"),
     x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-    y=pivot_ver.index,
-    color_continuous_scale='Blues', # Blau-Töne passen oft besser zu Absolutzahlen
-    text_auto=True, # <--- Schreibt die echten Ganzzahlen (Integers) in die Kacheln
+    y=pivot_ver2.index,
+    color_continuous_scale='Blues',
+    text_auto=True,
     aspect="auto"
 )
 
