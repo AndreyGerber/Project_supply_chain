@@ -906,10 +906,12 @@ for col in display_cols:
 
 html_status += "</tbody></table>"
 
-# Tabelle und Daten-Vorschau rendern
 st.markdown("### 📋 Final Feature Selection Status")
-st.markdown(html_status, unsafe_allow_html=True)
 
+# Benutze NIEMALS st.write(html_status) oder nur html_status!
+st.markdown(html_status, unsafe_allow_html=True) 
+
+# --- Danach kommt deine Daten-Vorschau ---
 st.write("### 🚀 Optimized Dataset (Top 15 Rows)")
 st.dataframe(df_processed.head(15), use_container_width=True)
 
