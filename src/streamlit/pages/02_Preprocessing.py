@@ -385,14 +385,14 @@ if 'raw_data' in st.session_state:
     # Schritt F: Ergebnis anzeigen (Erste 15 Zeilen)
     st.write("### 🚀 Lets work on our date-data")
     st.dataframe(df_processed.head(15), use_container_width=True)
-    
+    st.markdown("<br><br>", unsafe_allow_html=True)
     # Bestätigung der Dimensionen
     st.info(f"The new dataframe has **{df_processed.shape[0]}** rows and **{df_processed.shape[1]}** columns.")
 
 else:
     st.error("⚠️ No data found! Please load the dataset on the first page.")
 
-
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 # 1. Liste der erledigten Spalten
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Füge hier weitere Spalten hinzu, die du bereinigt hast
