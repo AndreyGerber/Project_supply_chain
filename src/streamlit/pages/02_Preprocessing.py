@@ -759,11 +759,11 @@ st.markdown("---")
 
 #Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
 
-# 1. Listen definieren
+# 1. Listen für die Logik (Stelle sicher, dass diese Variablen definiert sind)
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified']
 dropped_cols = ['location', 'company']
 
-# 2. HTML & CSS exakt zusammenbauen
+# 2. HTML & CSS zusammenbauen
 html_status = """
 <style>
     .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
@@ -782,18 +782,24 @@ html_status = """
     <tbody>
 """
 
-# 3. Schleife über die Spalten
-# Wir nehmen alle Spalten aus dem DF und fügen die gelöschten manuell für die Anzeige hinzu
-display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+# 3. Schleife über alle Spalten (Aktive + Gelöschte für die Anzeige)
+# Wir erstellen eine Liste aller anzuzeigenden Spalten
+all_to_show = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
-for col in display_cols:
-    # Check ob gelöscht
+for col in all_to_show:
     is_dropped = col in dropped_cols
     row_class = 'class="strikethrough"' if is_dropped else ''
     
-    # Werte & Icons
+    # Werte bestimmen
     u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
-    status_icon = "🗑️" if is_dropped else ("✅" if col in cleaned_cols else "❌")
+    
+    # Icon bestimmen
+    if is_dropped:
+        status_icon = "🗑️"
+    elif col in cleaned_cols:
+        status_icon = "✅"
+    else:
+        status_icon = "❌"
     
     html_status += f"""
         <tr {row_class}>
@@ -806,5 +812,6 @@ for col in display_cols:
 html_status += "</tbody></table>"
 
 # --- DER ENTSCHEIDENDE SCHRITT ---
-st.markdown("### 📋 Current Preprocessing Status")
+# Nutze NUR diesen Befehl, kein st.write(html_status)!
 st.markdown(html_status, unsafe_allow_html=True) 
+
