@@ -905,9 +905,9 @@ st.info(f"""
 
 
 
-df_processed = df_processed.drop(columns=['has_response'])
+df_processed = df_processed.drop(columns=['supplier_response'])
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
-dropped_cols = ['location', 'company', 'has_response']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+dropped_cols = ['location', 'company', 'supplier_response']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
 html_status = """<style>
