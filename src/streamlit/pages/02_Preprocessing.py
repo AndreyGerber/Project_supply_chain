@@ -353,7 +353,7 @@ if 'raw_data' in st.session_state:
     df_processed['date'] = pd.to_datetime(df_processed['date'], utc=True)
     
     df_processed['year'] = df_processed['date'].dt.year
-    df_processed['month_name'] = df_processed['date'].dt.month_name()
+    df_processed['month'] = df_processed['date'].dt.month_name()
     df_processed['weekday'] = df_processed['date'].dt.day_name()
 
     # Saison-Logik
@@ -366,24 +366,18 @@ if 'raw_data' in st.session_state:
 
     # Tageszeit-Logik
     def get_day_period(hour):
-        if 5 <= hour < 12: return 'Morning'
-        elif 12 <= hour < 17: return 'Afternoon'
-        elif 17 <= hour < 21: return 'Evening'
+        if 6 <= hour < 12: return 'Morning'
+        elif 12 <= hour < 18: return 'Afternoon'
+        elif 18 <= hour < 22: return 'Evening'
         else: return 'Night'
     df_processed['day_period'] = df_processed['date'].dt.hour.apply(get_day_period)
 
     st.success(f"✅ Working copy created! (Original remains untouched)")
 
     # 3. Ab hier nutzen Sie nur noch 'df_processed' für Anzeigen und Berechnungen
-    st.write("### 📋 Updated Overview (Working Copy)")
+    st.write("### 📋 adjust our date")
     
-    # Ihre HTML-Tabelle würde jetzt 'df_processed' nutzen:
-    table_rows = ""
-    for col in df_processed.columns:
-        unique_count = df_processed[col].nunique()
-        table_rows += f"<tr><td>{col}</td><td>{unique_count}</td></tr>"
-    
-    # ... (Rest Ihres HTML-Codes wie gehabt)
+
 
 else:
     st.error("⚠️ No data found in memory!")
