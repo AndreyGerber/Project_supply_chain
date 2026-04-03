@@ -454,7 +454,7 @@ st.subheader("📍 Location Analysis")
 location_counts = df_processed['location'].value_counts(dropna=False).reset_index()
 location_counts.columns = ['Location', 'Count']
 
-# Zeige die Top 10 an
+# Zeige die Top 25 an
 st.write("Top 25 Locations (including missing values):")
 st.dataframe(location_counts.head(25), use_container_width=True)
 
@@ -462,57 +462,30 @@ st.dataframe(location_counts.head(25), use_container_width=True)
 
 
 
-# 1. Daten vorbereiten (WICHTIG: dropna=False, damit 'None' gezählt wird)
-top_locations = df_processed['location'].value_counts(dropna=False).head(15).reset_index()
+# 1. Daten vorbereiten (Top 15 Orte für bessere Übersicht)
+top_locations = df_processed['location'].value_counts().head(15).reset_index()
 top_locations.columns = ['Location', 'Count']
 
-# 2. 'None' oder NaN-Werte für das Diagramm schöner benennen
-top_locations['Location'] = top_locations['Location'].fillna('Unknown')
-
-# 3. Vertikales Balkendiagramm (Einfarbig)
+# 2. Vertikales Balkendiagramm erstellen
 fig = px.bar(
     top_locations, 
     x='Location', 
     y='Count', 
-    title='📍 Top 15 Review Locations (including Unknown)',
-    text='Count',
-    # Wir entfernen 'color', um es einfarbig zu machen
-    color_discrete_sequence=['#636EFA'] # Ein schönes Standard-Blau
+    title='📍 Top 15 Review Locations (Vertical)',
+    text='Count',          # Zahlen direkt auf die Balken schreiben
+    color='Count',         # Farbe nach Häufigkeit
+    color_continuous_scale='Viridis' # Ein schöner Farbverlauf
 )
 
-# 4. Design-Feinschliff
+# 3. Design-Feinschliff (Größere Schrift & Layout)
 fig.update_layout(
-    xaxis_tickangle=-45,
+    xaxis_tickangle=-45,   # Städtenamen schräg stellen, damit sie sich nicht überlappen
     font=dict(size=14),
     height=500,
     xaxis_title="City / Location",
     yaxis_title="Number of Reviews",
-    template="plotly_white",
-    showlegend=False # Legende weg, da nur eine Farbe
+    template="plotly_white"
 )
 
-# 5. In Streamlit anzeigen
+# 4. In Streamlit anzeigen
 st.plotly_chart(fig, use_container_width=True)
-
-
-# 1. Pivot-Tabelle wie gehabt erstellen
-pivot_table = df_heatmap.groupby(['location', 'rating']).size().unstack(fill_value=0)
-
-# 2. DER TRICK: Normalisieren (Jede Zeile auf 100% bringen)
-# Wir teilen jede Zeile durch ihre Summe
-pivot_percent = pivot_table.div(pivot_table.sum(axis=1), axis=0) * 100
-
-# 3. Heatmap neu zeichnen (jetzt mit Prozentwerten)
-fig_heat = px.imshow(
-    pivot_percent,
-    labels=dict(x="Rating (Stars)", y="Location", color="Percentage (%)"),
-    x=pivot_percent.columns,
-    y=pivot_percent.index,
-    color_continuous_scale='RdYlGn', # Rot (schlecht) zu Grün (gut)
-    title="🔥 Relative Ratings by Location (Normalized %)",
-    aspect="auto",
-    text_auto='.1f' # Schreibt die Prozentzahl direkt in die Kästchen!
-)
-
-fig_heat.update_layout(height=700, font=dict(size=14))
-st.plotly_chart(fig_heat, use_container_width=True)
