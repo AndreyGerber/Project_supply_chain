@@ -455,36 +455,34 @@ location_counts = df_processed['location'].value_counts(dropna=False).reset_inde
 location_counts.columns = ['Location', 'Count']
 
 # Zeige die Top 10 an
-st.write("Top 10 Locations (including missing values):")
+st.write("Top 25 Locations (including missing values):")
 st.dataframe(location_counts.head(25), use_container_width=True)
 
 
-# 1. Daten für das Diagramm vorbereiten (Top 15 Orte)
+# 1. Daten vorbereiten (Top 15 Orte für bessere Übersicht)
 top_locations = df_processed['location'].value_counts().head(15).reset_index()
-top_locations.columns = ['Location', 'Number of Reviews']
+top_locations.columns = ['Location', 'Count']
 
-# 2. Interaktives Balkendiagramm mit Plotly erstellen
+# 2. Vertikales Balkendiagramm erstellen
 fig = px.bar(
     top_locations, 
-    y='Number of Reviews', 
     x='Location', 
-    orientation='h',  # Horizontal für bessere Lesbarkeit der Städtenamen
-    title='📍 Top 15 Review Locations',
-    text='Number of Reviews',
-    color='Number of Reviews',
-    color_continuous_scale='Blues'
+    y='Count', 
+    title='📍 Top 15 Review Locations (Vertical)',
+    text='Count',          # Zahlen direkt auf die Balken schreiben
+    color='Count',         # Farbe nach Häufigkeit
+    color_continuous_scale='Viridis' # Ein schöner Farbverlauf
 )
 
-# Design-Anpassungen (Schriftgröße und Layout)
+# 3. Design-Feinschliff (Größere Schrift & Layout)
 fig.update_layout(
-    yaxis={'categoryorder':'total ascending'}, # Größte Balken nach oben
+    xaxis_tickangle=-45,   # Städtenamen schräg stellen, damit sie sich nicht überlappen
     font=dict(size=14),
-    height=600
+    height=500,
+    xaxis_title="City / Location",
+    yaxis_title="Number of Reviews",
+    template="plotly_white"
 )
 
-# 3. In Streamlit anzeigen
+# 4. In Streamlit anzeigen
 st.plotly_chart(fig, use_container_width=True)
-
-# 4. Der "Maschinen-Check": Location zu den erledigten Spalten hinzufügen
-if 'location' not in cleaned_cols:
-    cleaned_cols.append('location')
