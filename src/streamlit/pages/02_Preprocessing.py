@@ -800,6 +800,7 @@ for col in list(df_processed.columns) + dropped_cols:
 html_status += "</tbody></table>"
 
 # 4. DER ENTSCHEIDENDE BEFEHL (KEIN st.write nutzen!)
+st.markdown("### 📋 Current Preprocessing Status")
 st.markdown(html_status, unsafe_allow_html=True)
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("---")
