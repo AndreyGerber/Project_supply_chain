@@ -389,8 +389,21 @@ if 'raw_data' in st.session_state:
     
     
     # Bestätigung der Dimensionen
-    st.info(f"The new dataframe has **{df_processed.shape[0]}** rows and **{df_processed.shape[1]}** columns.")
+    info_html = f"""
+    <div style="
+        background-color: #e8f4f8; 
+        border-radius: 5px; 
+        padding: 15px; 
+        border: 1px solid #c5e1eb; 
+        color: #1e3a45; 
+        font-size: 20px; 
+        font-family: sans-serif;
+        margin-bottom: 20px;">
+        ℹ️ The new dataframe has <b>{df_processed.shape[0]}</b> rows and <b>{df_processed.shape[1]}</b> columns.
+    </div>
+    """
 
+    st.markdown(info_html, unsafe_allow_html=True)
 else:
     st.error("⚠️ No data found! Please load the dataset on the first page.")
 
