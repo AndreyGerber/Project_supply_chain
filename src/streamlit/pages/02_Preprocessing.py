@@ -498,43 +498,35 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
-# 1. Vorbereitung: Top 15 Locations (inklusive Unknown) ermitteln
-top_15_locs = df_processed['location'].fillna('Unknown').value_counts().head(15).index
-df_heatmap = df_processed.copy()
-df_heatmap['location'] = df_heatmap['location'].fillna('Unknown')
-df_heatmap = df_heatmap[df_heatmap['location'].isin(top_15_locs)]
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# 2. Pivot-Tabelle erstellen: Location vs. Rating (1, 2, 3, 4, 5 Sterne)
-pivot_table = df_heatmap.groupby(['location', 'rating']).size().unstack(fill_value=0)
+st.write("### 📊 Mathematical Correlation (Pearson)")
 
-# 3. NORMALISIERUNG: Jede Zeile auf 100% bringen
-# (Anteil der Sterne-Bewertungen innerhalb des jeweiligen Landes)
-pivot_percent = pivot_table.div(pivot_table.sum(axis=1), axis=0) * 100
+# 1. Vorbereitung: Nur die Top 10 Locations nehmen (sonst wird die Matrix zu riesig)
+top_10_locs = df_processed['location'].value_counts().head(10).index
+df_corr = df_processed[df_processed['location'].isin(top_10_locs)].copy()
 
-# 4. Die Heatmap erstellen (Relative Ratings)
-fig_heat = px.imshow(
-    pivot_percent,
-    labels=dict(x="Rating (Stars)", y="Location", color="Percentage (%)"),
-    x=pivot_percent.columns,
-    y=pivot_percent.index,
-    # Farbskala: Rot (schlecht) über Gelb zu Grün (gut)
-    color_continuous_scale='RdYlGn', 
-    title="🔥 Relative Ratings by Location (Percentage %)",
-    text_auto='.1f', # Schreibt die Prozentzahl direkt in die Kästchen
-    aspect="auto"
-)
+# 2. Dummy-Variablen erstellen (Wandelt 'DE', 'CH' etc. in Spalten mit 0 und 1 um)
+# Wir korrelieren diese dann mit der Spalte 'rating'
+df_dummies = pd.get_dummies(df_corr[['location', 'rating']], columns=['location'])
 
-# 5. Design-Feinschliff
-fig_heat.update_layout(
-    font=dict(size=14),
-    height=700,
-    xaxis_title="Rating (1-5 Stars)",
-    yaxis_title="Top 15 Locations",
-    coloraxis_colorbar=dict(title="% of Reviews")
-)
+# 3. Korrelationsmatrix berechnen
+corr_matrix = df_dummies.corr()
 
-# 6. In Streamlit anzeigen
-st.write("### 📊 Correlation: Does Location influence the Rating?")
-st.plotly_chart(fig_heat, use_container_width=True)
+# 4. Wir interessieren uns nur für die Korrelation zum 'rating'
+rating_corr = corr_matrix[['rating']].sort_values(by='rating', ascending=False)
 
-st.info("💡 **Interpretation:** Now every row equals 100%. Dark green cells at '5' show the happiest countries, while red cells would indicate trouble spots!")
+# 5. Darstellung als Heatmap (Seaborn für den klassischen Look)
+fig, ax = plt.subplots(figsize=(10, 8))
+sns.heatmap(rating_corr, annot=True, cmap='RdBu', center=0, ax=ax)
+ax.set_title("Correlation: Location vs. Rating")
+
+st.pyplot(fig)
+
+st.info("""
+💡 **Wie man das liest:** 
+* Ein Wert nahe **1.0** (Dunkelblau) bedeutet: Dieser Ort führt fast immer zu 5 Sternen.
+* Ein Wert nahe **-1.0** (Dunkelrot) bedeutet: Dieser Ort führt fast immer zu 1 Stern.
+* Ein Wert nahe **0** (Weiß) bedeutet: **Es gibt absolut keinen Zusammenhang.**
+""")
