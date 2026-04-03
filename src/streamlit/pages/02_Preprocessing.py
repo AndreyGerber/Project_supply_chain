@@ -530,7 +530,7 @@ df_processed = df_processed.drop(columns=['location'])
 
 # 2. Update deiner Status-Tabelle (wir entfernen sie aus der Liste der Spalten)
 # Sie wird nun gar nicht mehr in der Tabelle auftauchen.
-st.success("✅ Spalte 'location' wurde erfolgreich gelöscht, um das Modell nicht zu verzerren.")
+st.success("✅ Column 'location' was successfully dropped.")
 
 # 3. Den aktuellen Stand des Dataframes kurz anzeigen (Kontrolle)
 st.write(f"Der Datensatz hat jetzt noch **{df_processed.shape[1]}** Spalten.")
@@ -539,7 +539,7 @@ st.dataframe(df_processed.head(5), use_container_width=True)
 
 
 # 1. Listen definieren
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text']
+cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Spalten, die wir bereinigt haben
 dropped_cols = ['location']
 
 # 2. Den HTML-Block EXAKT zusammenbauen
