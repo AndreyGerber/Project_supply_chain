@@ -442,3 +442,16 @@ html_status += "</tbody></table>"
 # 4. DER WICHTIGE TEIL: Nutze st.markdown mit unsafe_allow_html=True
 st.write("### 📋 Preprocessing Status Overview")
 st.markdown(html_status, unsafe_allow_html=True)
+
+
+
+# ab hier wird die Spalte "location" bearbeitet, um neue Features zu erstellen (Stadt, Bundesland, Land)
+st.subheader("📍 Location Analysis")
+
+# Zähle die Häufigkeit der Standorte
+location_counts = df_processed['location'].value_counts(dropna=False).reset_index()
+location_counts.columns = ['Location', 'Count']
+
+# Zeige die Top 10 an
+st.write("Top 10 Locations (including missing values):")
+st.dataframe(location_counts.head(10), use_container_width=True)
