@@ -1093,3 +1093,28 @@ st.markdown(html_status, unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown("<br><br>", unsafe_allow_html=True)
+
+
+
+
+
+# Darstellen des bereinigten Dataframes mit den neuen Features (Jahr, Monat, Wochentag, Saison, Tageszeit) und den bereinigten Textspalten (review_text_clean, review_text_clean_advanced) in Streamlit.
+# 1. Spaltenreihenfolge für die finale Ansicht optimieren
+# Wir schieben die Zeit-Features und Verified nach vorne, Text und Rating ans Ende
+final_order = [
+    'year', 'month_name', 'weekday', 'season', 'day_period', 
+    'verified', 'review_text', 'rating'
+]
+
+# Nur die Spalten nehmen, die auch wirklich im DF existieren
+df_final_view = df_processed[[col for col in final_order if col in df_processed.columns]]
+
+# 2. Die finale Vorschau (Erste 15 Zeilen)
+st.write("### 🏆 Final Processed Dataset (Top 15 Rows)")
+
+# Wir nutzen use_container_width=True für die volle Breite
+st.dataframe(df_final_view.head(15), use_container_width=True)
+
+# 3. Abschluss-Info der Maschine
+st.success(f"🏁 **Phase 2 Complete:** Your dataset is now high-octane fuel for Machine Learning! "
+           f"Total: **{df_processed.shape[0]}** reviews and **{df_processed.shape[1]}** clean features.")
