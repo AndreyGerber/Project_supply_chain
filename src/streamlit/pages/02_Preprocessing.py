@@ -808,9 +808,6 @@ html_status += "</tbody></table>"
 st.markdown("### 📋 Final Preprocessing Status Overview")
 st.markdown(html_status, unsafe_allow_html=True)
 
-# 5. Aktueller Dataframe Head (15 Zeilen)
-st.write("### 🚀 Optimized Dataset (Top 15 Rows)")
-st.dataframe(df_processed.head(15), use_container_width=True)
 
 st.info(f"💡 **Maschinen-Check:** 'company' and 'location' were removed to prevent model bias. Current shape: **{df_processed.shape}**.")
 
