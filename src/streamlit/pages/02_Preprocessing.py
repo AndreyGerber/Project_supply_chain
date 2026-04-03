@@ -388,8 +388,6 @@ if 'raw_data' in st.session_state:
 else:
     st.error("⚠️ No data found in memory!")
 
-# --- TABELLE ANZEIGEN ---
-st.write("### 📋 Updated Overview (Working Copy)")
 
 # CSS für die Tabelle (kannst du oben im Code lassen oder hier wiederholen)
 html_style = """
