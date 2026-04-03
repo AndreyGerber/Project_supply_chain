@@ -413,3 +413,25 @@ st.markdown(full_html, unsafe_allow_html=True)
 # OPTIONAL: Eine kleine Vorschau der echten Daten zur Kontrolle
 st.write("#### 🔎 Preview of the new columns:")
 st.dataframe(df_processed[['date', 'year', 'month_name', 'season', 'weekday', 'day_period']].head(5))
+
+
+
+# 1. Die ursprüngliche 'date' Spalte löschen (da wir nun die Details haben)
+df_processed = df_processed.drop(columns=['date'])
+
+# 2. Spaltenreihenfolge optimieren (Zeit-Features nach vorne schieben)
+# Wir definieren die gewünschte Reihenfolge der ersten Spalten
+time_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']
+other_cols = [col for col in df_processed.columns if col not in time_cols]
+
+# Neuer DF mit sortierten Spalten
+df_processed = df_processed[time_cols + other_cols]
+
+# 3. Das Endergebnis präsentieren (Die ersten 15 Zeilen)
+st.write("### 🚀 Final Processed Dataset (First 15 Rows)")
+
+# Wir nutzen st.dataframe für eine interaktive Ansicht, wie ein schöneres print(df.head(15))
+st.dataframe(df_processed.head(15), use_container_width=True)
+
+# 4. Optional: Kurze Statistik zur Bestätigung
+st.info(f"The dataset now has **{df_processed.shape[1]}** columns and **{df_processed.shape[0]}** rows.")
