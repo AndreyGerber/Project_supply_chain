@@ -736,7 +736,6 @@ html_status = """
     <thead>
         <tr>
             <th>Column Name</th>
-            <th>Unique Values</th>
             <th>Status</th>
         </tr>
     </thead>
