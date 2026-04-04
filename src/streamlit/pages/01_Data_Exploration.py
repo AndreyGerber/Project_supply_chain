@@ -43,6 +43,49 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
+
+st.subheader("🔍 Deep Dive: Transformation of a Single Review")
+
+# 1. Wir suchen uns eine Zeile aus, die eine Antwort enthält (damit es spannend aussieht)
+# Wir filtern die Rohdaten aus dem session_state
+if 'raw_data' in st.session_state:
+    df_example = st.session_state['raw_data']
+    
+    # Filter: Zeilen mit Antwort und Emojis im Text (falls vorhanden)
+    example_row = df_example[df_example['supplier_response'].notna()].head(1)
+
+    if not example_row.empty:
+        # 2. Wir bereiten die Daten für die 2-Spalten-Tabelle vor
+        # Hier definieren wir, was wir zeigen wollen (Passe die Namen an deine Spalten an!)
+        display_data = {
+            "Step / Column Name":,
+            "Content Example": [
+                example_row['review_text'].values[0],
+                example_row['supplier_response'].values[0],
+                # Falls die "clean"-Spalten noch nicht im DF sind, simulieren wir sie hier kurz:
+                example_row['review_text'].values[0].replace("😍", "").replace("🚚", ""), # Beispiel Basic
+                example_row['review_text'].values[0].lower().strip() # Beispiel Advanced
+            ]
+        }
+
+        # 3. Darstellung als Tabelle
+        comparison_df = pd.DataFrame(display_data)
+        
+        st.table(comparison_df)
+        
+        st.info("💡 **Observation:** Notice how emojis and special characters are removed in the 'Cleaned' steps to prepare the text for the Machine Learning model.")
+    else:
+        st.warning("No review with a supplier response found to display.")
+
+
+
+
+
+
+
+
+
+
 # Main Application Logic
 if not df.empty:
     # 3. Sidebar Filtering
