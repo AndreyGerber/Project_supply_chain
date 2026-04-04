@@ -1227,7 +1227,7 @@ fig_site.update_layout(
 st.plotly_chart(fig_site, use_container_width=True)
 
 # 5. Der Maschinen-Check: Lohnt sich die Spalte für das Modell?
-st.info(f"💡 **Insight:** We have {len(site_counts)} unique sites. If one or two sites dominate the whole dataset, we might consider dropping this column as well to avoid bias.")
+st.info(f"💡 **Insight:** We have {len(site_counts)} unique domains. If one or two domains dominate the whole dataset, we might consider dropping this column as well to avoid bias.")
 
 
 
@@ -1235,16 +1235,9 @@ st.info(f"💡 **Insight:** We have {len(site_counts)} unique sites. If one or t
 if 'company_site' in df_processed.columns:
     df_processed = df_processed.drop(columns=['company_site'])
 
-# 2. Professional explanation in English
-st.info("""
-    💡 **Feature Selection Update:** 
-    The 'company_site' column has been removed due to extreme data imbalance. 
-    Similar to 'location', the dominance of a single category (.de) would likely 
-    introduce bias and hinder the model's ability to generalize across different sources.
-""")
-
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
-dropped_cols = ['location', 'company', 'supplier_response', 'has_response', 'company_site']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced', 'verified']
+#aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location', 'company', 'supplier_response', 'company_site']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
 html_status = """<style>
@@ -1264,14 +1257,13 @@ for col in display_cols:
     is_dropped = col in dropped_cols
     row_class = 'class="strikethrough"' if is_dropped else ''
     u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
-    status_icon = "🗑️" if is_dropped else ("✅" if col in cleaned_cols else "❌")
-    
+    status_icon = "🗑️" if col in dropped_cols else ("🎯" if col == "rating" else ("✅" if col in cleaned_cols else "❌"))
+
     html_status += f'<tr {row_class}><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>'
 
 html_status += "</tbody></table>"
 
 st.markdown(html_status, unsafe_allow_html=True)
-
 
 st.markdown("---")
 st.markdown("<br><br>", unsafe_allow_html=True)
