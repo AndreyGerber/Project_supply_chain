@@ -44,44 +44,43 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-import streamlit as st
-import pandas as pd
+# --- TABELLE ZUR DARSTELLUNG DER TRANSFORMATION ---
 
-# 1. Sicherstellen, dass Daten vorhanden sind
+# 1. Sicherstellen, dass das df nicht leer ist
 if not df.empty:
-    # 2. Wir suchen eine Zeile, in der 'supplier_response' nicht leer ist
-    # Wir filtern NaN-Werte und leere Strings heraus
+    # 2. Suche eine Zeile, in der eine Antwort der Firma steht
+    # Wir filtern leere Werte (NaN) und leere Texte heraus
     mask = df['supplier_response'].notna() & (df['supplier_response'].astype(str).str.strip() != "")
-    df_with_response = df[mask]
+    df_with_res = df[mask]
 
-    if not df_with_response.empty:
-        # Wir nehmen die erste Zeile, die passt
-        row = df_with_response.iloc[0]
+    if not df_with_res.empty:
+        # Wir nehmen die erste Zeile, die die Bedingung erfüllt
+        row_example = df_with_res.iloc[0]
 
-        # 3. Vorbereitung der Daten für die vertikale Tabelle
-        # Hinweis: Falls 'review_text_clean' noch nicht existiert, nutzen wir Platzhalter
+        # 3. Daten für die vertikale Tabelle aufbereiten
+        # .get() verhindert Fehler, falls eine Spalte noch nicht existiert
         table_data = {
-            "Column Name":,
+            "Step / Column Name":,
             "Content": [
-                row.get('review_text', 'N/A'),
-                row.get('supplier_response', 'N/A'),
-                row.get('review_text_clean', 'Not yet processed'),
-                row.get('review_text_clean_advanced', 'Not yet processed')
+                str(row_example.get('review_text', 'N/A')),
+                str(row_example.get('supplier_response', 'N/A')),
+                str(row_example.get('review_text_clean', 'Not processed yet')),
+                str(row_example.get('review_text_clean_advanced', 'Not processed yet'))
             ]
         }
 
-        # 4. Erstellen des DataFrames für die Anzeige
+        # 4. In DataFrame umwandeln für die Anzeige
         display_df = pd.DataFrame(table_data)
 
         st.markdown("#### 📋 Step-by-Step Data Inspection")
-        st.write("This table shows how the data changes through different cleaning stages:")
+        st.write("This table highlights the transformation of a single record:")
 
-        # 5. Anzeige als Tabelle (ohne Index-Spalte für saubere Optik)
+        # 5. Darstellung als statische Tabelle (kein Index, volle Breite)
         st.table(display_df)
     else:
-        st.warning("No rows found where 'supplier_response' is filled.")
+        st.warning("No reviews with a 'supplier_response' found to display in this table.")
 else:
-    st.error("The dataframe is empty. Please check your data source.")
+    st.error("Dataframe is empty. Please check the data loading process.")
 
 
 
