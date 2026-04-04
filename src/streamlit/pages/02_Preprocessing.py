@@ -1020,37 +1020,59 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 # supplier response analysieren, ob sie einen Einfluss auf die Bewertung hat (z.B. haben Kunden, die eine Antwort erhalten haben, tendenziell bessere Bewertungen?)
 st.header("🎯 Influence of Supplier Response on Ratings")
 
-# 1. Daten transformieren: Hat geantwortet (1) oder nicht (0)
-# Wir prüfen, ob der Wert in 'supplier_response' leer (NaN) oder None ist
-df_processed['has_response'] = df_processed['supplier_response'].notna().astype(int)
 
-# 2. Pivot-Tabelle erstellen: Antwort-Status vs. Rating
-pivot_resp = df_processed.groupby(['has_response', 'rating']).size().unstack(fill_value=0)
+# --- ANALYSIS: SUPPLIER RESPONSE VS. RATING (SIDE BY SIDE) ---
+st.divider()
+st.header("🎯 Supplier Response Analysis")
 
-# 3. Normalisierung (Prozentual pro Zeile), um Trends trotz unterschiedlicher Mengen zu sehen
-pivot_resp_norm = pivot_resp.div(pivot_resp.sum(axis=1), axis=0) * 100
-pivot_resp_norm.index = ['No Response (0)', 'Has Response (1)']
+# 1. Daten vorbereiten (Absolut)
+pivot_resp_abs = df_processed.groupby(['has_response', 'rating']).size().unstack(fill_value=0)
+pivot_resp_abs.index = ['No Response (0)', 'Has Response (1)']
+rating_labels = ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars']
 
-# 4. Die Heatmap erstellen
-fig_resp = px.imshow(
-    pivot_resp_norm,
-    labels=dict(x="Rating (Stars)", y="Supplier Response Status", color="Percentage %"),
-    x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-    y=pivot_resp_norm.index,
-    color_continuous_scale='RdYlGn', 
-    text_auto='.1f',
-    aspect="auto"
-)
+# 2. Daten vorbereiten (Relativ/Normalisiert)
+pivot_resp_norm = pivot_resp_abs.div(pivot_resp_abs.sum(axis=1), axis=0) * 100
 
-fig_resp.update_layout(
-    title="🎯 Heatmap: Influence of Supplier Response on Ratings (%)",
-    font=dict(size=14),
-    height=400
-)
+# Spalten-Layout für Nebeneinander-Darstellung
+col_r1, col_r2 = st.columns(2)
 
-st.plotly_chart(fig_resp, use_container_width=True)
+with col_r1:
+    # RELATIVE HEATMAP (PROZENT)
+    fig_resp = px.imshow(
+        pivot_resp_norm,
+        labels=dict(x="Rating (Stars)", y="Supplier Response Status", color="Percentage %"),
+        x=rating_labels,
+        y=pivot_resp_norm.index,
+        color_continuous_scale='RdYlGn', 
+        text_auto='.1f',
+        aspect="auto"
+    )
+    fig_resp.update_layout(
+        title="🎯 Relative Influence (%)",
+        height=450,
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
+    st.plotly_chart(fig_resp, use_container_width=True, key="response_heatmap_percent")
 
-# 5. Statistischer Check: Durchschnitts-Rating vergleichen
+with col_r2:
+    # ABSOLUTE HEATMAP (COUNTS)
+    fig_resp_abs = px.imshow(
+        pivot_resp_abs,
+        labels=dict(x="Rating (Stars)", y="Supplier Response Status", color="Count"),
+        x=rating_labels,
+        y=pivot_resp_abs.index,
+        color_continuous_scale='Blues',
+        text_auto=True,
+        aspect="auto"
+    )
+    fig_resp_abs.update_layout(
+        title="📊 Absolute Counts",
+        height=450,
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
+    st.plotly_chart(fig_resp_abs, use_container_width=True, key="response_heatmap_absolute_final")
+
+# 3. Statistischer Check darunter
 avg_resp = df_processed[df_processed['has_response'] == 1]['rating'].mean()
 avg_no_resp = df_processed[df_processed['has_response'] == 0]['rating'].mean()
 
@@ -1059,33 +1081,6 @@ st.info(f"""
 * Average Rating with Response: **{avg_resp:.2f} ⭐**
 * Average Rating without Response: **{avg_no_resp:.2f} ⭐**
 """)
-
-
-
-# 1. Daten vorbereiten (Absolutzahlen)
-# Wir nutzen die Spalte 'has_response' (0 = Nein, 1 = Ja)
-pivot_resp_abs = df_processed.groupby(['has_response', 'rating']).size().unstack(fill_value=0)
-pivot_resp_abs.index = ['No Response (0)', 'Has Response (1)']
-
-# 2. Die Heatmap mit Absolutzahlen erstellen
-fig_resp_abs = px.imshow(
-    pivot_resp_abs,
-    labels=dict(x="Rating (Stars)", y="Supplier Response Status", color="Count of Reviews"),
-    x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-    y=pivot_resp_abs.index,
-    color_continuous_scale='Blues', # Blau für Mengenverteilung
-    text_auto=True,                 # Zeigt die echten Ganzzahlen in den Feldern
-    aspect="auto"
-)
-
-fig_resp_abs.update_layout(
-    title="📊 Absolute Counts: Supplier Response vs. Rating",
-    font=dict(size=14),
-    height=400
-)
-
-# 3. Anzeige in Streamlit
-st.plotly_chart(fig_resp_abs, use_container_width=True, key="response_heatmap_absolute")
 
 
 
