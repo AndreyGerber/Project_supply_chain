@@ -1361,32 +1361,7 @@ st.write("### 🏆 Final Processed Dataset (Top 15 Rows)")
 # Wir nutzen use_container_width=True für die volle Breite
 st.dataframe(df_final_view.head(15), use_container_width=True)
 
-
 st.markdown("<br><br><br>", unsafe_allow_html=True)
-
-
-# Den Text für die Box vorbereiten
-success_text = f"🏁 **Phase 'Preprocessing' Complete:** Our dataset is now high-octane fuel for Machine Learning! <br>Total: <b>{df_processed.shape[0]}</b> reviews and <b>{df_processed.shape[1]}</b> clean features."
-
-# HTML-Box mit anpassbarer Schriftgröße (hier 20px)
-success_html = f"""
-<div style="
-    background-color: #d4edda; 
-    border-radius: 8px; 
-    padding: 20px; 
-    border: 1px solid #c3e6cb; 
-    color: #155724; 
-    font-size: 20px; 
-    font-family: sans-serif;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    line-height: 1.5;">
-    {success_text}
-</div>
-"""
-
-# In Streamlit anzeigen
-st.markdown(success_html, unsafe_allow_html=True)
 
 
 
