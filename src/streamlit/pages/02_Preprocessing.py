@@ -640,7 +640,7 @@ summary_html = """
         <li><b>The Polarization:</b> Interestingly, <i>'delivery'</i> remains a top word in 5-star reviews too. This indicates a "hit-or-miss" logistics system: It's either excellent or a total failure, with very little middle ground.</li>
     </ul>
     <p style="font-size: 16px; font-weight: bold; color: #e74c3c; margin-top: 15px;">
-        ⚠️ Conclusion: To stabilize the rating in 2026, the company must urgently fix its bulky goods (Tire) fulfillment and refund communication. But not our problem. We are here to analyze, not to consult.
+        ⚠️ Conclusion: To stabilize the rating in 2026, the company must urgently fix its bulky goods (Tire) fulfillment and refund communication. <br> But not our problem. We are here to analyze, not to consult.
     </p>
 </div>
 """
