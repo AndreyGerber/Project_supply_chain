@@ -428,55 +428,73 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 st.divider()
 st.header("🕵️ Correlation Analysis")
 
+# --- ERSTE REIHE: DAY PERIOD & YEAR ---
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("1. Rating by Day Period")
-    # Daten aggregieren
     rating_period = df_processed.groupby('day_period')['rating'].mean().reset_index()
-    
-    # Logische Sortierung
     period_order = ['Morning', 'Afternoon', 'Evening', 'Night']
     rating_period['day_period'] = pd.Categorical(rating_period['day_period'], categories=period_order, ordered=True)
     rating_period = rating_period.sort_values('day_period')
 
-    fig_rating = px.bar(
-        rating_period, 
-        x='day_period', 
-        y='rating',
-        color='rating',
-        color_continuous_scale='RdYlGn',
-        range_color=[1, 5], # Farbskala auf 1-5 fixieren
-        title="Average Rating per Time of Day",
-        labels={'rating': 'Avg Rating', 'day_period': 'Time of Day'}
+    fig_day = px.bar(
+        rating_period, x='day_period', y='rating',
+        text=rating_period['rating'].round(2), # ZAHLEN ÜBER DEN BALKEN
+        color='rating', color_continuous_scale='RdYlGn', range_color=[1, 5],
+        title="Average Rating per Time of Day"
     )
-    
-    # WICHTIG: Y-Achse auf 1 bis 5 fixieren
-    fig_rating.update_layout(yaxis_range=[1, 5])
-    st.plotly_chart(fig_rating, use_container_width=True)
+    fig_day.update_traces(textposition='outside')
+    fig_day.update_layout(yaxis_range=[1, 5])
+    st.plotly_chart(fig_day, use_container_width=True)
 
 with col2:
-    st.subheader("2. Correlation: Season vs Rating")
+    st.subheader("2. Rating Trend by Year")
+    rating_year = df_processed.groupby('year')['rating'].mean().reset_index()
     
-    # Kreuztabelle für Saison und Rating erstellen (Counts)
-    # Wir nehmen hier die Anzahl der Reviews pro Rating-Kategorie (1-5) und Saison
-    heatmap_data = pd.crosstab(df_processed['rating'], df_processed['season'])
-    
-    # Spalten sortieren
-    season_order = ['Spring', 'Summer', 'Autumn', 'Winter']
-    heatmap_data = heatmap_data.reindex(columns=season_order)
-    # Zeilen (Ratings) sicherstellen, dass 1 oben und 5 unten (oder umgekehrt) ist
-    heatmap_data = heatmap_data.sort_index(ascending=False)
-
-    fig_heat = px.imshow(
-        heatmap_data,
-        text_auto=True,
-        aspect="auto",
-        color_continuous_scale='YlGnBu',
-        title="Review Volume (Rating vs. Season)",
-        labels=dict(x="Season", y="Rating (Stars)", color="Count")
+    fig_year = px.line(
+        rating_year, x='year', y='rating',
+        markers=True, text=rating_year['rating'].round(2),
+        title="Average Rating over the Years"
     )
-    st.plotly_chart(fig_heat, use_container_width=True)
+    fig_year.update_traces(textposition='top center')
+    fig_year.update_layout(yaxis_range=[1, 5], xaxis_type='category')
+    st.plotly_chart(fig_year, use_container_width=True)
+
+
+# --- ZWEITE REIHE: HEATMAPS (ABSOLUT VS RELATIV) ---
+st.markdown("### 🌡️ Seasonal Rating Distribution")
+col3, col4 = st.columns(2)
+
+# Vorbereitung der Heatmap-Daten
+season_order = ['Spring', 'Summer', 'Autumn', 'Winter']
+heatmap_abs = pd.crosstab(df_processed['rating'], df_processed['season'])
+heatmap_abs = heatmap_abs.reindex(columns=season_order).sort_index(ascending=False)
+
+# Berechnung der relativen Zahlen (Prozent pro Saison)
+heatmap_rel = heatmap_abs.div(heatmap_abs.sum(axis=0), axis=1) * 100
+
+with col3:
+    st.subheader("3. Absolute Volume (Counts)")
+    fig_abs = px.imshow(
+        heatmap_abs, text_auto=True, aspect="auto",
+        color_continuous_scale='YlGnBu',
+        title="Total Reviews (Rating vs. Season)",
+        labels=dict(x="Season", y="Rating", color="Count")
+    )
+    st.plotly_chart(fig_abs, use_container_width=True)
+
+with col4:
+    st.subheader("4. Relative Distribution (%)")
+    fig_rel = px.imshow(
+        heatmap_rel, 
+        text_auto=".1f", # Eine Nachkommastelle für Prozente
+        aspect="auto",
+        color_continuous_scale='Viridis',
+        title="Percentage of Ratings per Season",
+        labels=dict(x="Season", y="Rating", color="Percentage (%)")
+    )
+    st.plotly_chart(fig_rel, use_container_width=True)
 
 
 
