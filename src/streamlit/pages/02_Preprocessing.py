@@ -1373,7 +1373,7 @@ if not df_final_view.empty:
     st.session_state['ml_data'] = df_final_view.copy()
     
     # 3. Status-Text für die grüne Box (mit Bestätigung)
-    backup_status = "✅ **Backup Created:** Ready for Phase 3!"
+    backup_status = "✅ **Backup Created:** Ready for Modeling!"
 else:
     backup_status = "❌ **Backup Failed:** Dataset is empty."
 
