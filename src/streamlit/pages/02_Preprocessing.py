@@ -448,18 +448,60 @@ with col1:
     fig_day.update_layout(yaxis_range=[1, 5])
     st.plotly_chart(fig_day, use_container_width=True)
 
+import plotly.graph_objects as go
+
 with col2:
-    st.subheader("2. Rating Trend by Year")
-    rating_year = df_processed.groupby('year')['rating'].mean().reset_index()
+    st.subheader("2. Rating Trend & Review Volume by Year")
     
-    fig_year = px.line(
-        rating_year, x='year', y='rating',
-        markers=True, text=rating_year['rating'].round(2),
-        title="Average Rating over the Years"
+    # Daten vorbereiten: Mean Rating und Count pro Jahr
+    year_stats = df_processed.groupby('year')['rating'].agg(['mean', 'count']).reset_index()
+    year_stats.columns = ['year', 'avg_rating', 'review_count']
+    
+    # Erstellen der Figur mit zwei Achsen
+    fig_combined = go.Figure()
+
+    # 1. Balken für die Anzahl der Reviews (Rechte Achse)
+    fig_combined.add_trace(go.Bar(
+        x=year_stats['year'],
+        y=year_stats['review_count'],
+        name="Number of Reviews",
+        marker_color='rgba(100, 149, 237, 0.4)', # Dezentes Blau, leicht transparent
+        yaxis='y2'
+    ))
+
+    # 2. Linie für das Durchschnitts-Rating (Linke Achse)
+    fig_combined.add_trace(go.Scatter(
+        x=year_stats['year'],
+        y=year_stats['avg_rating'],
+        name="Avg Rating",
+        mode='lines+markers+text',
+        line=dict(color='firebrick', width=3),
+        text=year_stats['avg_rating'].round(2),
+        textposition='top center',
+        yaxis='y'
+    ))
+
+    # Layout anpassen für zwei Y-Achsen
+    fig_combined.update_layout(
+        title="Avg Rating vs. Review Volume per Year",
+        xaxis=dict(type='category', title="Year"),
+        yaxis=dict(
+            title="Average Rating",
+            range=, # Dein gewünschter Bereich 1-5
+            side="left"
+        ),
+        yaxis2=dict(
+            title="Number of Reviews",
+            overlaying="y",
+            side="right",
+            showgrid=False # Grid nur für eine Achse, sonst wird es zu unruhig
+        ),
+        legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.5)"),
+        margin=dict(l=20, r=20, t=40, b=20),
+        height=500
     )
-    fig_year.update_traces(textposition='top center')
-    fig_year.update_layout(yaxis_range=[1, 5], xaxis_type='category')
-    st.plotly_chart(fig_year, use_container_width=True)
+
+    st.plotly_chart(fig_combined, use_container_width=True)
 
 
 # --- ZWEITE REIHE: HEATMAPS (ABSOLUT VS RELATIV) ---
