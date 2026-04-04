@@ -600,9 +600,59 @@ def get_filtered_top_words(text_series, n=15):
 pos_text = df_words[df_words['rating'] == 5]['review_text_clean_advanced'].dropna()
 neg_text = df_words[df_words['rating'] <= 2]['review_text_clean_advanced'].dropna()
 
+
+st.markdown("### 📅 Monthly Rating Distribution")
 col5, col6 = st.columns(2)
 
+# 1. Monats-Daten vorbereiten
+month_order = [
+    'January', 'February', 'March', 'April', 'May', 'June', 
+    'July', 'August', 'September', 'October', 'November', 'December'
+]
+
+# Kreuztabelle für Monate und Rating
+heatmap_month_abs = pd.crosstab(df_processed['rating'], df_processed['month_name'])
+
+# Sicherstellen, dass alle Monate da sind und richtig sortiert werden
+for m in month_order:
+    if m not in heatmap_month_abs.columns: heatmap_month_abs[m] = 0
+
+heatmap_month_abs = heatmap_month_abs.reindex(columns=month_order).sort_index(ascending=False)
+
+# Relative Heatmap berechnen (Prozent pro Monat)
+heatmap_month_rel = heatmap_month_abs.div(heatmap_month_abs.sum(axis=0), axis=1) * 100
+
 with col5:
+    st.subheader("5. Monthly Volume (Counts)")
+    fig_month_abs = px.imshow(
+        heatmap_month_abs, text_auto=True, aspect="auto",
+        color_continuous_scale='YlGnBu',
+        title="Total Reviews (Rating vs. Month)",
+        labels=dict(x="Month", y="Rating", color="Count")
+    )
+    # X-Achse Beschriftung leicht drehen, falls es zu eng wird
+    fig_month_abs.update_layout(xaxis_tickangle=-45, height=500)
+    st.plotly_chart(fig_month_abs, use_container_width=True)
+
+with col6:
+    st.subheader("6. Monthly Relative Distribution (%)")
+    fig_month_rel = px.imshow(
+        heatmap_month_rel, 
+        text_auto=".1f", 
+        aspect="auto",
+        color_continuous_scale='Viridis',
+        title="Percentage of Ratings per Month",
+        labels=dict(x="Month", y="Rating", color="Percentage (%)")
+    )
+    fig_month_rel.update_layout(xaxis_tickangle=-45, height=500)
+    st.plotly_chart(fig_month_rel, use_container_width=True)
+
+
+
+
+col7, col8 = st.columns(2)
+
+with col7:
     st.subheader(f"✅ Positive Insights ({selected_year})")
     if not pos_text.empty:
         top_pos = get_filtered_top_words(pos_text)
@@ -612,7 +662,7 @@ with col5:
     else:
         st.info(f"No 5-star reviews found for {selected_year}.")
 
-with col6:
+with col8:
     st.subheader(f"❌ Negative Insights ({selected_year})")
     if not neg_text.empty:
         top_neg = get_filtered_top_words(neg_text)
