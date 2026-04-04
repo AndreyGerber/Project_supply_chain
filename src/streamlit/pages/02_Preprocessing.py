@@ -456,23 +456,22 @@ with col1:
 with col2:
     st.subheader("2. Rating Trend & Review Volume by Year")
     
-    # Daten für das kombinierte Diagramm vorbereiten
     import plotly.graph_objects as go
     year_stats = df_processed.groupby('year')['rating'].agg(['mean', 'count']).reset_index()
     year_stats.columns = ['year', 'avg_rating', 'review_count']
     
     fig_combined = go.Figure()
 
-    # Balken für Anzahl (Rechte Achse)
+    # 1. Balken (Rechte Achse)
     fig_combined.add_trace(go.Bar(
         x=year_stats['year'],
         y=year_stats['review_count'],
         name="Number of Reviews",
-        marker_color='rgba(100, 149, 237, 0.3)', # Transparentes Blau
+        marker_color='rgba(100, 149, 237, 0.3)',
         yaxis='y2'
     ))
 
-    # Linie für Rating (Linke Achse)
+    # 2. Linie (Linke Achse)
     fig_combined.add_trace(go.Scatter(
         x=year_stats['year'],
         y=year_stats['avg_rating'],
@@ -484,14 +483,37 @@ with col2:
         yaxis='y'
     ))
 
+    # Layout-Anpassungen (Achsen & Legende)
     fig_combined.update_layout(
         title="Avg Rating vs. Volume per Year",
         xaxis=dict(type='category', title="Year"),
-        yaxis=dict(title="Average Rating", range=[1, 5], side="left"),
-        yaxis2=dict(title="Number of Reviews", overlaying="y", side="right", showgrid=False),
-        legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.5)"),
-        height=500
+        # Linke Achse (Rating)
+        yaxis=dict(
+            title="Average Rating", 
+            range=[1, 5], 
+            side="left"
+        ),
+        # Rechte Achse (Volume) mit deinen speziellen Wünschen
+        yaxis2=dict(
+            title="Number of Reviews",
+            overlaying="y",
+            side="right",
+            range=[0, 3000],          # Maximum auf 3000 gesetzt
+            dtick=250,                # 250er Schritte für die Skala
+            showgrid=False
+        ),
+        # Legende in die Mitte (zwischen Rating 2 und 3.5)
+        legend=dict(
+            x=0.1,                    # Leicht eingerückt von links
+            y=0.45,                   # Vertikal in der Mitte (entspricht ca. Rating 2.5-3)
+            bgcolor="rgba(255,255,255,0.6)",
+            bordercolor="rgba(0,0,0,0.1)",
+            borderwidth=1
+        ),
+        height=550,
+        margin=dict(l=20, r=20, t=40, b=20)
     )
+
     st.plotly_chart(fig_combined, use_container_width=True)
 
 
