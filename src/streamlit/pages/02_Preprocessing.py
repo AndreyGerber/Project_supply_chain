@@ -1391,12 +1391,38 @@ st.markdown(success_html, unsafe_allow_html=True)
 
 
 
+
 # Wir speichern den finalen, bereinigten DataFrame im Session State
-# So kann die ML-Seite direkt darauf zugreifen
 if not df_final_view.empty:
+    # 2. Die echte Sicherheitskopie für die nächste Seite erstellen
     st.session_state['ml_data'] = df_final_view.copy()
     
-    # Optional: Eine kleine Bestätigung für dich (kann später weg)
-    st.toast("Data successfully backed up for Machine Learning! 🤖")
+    # 3. Status-Text für die grüne Box (mit Bestätigung)
+    backup_status = "✅ **Backup Created:** Ready for Phase 3!"
 else:
-    st.error("Data missing! Backup failed.")
+    backup_status = "❌ **Backup Failed:** Dataset is empty."
+
+# 4. Deine grüne Erfolgs-Box (jetzt mit dem Backup-Status)
+success_text = f"""
+🏁 **Phase 'Preprocessing' Complete:** Our dataset is now high-octane fuel for Machine Learning! <br>
+Total: <b>{df_processed.shape[0]}</b> reviews and <b>{df_processed.shape[1]}</b> clean features. <br>
+<i>{backup_status}</i>
+"""
+
+success_html = f"""
+<div style="
+    background-color: #d4edda; 
+    border-radius: 8px; 
+    padding: 20px; 
+    border: 1px solid #c3e6cb; 
+    color: #155724; 
+    font-size: 20px; 
+    font-family: sans-serif;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    line-height: 1.5;">
+    {success_text}
+</div>
+"""
+
+st.markdown(success_html, unsafe_allow_html=True)
