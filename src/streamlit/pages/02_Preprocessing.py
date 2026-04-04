@@ -1388,3 +1388,15 @@ success_html = f"""
 # In Streamlit anzeigen
 st.markdown(success_html, unsafe_allow_html=True)
 
+
+
+
+# Wir speichern den finalen, bereinigten DataFrame im Session State
+# So kann die ML-Seite direkt darauf zugreifen
+if not df_final_view.empty:
+    st.session_state['ml_data'] = df_final_view.copy()
+    
+    # Optional: Eine kleine Bestätigung für dich (kann später weg)
+    st.toast("Data successfully backed up for Machine Learning! 🤖")
+else:
+    st.error("Data missing! Backup failed.")
