@@ -44,40 +44,6 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-# --- 1. FILTER: Zeile mit Antwort suchen ---
-# Wir suchen im geladenen 'df' nach einer Zeile mit Text in 'supplier_response'
-df_with_response = df[df['supplier_response'].notna() & (df['supplier_response'].astype(str).str.strip() != "")]
-
-if not df_with_response.empty:
-    # Wir nehmen die allererste Zeile, die passt
-    sample_row = df_with_response.iloc[0]
-
-    # --- 2. DATEN FÜR DIE TABELLE VORBEREITEN ---
-    # Falls die 'clean'-Spalten noch nicht existieren, zeigen wir eine Info an
-    table_data = {
-        "Name der Spalte":,
-        "Inhalt": [
-            str(sample_row.get('review_text', 'N/A')),
-            str(sample_row.get('supplier_response', 'N/A')),
-            str(sample_row.get('review_text_clean', 'Noch nicht bereinigt')),
-            str(sample_row.get('review_text_clean_advanced', 'Noch nicht bereinigt'))
-        ]
-    }
-
-    # In DataFrame umwandeln
-    inspection_df = pd.DataFrame(table_data)
-
-    # --- 3. DARSTELLUNG ---
-    st.markdown("#### 🔍 Datensatz-Inspektion (Einzelfall-Beispiel)")
-    st.write("Hier siehst du, wie ein Kommentar Schritt für Schritt verarbeitet wird:")
-
-    # Wir nutzen st.table für eine schlichte, vertikale Ansicht
-    st.table(inspection_df)
-
-else:
-    st.warning("⚠️ Keine Zeile mit einer 'supplier_response' gefunden. Die Tabelle kann nicht erstellt werden.")
-
-
 
 
 
