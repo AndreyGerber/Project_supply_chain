@@ -30,7 +30,7 @@ First, let's verify that we have access to the same dataset from the previous ph
 
 
 
-# 3. Retrieve data from memory (Session State)
+# 3. Retrieve data from memory (Session State) (from "01_Data_Exploration.py")
 if 'raw_data' in st.session_state:
     # Wir nehmen die Daten und führen die gleiche Bereinigung wie auf Seite 1 aus
     df = st.session_state['raw_data'].copy()
@@ -171,10 +171,8 @@ with col2:
     else:
         st.error(f"❌ File not found at: {logo_path}")
 
-# Optional: Text unter dem Bild (außerhalb der Spalten für volle Breite)
+
 #Bild laden. Abschnitt zum Ende
-
-
 
 
 # Identifiziere die System-Antworten (Die "Reply from" Zeilen)
@@ -282,7 +280,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 st.write("### 📋 Preprocessing Status Overview")
 
-# 1. Daten für die Tabelle vorbereiten
+# Daten für die Tabelle vorbereiten
 column_info = []
 
 # Liste der Spalten, die wir als "cleaned" markieren wollen
@@ -351,12 +349,11 @@ html_table += "</tbody></table>"
 # 3. Anzeige
 st.markdown(html_table, unsafe_allow_html=True)
 
-
-
-
+#Zwei leere Zeilen und darunter eine Linie für die optische Trennung einfügen
 st.markdown("<br><br>", unsafe_allow_html=True)
-
 st.markdown("---")
+
+
 #Ab hier die Spalte "date" bearbeiten, um neue Features zu erstellen (Jahr, Monat, Wochentag, Saison, Tageszeit)
 
 # 1. Sicherstellen, dass Daten im Session State vorhanden sind
@@ -425,6 +422,36 @@ else:
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 
+
+#den Zusammenhang zwischen dem rating (Sterne) und den neuen Zeit-Features (Jahr, Monat, Wochentag, Saison, Tageszeit) analysieren und visualisieren
+st.subheader("📊 Correlation Analysis: Rating vs. Time Features")
+# 1. Wir nehmen nur die Spalten, die wir brauchen (Zeit-Features + Rating)
+analysis_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'rating']
+df_analysis = df_processed[analysis_cols]
+# 2. Wir erstellen eine Heatmap, um die durchschnittliche Bewertung pro Kategorie zu sehen
+# Zuerst müssen wir die Daten in ein Format bringen, das für die Heatmap geeignet ist
+# Wir gruppieren nach jeder Kategorie und berechnen den Durchschnitt der Bewertungen
+heatmap_data = df_analysis.groupby(['month_name', 'season'])['rating'].mean().unstack()
+# 3. Jetzt können wir die Heatmap zeichnen
+plt.figure(figsize=(10, 6))
+sns.heatmap(heatmap_data, annot=True, fmt=".2f", cmap="YlGnBu")
+plt.title("Average Rating by Month and Season")
+plt.xlabel("Season")
+plt.ylabel("Month")
+st.pyplot(plt)
+
+
+
+
+
+
+
+
+
+
+
+
+# Status-Tabelle mit den neuen Spalten (Jahr, Monat, Wochentag, Saison, Tageszeit) und den alten Spalten (review_text, etc.) erstellen
 # 1. Liste der erledigten Spalten
 cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Füge hier weitere Spalten hinzu, die du bereinigt hast
 
