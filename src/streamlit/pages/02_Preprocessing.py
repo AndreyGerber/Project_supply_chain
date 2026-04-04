@@ -489,7 +489,7 @@ with col2:
     fig_combined.update_layout(
         title="Avg Rating vs. Volume per Year",
         xaxis=dict(type='category', title="Year"),
-        yaxis=dict(title="Average Rating", range=[1, 5.5], side="left"),
+        yaxis=dict(title="Average Rating", range=[1, 5], side="left"),
         yaxis2=dict(
             title="Number of Reviews", 
             overlaying="y", 
