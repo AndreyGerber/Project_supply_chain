@@ -44,29 +44,22 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-# --- VERTICAL TRANSFORMATION TABLE ---
-
+# --- 1. DATEN VORBEREITEN ---
+# Wir nehmen die erste Zeile deines geladenen 'df'
 if not df.empty:
-    # 1. Wir nehmen die erste Zeile (Index 0) aus deinem aktuellen df
-    row = df.iloc[0]
+    sample = df.iloc[0]
 
-    # 2. Daten für die 2-Spalten-Tabelle vorbereiten (Name vs. Inhalt)
-    table_data =,
-        ["Supplier Response", str(row.get('supplier_response', 'N/A'))],,
+    # Liste von Listen: Die sicherste Methode für DataFrames
+    tabelle_liste =,
+        ["supplier response", str(sample.get('supplier_response', 'N/A'))],,
     ]
 
-    # DataFrame für die Anzeige erstellen
-    comparison_df = pd.DataFrame(table_data, columns=["Name der Spalte", "Inhalt"])
+    # DataFrame für die Anzeige bauen
+    df_vergleich = pd.DataFrame(tabelle_liste, columns=["Name der Spalte", "Inhalt"])
 
-    # --- DARSTELLUNG ---
-    st.markdown("### 🔍 Step-by-Step Data Inspection")
-    st.write("Hier siehst du den direkten Vergleich der Verarbeitungsstufen für einen Datensatz:")
-
-    # Wir nutzen st.table für die schlichte, vertikale Ansicht
-    st.table(comparison_df)
-
-else:
-    st.warning("Das Dataset ist leer. Die Tabelle kann nicht angezeigt werden.")
+    # --- 2. ANZEIGE ---
+    st.write("### 🔍 Transformation Table")
+    st.table(df_vergleich)
 
 
 
