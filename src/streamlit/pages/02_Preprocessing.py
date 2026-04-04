@@ -707,12 +707,8 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 # 1. Die Spalte 'location' aus dem bearbeiteten DF entfernen
 df_processed = df_processed.drop(columns=['year', 'month_name', 'weekday', 'season', 'day_period'])  # Wir entfernen die Zeit-Features, um die Übersicht zu behalten
 
-# 2. Update deiner Status-Tabelle (wir entfernen sie aus der Liste der Spalten)
-# Sie wird nun gar nicht mehr in der Tabelle auftauchen.
-st.success("✅ Column 'location' was successfully dropped.")
 
-# 3. Den aktuellen Stand des Dataframes kurz anzeigen (Kontrolle)
-#st.dataframe(df_processed.head(5), use_container_width=True)
+
 
 
 st.markdown("<br><br>", unsafe_allow_html=True)
