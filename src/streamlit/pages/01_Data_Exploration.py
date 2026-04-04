@@ -43,27 +43,38 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-# 1. Finde die erste Zeile, in der 'supplier_response' nicht leer/NaN ist
+# 1. Daten wie gehabt vorbereiten
 row_with_response = df[df['supplier_response'].notna()].head(1)
 
 if not row_with_response.empty:
     st.subheader("Detailansicht: Erster Review mit Antwort")
     
-    # 2. Relevante Spalten auswählen
     cols_to_show = ['review_text', 'supplier_response', 'review_text_clean', 'review_text_clean_advanced']
     
-    # 3. Daten umformen: Spaltennamen werden zu Zeilen (Transponieren)
-    # Wir nehmen .iloc[0], um die Series der ersten Zeile zu erhalten
+    # DataFrame für die Anzeige erstellen
     display_df = pd.DataFrame({
         "Name der Spalte": cols_to_show,
         "Text": row_with_response[cols_to_show].iloc[0].values
     })
     
-    # 4. Tabelle in Streamlit anzeigen
-    st.table(display_df)
+    # 2. Anzeige mit Breitensteuerung und ohne Index
+    st.dataframe(
+        display_df,
+        column_config={
+            "Name der Spalte": st.column_config.TextColumn(
+                "Name der Spalte",
+                width="small",  # Macht die erste Spalte schmal
+            ),
+            "Text": st.column_config.TextColumn(
+                "Text",
+                width="large",  # Gibt dem Text maximalen Platz
+            )
+        },
+        hide_index=True,        # Entfernt die ID-Spalte (0, 1, 2...)
+        use_container_width=True # Nutzt die volle Seitenbreite
+    )
 else:
-    st.warning("Keine Zeile mit einer Antwort des Anbieters gefunden.")
-
+    st.warning("Keine Zeile mit einer Antwort gefunden.")
 
 
 
