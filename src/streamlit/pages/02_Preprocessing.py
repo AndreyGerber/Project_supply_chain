@@ -1018,8 +1018,7 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 # supplier response analysieren, ob sie einen Einfluss auf die Bewertung hat (z.B. haben Kunden, die eine Antwort erhalten haben, tendenziell bessere Bewertungen?)
-
-
+st.header("🎯 Influence of Supplier Response on Ratings")
 
 # 1. Daten transformieren: Hat geantwortet (1) oder nicht (0)
 # Wir prüfen, ob der Wert in 'supplier_response' leer (NaN) oder None ist
