@@ -6,7 +6,6 @@ from pathlib import Path
 # 1. Configuration
 st.set_page_config(page_title="Auto parts store Review Dashboard", layout="wide")
 
-# 2. Data Loading Function
 @st.cache_data
 def load_data():
     file_path = Path("src/data/clean/reviews_clean.csv")
@@ -15,28 +14,27 @@ def load_data():
         return pd.DataFrame()
 
     df = pd.read_csv(file_path)
-    # Hier NUR das Datum konvertieren, sonst NICHTS löschen!
+    # Nur Datum konvertieren, da das technisch notwendig für Plotly ist
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df = df.dropna(subset=['date'])
     return df
 
-# --- AB HIER WIRD ES WICHTIG ---
-
-# 1. Wir laden die ECHTEN Rohdaten (inkl. Emojis & SVG-Spalten)
+# --- INITIALISIERUNG ---
 df_raw = load_data()
 
-# 2. Wir speichern die ROHDATEN für die anderen Seiten (Preprocessing)
+# WICHTIG: Speichere die ECHTEN ROHDATEN für die anderen Seiten
 if not df_raw.empty:
-    st.session_state['raw_data'] = df_raw # <--- Hier liegt jetzt das "Dreckige" drin
+    st.session_state['raw_data'] = df_raw.copy()
 
-# 3. JETZT erst erstellen wir eine saubere Kopie für die Charts auf DIESER Seite
+# Erstelle eine Arbeitskopie für die aktuelle Seite
 df = df_raw.copy()
 
+# BEREINIGUNG NUR AUSFÜHREN, WENN DIE SPALTE NOCH EIN TEXT IST
 if 'rating_svg' in df.columns:
-    # Hier kannst du die Sterne extrahieren, falls nötig
-    df['rating'] = df['rating_svg'].str.extract('(\d+)').astype(float).fillna(0).astype(int)
+    # Wir stellen sicher, dass es Text ist (.astype(str)), bevor wir .str nutzen
+    df['rating'] = df['rating_svg'].astype(str).str.extract('(\d+)').fillna(0).astype(int)
 
-# Spalten löschen NUR für die aktuelle Anzeige (Exploration)
+# Spalten erst löschen, nachdem die Extraktion fertig ist
 columns_to_drop = ['rating_numeric', 'rating_svg']
 df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
