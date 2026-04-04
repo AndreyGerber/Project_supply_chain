@@ -43,50 +43,6 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-# --- DATA PREVIEW TABLE ---
-st.markdown("### 📄 Raw Data Preview")
-
-# Find the first row where 'supplier_response' is present
-row_with_response = df[df['supplier_response'].notna()].head(1)
-
-if not row_with_response.empty:
-    st.subheader("Detailed View: First Review with Response")
-    
-    # Columns to display
-    cols_to_show = ['review_text', 'supplier_response', 'review_text_clean', 'review_text_clean_advanced']
-    
-    # Prepare DataFrame for vertical display
-    display_df = pd.DataFrame({
-        "Column Name": cols_to_show,
-        "Content": row_with_response[cols_to_show].iloc[0].values
-    })
-    
-    # Display with custom widths and hidden index
-    st.dataframe(
-        display_df,
-        column_config={
-            "Column Name": st.column_config.TextColumn(
-                "Column Name",
-                width="small",
-            ),
-            "Content": st.column_config.TextColumn(
-                "Content",
-                width="large",
-            )
-        },
-        hide_index=True,
-        use_container_width=True
-    )
-else:
-    st.warning("No row with a supplier response found in the dataset.")
-
-# From here your remaining code for charts follows
-
-
-
-
-
-
 
 # Main Application Logic
 if not df.empty:
