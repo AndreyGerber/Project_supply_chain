@@ -831,7 +831,7 @@ if 'issue_categories' in df_processed.columns:
     df_processed = df_processed.drop(columns=['location'])  
 
 # 2. Professionelle Info-Box (English)
-t.success("✅ Column 'location' was successfully dropped.")
+st.success("✅ Column 'location' was successfully dropped.")
 
 cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
