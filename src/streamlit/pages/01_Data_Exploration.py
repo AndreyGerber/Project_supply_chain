@@ -44,47 +44,45 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-import re
+import streamlit as st
+import pandas as pd
 
-# --- VORBEREITUNG DER VERGLEICHSZEILE ---
+# 1. Sicherstellen, dass Daten vorhanden sind
+if not df.empty:
+    # 2. Wir suchen eine Zeile, in der 'supplier_response' nicht leer ist
+    # Wir filtern NaN-Werte und leere Strings heraus
+    mask = df['supplier_response'].notna() & (df['supplier_response'].astype(str).str.strip() != "")
+    df_with_response = df[mask]
 
-# 1. Wir suchen eine Zeile, in der eine Antwort vorhanden ist (nicht leer)
-df_with_response = df[df['supplier_response'].notna() & (df['supplier_response'] != "")]
+    if not df_with_response.empty:
+        # Wir nehmen die erste Zeile, die passt
+        row = df_with_response.iloc[0]
 
-if not df_with_response.empty:
-    # Wir nehmen die erste passende Zeile
-    example_row = df_with_response.iloc[0].copy()
-    
-    # 2. Wir simulieren die Reinigungsschritte für diese eine Zeile
-    # Basic Clean: Emojis und Sonderzeichen weg
-    raw_text = str(example_row['review_text'])
-    clean_basic = re.sub(r'[^\w\s]', '', raw_text) 
-    
-    # Advanced Clean: Kleinschreibung und zusätzliches Trimmen (Beispielhaft)
-    clean_advanced = clean_basic.lower().strip()
+        # 3. Vorbereitung der Daten für die vertikale Tabelle
+        # Hinweis: Falls 'review_text_clean' noch nicht existiert, nutzen wir Platzhalter
+        table_data = {
+            "Column Name":,
+            "Content": [
+                row.get('review_text', 'N/A'),
+                row.get('supplier_response', 'N/A'),
+                row.get('review_text_clean', 'Not yet processed'),
+                row.get('review_text_clean_advanced', 'Not yet processed')
+            ]
+        }
 
-    # 3. Erstellung der vertikalen Tabelle (Zwei Spalten: Name und Inhalt)
-    comparison_data = {
-        "Step / Column":,
-        "Content": [
-            raw_text,
-            example_row['supplier_response'],
-            clean_basic,
-            clean_advanced
-        ]
-    }
+        # 4. Erstellen des DataFrames für die Anzeige
+        display_df = pd.DataFrame(table_data)
 
-    comparison_df = pd.DataFrame(comparison_data)
+        st.markdown("#### 📋 Step-by-Step Data Inspection")
+        st.write("This table shows how the data changes through different cleaning stages:")
 
-    # --- DARSTELLUNG IN STREAMLIT ---
-    st.markdown("### 🔍 Step-by-Step Text Transformation")
-    st.info("Below is a deep dive into how a single review is processed for Machine Learning.")
-
-    # Darstellung als statische Tabelle (besser lesbar für Textvergleiche)
-    st.table(comparison_df)
-
+        # 5. Anzeige als Tabelle (ohne Index-Spalte für saubere Optik)
+        st.table(display_df)
+    else:
+        st.warning("No rows found where 'supplier_response' is filled.")
 else:
-    st.warning("No review with a supplier response found to demonstrate the transformation.")
+    st.error("The dataframe is empty. Please check your data source.")
+
 
 
 
