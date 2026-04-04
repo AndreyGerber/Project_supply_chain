@@ -705,10 +705,8 @@ if 'issue_categories' in df_processed.columns:
 # 2. Professionelle Info-Box (English)
 st.info("""
     💡 **Feature Selection Update:** 
-    The 'issue_categories' column will been removed. Approximately **2/3 of the data (4,169 rows)** 
-    contained no classification (empty Counter objects). The remaining entries were 
-    technically corrupted, making the feature unreliable for model training.
-""")
+    Time features (year, month_name, weekday, season, day_period) have been removed from the dataset because they are not directly relevant for our current analysis of customer reviews.
+    """)
 
 cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
