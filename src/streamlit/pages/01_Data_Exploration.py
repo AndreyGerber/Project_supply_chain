@@ -9,11 +9,21 @@ st.set_page_config(page_title="Auto parts store Review Dashboard", layout="wide"
 # 2. Data Loading Function
 @st.cache_data
 def load_data():
-    file_path = Path("src/data/clean/reviews_clean.csv") # Tipp: Nutze hier idealerweise die UNBEREINIGTE Datei
+    file_path = Path("src/data/clean/reviews_clean.csv")
+    if not file_path.exists():
+        st.error(f"Data file not found at: {file_path.absolute()}")
+        return pd.DataFrame()
+
     df = pd.read_csv(file_path)
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    df = df.dropna(subset=['date'])
+    
+    if 'rating_svg' in df.columns:
+        df['rating'] = df['rating_svg']#.str.extract('(\d+)').astype(float).fillna(0).astype(int)
+    
+    columns_to_drop = ['rating_numeric', 'rating_svg']
+    df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
     return df
-
 
 # Initialize Data
 df = load_data()
