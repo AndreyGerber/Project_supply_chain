@@ -876,7 +876,7 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 #und die Spalte "review_text" wird bereinigt (cleaned) und in "review_text_clean" gespeichert. 
 #Es wird auch eine erweiterte Bereinigung durchgeführt, um Emojis und Sonderzeichen zu entfernen, 
 #und das Ergebnis wird in "review_text_clean_advanced" gespeichert.
-
+st.header("🛡️ Verified Status vs. Rating Distribution")
 # 1. Daten vorbereiten
 # Wir gruppieren nach 'verified' und 'rating' und zählen die Vorkommen
 verified_analysis = df_processed.groupby(['verified', 'rating']).size().reset_index(name='count')
@@ -923,7 +923,6 @@ st.info(f"""
 
 # --- ANALYSIS: VERIFICATION STATUS (SIDE BY SIDE) ---
 st.divider()
-st.header("🎯 Verification Analysis")
 
 # 1. Daten Vorbereiten (Absolut)
 pivot_ver = df_processed.groupby(['verified', 'rating']).size().unstack(fill_value=0)
