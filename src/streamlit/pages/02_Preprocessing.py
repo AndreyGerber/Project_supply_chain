@@ -494,11 +494,11 @@ with col2:
             title="Number of Reviews", 
             overlaying="y", 
             side="right", 
-            range=[0, 3000], 
+            range=[0, 2500], 
             dtick=250, 
             showgrid=False
         ),
-        legend=dict(x=0.1, y=0.3, bgcolor="rgba(255,255,255,0.6)"),
+        legend=dict(x=0.3, y=0.3, bgcolor="rgba(255,255,255,0.6)"),
         
         # EXAKT DIE GLEICHE HÖHE UND RÄNDER WIE LINKS
         height=500, 
