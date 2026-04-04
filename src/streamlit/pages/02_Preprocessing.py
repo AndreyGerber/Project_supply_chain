@@ -27,48 +27,38 @@ In this step, we prepare our raw review texts for Machine Learning.
 First, let's verify that we have access to the same dataset from the previous phase.
 """)
 
-# 3. Retrieve data from memory (Session State)
+# 3. Retrieve data from memory
 if 'raw_data' in st.session_state:
-    df = st.session_state['raw_data']
+    # Wir laden die Rohdaten
+    df = st.session_state['raw_data'].copy()
     
+    # --- WICHTIG: Rating-Extraktion hier wiederholen, falls nicht vorhanden ---
+    if 'rating' not in df.columns and 'rating_svg' in df.columns:
+        df['rating'] = df['rating_svg'].astype(str).str.extract('(\d+)').fillna(0).astype(int)
+
     st.success(f"✅ Successfully linked to the dataset! ({len(df)} rows loaded)")
 
-    # Cleaner Raw Data Preview
     with st.expander("🔍 Explore Dataset Structure"):
         st.write("**Current columns in our dataset:**")
-        
-        # Display columns as a clean list instead of a code block
+        # Zeige alle verfügbaren Spalten sauber an
         st.write(", ".join([f"`{col}`" for col in df.columns]))
         
         st.divider()
         
         st.subheader("Data Preview (First 5 rows)")
         
-        # We only show a selection of columns to keep it clean
-        # and limit it to 5 rows for a better visual fit
+        # Jetzt ist 'rating' sicher dabei!
         preview_cols = ['review_text', 'rating', 'date', 'verified', 'company']
-        
-        # Check which of our desired columns actually exist
-        existing_preview_cols = [c for c in preview_cols if c in df.columns]
+        existing_cols = [c for c in preview_cols if c in df.columns]
         
         st.dataframe(
-            df[existing_preview_cols].head(5), 
+            df[existing_cols].head(5), 
             use_container_width=True,
             hide_index=True
         )
 
-    # --- Start of Preprocessing Steps ---
-    st.markdown("---")
-    st.header("1. Basic Text Cleaning")
-    # Hier geht dein NLP Code weiter...
 
-else:
-    # Fallback if accessed directly
-    st.error("⚠️ No data found in memory!")
-    st.info("Please go back to the **Data Exploration** page to initialize the dataset.")
-    
-    if st.button("Go to Data Exploration"):
-        st.switch_page("pages/01_Data_Exploration.py")
+        
 
 
 
