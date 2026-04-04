@@ -1017,8 +1017,7 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
-# supplier response analysieren, ob sie einen Einfluss auf die Bewertung hat (z.B. haben Kunden, die eine Antwort erhalten haben, tendenziell bessere Bewertungen?)
-st.header("🎯 Influence of Supplier Response on Ratings")
+# --- ANALYSIS: SUPPLIER RESPONSE VS. RATING (SIDE BY SIDE) ---
 
 # 1. Daten transformieren: Hat geantwortet (1) oder nicht (0)
 # Wir prüfen, ob der Wert in 'supplier_response' leer (NaN) oder None ist
@@ -1031,7 +1030,7 @@ pivot_resp = df_processed.groupby(['has_response', 'rating']).size().unstack(fil
 pivot_resp_norm = pivot_resp.div(pivot_resp.sum(axis=1), axis=0) * 100
 pivot_resp_norm.index = ['No Response (0)', 'Has Response (1)']
 
-# --- ANALYSIS: SUPPLIER RESPONSE VS. RATING (SIDE BY SIDE) ---
+
 st.divider()
 st.header("🎯 Supplier Response Analysis")
 
