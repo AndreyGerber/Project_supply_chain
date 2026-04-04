@@ -551,38 +551,60 @@ with col4:
 
 
 
-from collections import Counter
-import plotly.express as px
-
+# --- DRITTE REIHE: WORT-ANALYSE (NLP) MIT CUSTOM FILTER ---
 st.divider()
-st.header("🔤 Word Analysis: What do customers actually say?")
+st.header("🔤 Advanced Word Analysis: Real Insights")
 
-# Wir teilen die Daten in "Positiv" (5 Sterne) und "Negativ" (1-2 Sterne)
-positive_reviews = df_processed[df_processed['rating'] == 5]['review_text_clean_advanced'].dropna()
-negative_reviews = df_processed[df_processed['rating'] <= 2]['review_text_clean_advanced'].dropna()
+# 1. Deine individuelle Filterliste (Custom Stopwords)
+# Hier packen wir Wörter rein, die "neutral" sind und in fast jeder Bewertung stehen
+custom_stopwords = {
+    'order', 'ordered', 'get', 'got', 'received', 'company', 'part', 'parts', 
+    'product', 'service', 'still', 'even', 'one', 'would', 'customer', 
+    'received', 'back', 'said', 'told', 'review', 'buy', 'item', 'items'
+}
 
-def get_top_words(text_series, n=15):
-    # Alle Wörter in einer langen Liste sammeln
-    words = " ".join(text_series).split()
-    return pd.DataFrame(Counter(words).most_common(n), columns=['Word', 'Count'])
 
-col1, col2 = st.columns(2)
 
-with col1:
-    st.subheader("✅ Top Words in 5-Star Reviews")
-    top_pos = get_top_words(positive_reviews)
-    fig_pos = px.bar(top_pos, x='Count', y='Word', orientation='h', 
-                     color_discrete_sequence=['#2ecc71'], title="Why they love us")
-    fig_pos.update_layout(yaxis={'categoryorder':'total ascending'})
-    st.plotly_chart(fig_pos, use_container_width=True)
 
-with col2:
-    st.subheader("❌ Top Words in 1-2 Star Reviews")
-    top_neg = get_top_words(negative_reviews)
-    fig_neg = px.bar(top_neg, x='Count', y='Word', orientation='h', 
-                     color_discrete_sequence=['#e74c3c'], title="Why they are angry")
-    fig_neg.update_layout(yaxis={'categoryorder':'total ascending'})
-    st.plotly_chart(fig_neg, use_container_width=True)
+from collections import Counter
+
+def get_filtered_top_words(text_series, n=15):
+    # Alle Wörter sammeln
+    all_words = " ".join(text_series).split()
+    # Filter anwenden: Nur Wörter behalten, die NICHT in unserer Liste sind
+    filtered_words = [w for w in all_words if w not in custom_stopwords]
+    return pd.DataFrame(Counter(filtered_words).most_common(n), columns=['Word', 'Count'])
+
+# Masken für die Daten (Positiv vs. Negativ)
+pos_text = df_processed[df_processed['rating'] == 5]['review_text_clean_advanced'].dropna()
+neg_text = df_processed[df_processed['rating'] <= 2]['review_text_clean_advanced'].dropna()
+
+col5, col6 = st.columns(2)
+
+with col5:
+    st.subheader("✅ Pure Satisfaction (5-Stars)")
+    if not pos_text.empty:
+        top_pos = get_filtered_top_words(pos_text)
+        fig_pos = px.bar(top_pos, x='Count', y='Word', orientation='h', 
+                         color_discrete_sequence=['#2ecc71'])
+        fig_pos.update_layout(yaxis={'categoryorder':'total ascending'}, height=450)
+        st.plotly_chart(fig_pos, use_container_width=True)
+    else:
+        st.info("No positive reviews found.")
+
+with col6:
+    st.subheader("❌ Real Pain Points (1-2 Stars)")
+    if not neg_text.empty:
+        top_neg = get_filtered_top_words(neg_text)
+        fig_neg = px.bar(top_neg, x='Count', y='Word', orientation='h', 
+                         color_discrete_sequence=['#e74c3c'])
+        fig_neg.update_layout(yaxis={'categoryorder':'total ascending'}, height=450)
+        st.plotly_chart(fig_neg, use_container_width=True)
+    else:
+        st.info("No negative reviews found.")
+
+st.info("💡 **Team-Tipp:** Wir haben neutrale Wörter wie 'order' und 'product' entfernt. Jetzt sehen wir die echten Gründe wie 'fast' & 'price' vs. 'time' & 'delivery'.")
+
 
 
 
