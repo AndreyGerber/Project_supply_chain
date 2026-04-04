@@ -27,29 +27,44 @@ In this step, we prepare our raw review texts for Machine Learning.
 First, let's verify that we have access to the same dataset from the previous phase.
 """)
 
-# 3. Daten aus dem "Gedächtnis" (Session State) abrufen
+
+
+
+# 3. Retrieve data from memory (Session State)
 if 'raw_data' in st.session_state:
-    # Wir laden die Daten in eine lokale Variable 'df'
-    df = st.session_state['raw_data']
+    # Wir nehmen die Daten und führen die gleiche Bereinigung wie auf Seite 1 aus
+    df = st.session_state['raw_data'].copy()
     
+    # Extraktion der Zahl aus dem SVG-String (für die 'rating' Spalte)
+    if 'rating_svg' in df.columns:
+        df['rating'] = df['rating_svg'].astype(str).str.extract('(\d+)').fillna(0).astype(int)
         
+    # Entferne die störenden technischen Spalten vor der Anzeige
+    columns_to_drop = ['rating_numeric', 'rating_svg']
+    df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+
     st.success(f"✅ Successfully linked to the dataset! ({len(df)} rows loaded)")
 
-    #  Rohdaten-Vorschau (Exakt wie auf der Vorseite zur Kontrolle)
+    # Rohdaten-Vorschau (Exakt wie auf der Vorseite)
     with st.expander("🔍 View Raw Data Columns"):
         st.write("Current columns in our dataset:")
         st.code(list(df.columns))
         
         st.subheader("Data Preview (First 10 rows)")
+        # Zeige die ersten 10 Zeilen an, so wie im Screenshot der ersten Seite
         st.dataframe(df.head(10), use_container_width=True)
 
 else:
-    # Falls jemand direkt auf diese Seite surft, ohne die Daten zu laden
+    # Falls die Daten nicht im Speicher sind
     st.error("⚠️ No data found in memory!")
     st.info("Please go back to the **Data Exploration** page to initialize the dataset.")
     
     if st.button("Go to Data Exploration"):
-        st.switch_page("pages/01_Data_Exploration.py") # Prüfe den exakten Dateinamen!
+        st.switch_page("pages/01_Data_Exploration.py")
+
+
+
+
 
 
 
