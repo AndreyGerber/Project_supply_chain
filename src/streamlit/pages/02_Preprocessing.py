@@ -745,11 +745,6 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
-
-st.markdown("---")
-
-
-
 # ab hier wird die Spalte "location" bearbeitet, um neue Features zu erstellen (Stadt, Bundesland, Land)
 st.subheader("📍 Location Analysis")
 
