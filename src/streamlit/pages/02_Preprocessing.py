@@ -703,6 +703,68 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
+st.markdown("<br><br>", unsafe_allow_html=True)
+# 1. Die Spalte 'location' aus dem bearbeiteten DF entfernen
+df_processed = df_processed.drop(columns=['year', 'month_name', 'weekday', 'season', 'day_period'])  # Wir entfernen die Zeit-Features, um die Übersicht zu behalten
+
+# 2. Update deiner Status-Tabelle (wir entfernen sie aus der Liste der Spalten)
+# Sie wird nun gar nicht mehr in der Tabelle auftauchen.
+st.success("✅ Column 'location' was successfully dropped.")
+
+# 3. Den aktuellen Stand des Dataframes kurz anzeigen (Kontrolle)
+#st.dataframe(df_processed.head(5), use_container_width=True)
+
+
+st.markdown("<br><br>", unsafe_allow_html=True)
+# 1. Listen definieren
+cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced']  # Spalten, die wir bereinigt haben
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']  # Spalten, die wir entfernt haben (z.B. location)
+
+# 2. Den HTML-Block EXAKT zusammenbauen
+html_status = """
+<style>
+    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
+    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 14px; }
+    .status-table th { background-color: #f0f2f6; font-weight: bold; }
+    .strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.6; }
+</style>
+<table class="status-table">
+    <thead>
+        <tr>
+            <th>Column Name</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+"""
+
+# 3. Schleife über alle Spalten für die Zeilen
+for col in list(df_processed.columns) + dropped_cols:
+    if col in dropped_cols:
+        html_status += f"<tr><td class='strikethrough'>{col}</td><td>🗑️ (Dropped)</td></tr>"
+    elif col in cleaned_cols:
+        html_status += f"<tr><td>{col}</td><td>✅</td></tr>"
+    else:
+        html_status += f"<tr><td>{col}</td><td>❌</td></tr>"
+
+html_status += "</tbody></table>"
+
+# 4. DER ENTSCHEIDENDE BEFEHL (KEIN st.write nutzen!)
+st.markdown(html_status, unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("---")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Status-Tabelle mit den neuen Spalten (Jahr, Monat, Wochentag, Saison, Tageszeit) und den alten Spalten (review_text, etc.) erstellen
