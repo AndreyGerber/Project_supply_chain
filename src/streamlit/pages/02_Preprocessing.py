@@ -979,7 +979,7 @@ st.info("""
 💡 **Feature Selection:** 'verified' stays.
 However, the 'company' column will be removed, as it shows no significant correlation with the rating and could introduce model bias.
 """)
-
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced', 'verified']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
