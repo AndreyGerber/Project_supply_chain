@@ -976,7 +976,7 @@ with col_v2:
 
 st.markdown("---")
 st.markdown("<br><br>", unsafe_allow_html=True)
-st.info("💡 **Feature Selection:** The 'company' column will been removed too, as it shows no significant correlation with the rating and could introduce model bias.")
+st.info("💡 **Feature Selection:** 'verified' stays. However the 'company' column will be removed, as it shows no significant correlation with the rating and could introduce model bias.")
 
 
 
