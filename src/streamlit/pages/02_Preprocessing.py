@@ -425,51 +425,54 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 #den Zusammenhang zwischen dem rating (Sterne) und den neuen Zeit-Features (Jahr, Monat, Wochentag, Saison, Tageszeit) analysieren und visualisieren
 
+# --- ANALYSE-SEKTION: TIME & RATING ---
 st.divider()
 st.header("🕵️ Correlation Analysis")
 
-# --- ERSTE REIHE: DAY PERIOD & YEAR ---
+# --- ERSTE REIHE: DAY PERIOD & COMBINED YEAR CHART ---
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("1. Rating by Day Period")
+    # Daten aggregieren
     rating_period = df_processed.groupby('day_period')['rating'].mean().reset_index()
     period_order = ['Morning', 'Afternoon', 'Evening', 'Night']
     rating_period['day_period'] = pd.Categorical(rating_period['day_period'], categories=period_order, ordered=True)
     rating_period = rating_period.sort_values('day_period')
 
+    # Balkendiagramm mit Zahlen über den Balken
     fig_day = px.bar(
         rating_period, x='day_period', y='rating',
-        text=rating_period['rating'].round(2), # ZAHLEN ÜBER DEN BALKEN
-        color='rating', color_continuous_scale='RdYlGn', range_color=[1, 5],
+        text=rating_period['rating'].round(2),
+        color='rating', 
+        color_continuous_scale='RdYlGn', 
+        range_color=[1, 5],
         title="Average Rating per Time of Day"
     )
     fig_day.update_traces(textposition='outside')
     fig_day.update_layout(yaxis_range=[1, 5])
     st.plotly_chart(fig_day, use_container_width=True)
 
-import plotly.graph_objects as go
-
 with col2:
     st.subheader("2. Rating Trend & Review Volume by Year")
     
-    # Daten vorbereiten: Mean Rating und Count pro Jahr
+    # Daten für das kombinierte Diagramm vorbereiten
+    import plotly.graph_objects as go
     year_stats = df_processed.groupby('year')['rating'].agg(['mean', 'count']).reset_index()
     year_stats.columns = ['year', 'avg_rating', 'review_count']
     
-    # Erstellen der Figur mit zwei Achsen
     fig_combined = go.Figure()
 
-    # 1. Balken für die Anzahl der Reviews (Rechte Achse)
+    # Balken für Anzahl (Rechte Achse)
     fig_combined.add_trace(go.Bar(
         x=year_stats['year'],
         y=year_stats['review_count'],
         name="Number of Reviews",
-        marker_color='rgba(100, 149, 237, 0.4)', # Dezentes Blau, leicht transparent
+        marker_color='rgba(100, 149, 237, 0.3)', # Transparentes Blau
         yaxis='y2'
     ))
 
-    # 2. Linie für das Durchschnitts-Rating (Linke Achse)
+    # Linie für Rating (Linke Achse)
     fig_combined.add_trace(go.Scatter(
         x=year_stats['year'],
         y=year_stats['avg_rating'],
@@ -481,26 +484,14 @@ with col2:
         yaxis='y'
     ))
 
-    # Layout anpassen für zwei Y-Achsen
     fig_combined.update_layout(
-        title="Avg Rating vs. Review Volume per Year",
+        title="Avg Rating vs. Volume per Year",
         xaxis=dict(type='category', title="Year"),
-        yaxis=dict(
-            title="Average Rating",
-            range=, # Dein gewünschter Bereich 1-5
-            side="left"
-        ),
-        yaxis2=dict(
-            title="Number of Reviews",
-            overlaying="y",
-            side="right",
-            showgrid=False # Grid nur für eine Achse, sonst wird es zu unruhig
-        ),
+        yaxis=dict(title="Average Rating", range=[1, 5], side="left"),
+        yaxis2=dict(title="Number of Reviews", overlaying="y", side="right", showgrid=False),
         legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.5)"),
-        margin=dict(l=20, r=20, t=40, b=20),
         height=500
     )
-
     st.plotly_chart(fig_combined, use_container_width=True)
 
 
@@ -508,12 +499,18 @@ with col2:
 st.markdown("### 🌡️ Seasonal Rating Distribution")
 col3, col4 = st.columns(2)
 
-# Vorbereitung der Heatmap-Daten
+# Heatmap Daten vorbereiten
+# Hinweis: Stelle sicher, dass 'Autumn' in deiner get_season Funktion richtig geschrieben ist!
 season_order = ['Spring', 'Summer', 'Autumn', 'Winter']
 heatmap_abs = pd.crosstab(df_processed['rating'], df_processed['season'])
+
+# Sicherstellen, dass alle Saisons da sind, auch wenn Daten fehlen könnten
+for s in season_order:
+    if s not in heatmap_abs.columns: heatmap_abs[s] = 0
+
 heatmap_abs = heatmap_abs.reindex(columns=season_order).sort_index(ascending=False)
 
-# Berechnung der relativen Zahlen (Prozent pro Saison)
+# Relative Heatmap berechnen
 heatmap_rel = heatmap_abs.div(heatmap_abs.sum(axis=0), axis=1) * 100
 
 with col3:
@@ -530,7 +527,7 @@ with col4:
     st.subheader("4. Relative Distribution (%)")
     fig_rel = px.imshow(
         heatmap_rel, 
-        text_auto=".1f", # Eine Nachkommastelle für Prozente
+        text_auto=".1f", 
         aspect="auto",
         color_continuous_scale='Viridis',
         title="Percentage of Ratings per Season",
