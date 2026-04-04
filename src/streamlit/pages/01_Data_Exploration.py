@@ -44,25 +44,6 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-# --- 1. DATEN VORBEREITEN ---
-# Wir nehmen die erste Zeile deines geladenen 'df'
-if not df.empty:
-    sample = df.iloc[0]
-
-    # Liste von Listen: Die sicherste Methode für DataFrames
-    tabelle_liste =,
-        ["supplier response", str(sample.get('supplier_response', 'N/A'))],,
-    ]
-
-    # DataFrame für die Anzeige bauen
-    df_vergleich = pd.DataFrame(tabelle_liste, columns=["Name der Spalte", "Inhalt"])
-
-    # --- 2. ANZEIGE ---
-    st.write("### 🔍 Transformation Table")
-    st.table(df_vergleich)
-
-
-
 
 
 
