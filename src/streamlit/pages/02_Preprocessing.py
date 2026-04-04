@@ -424,21 +424,57 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 #den Zusammenhang zwischen dem rating (Sterne) und den neuen Zeit-Features (Jahr, Monat, Wochentag, Saison, Tageszeit) analysieren und visualisieren
-st.subheader("📊 Correlation Analysis: Rating vs. Time Features")
-# 1. Wir nehmen nur die Spalten, die wir brauchen (Zeit-Features + Rating)
-analysis_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'rating']
-df_analysis = df_processed[analysis_cols]
-# 2. Wir erstellen eine Heatmap, um die durchschnittliche Bewertung pro Kategorie zu sehen
-# Zuerst müssen wir die Daten in ein Format bringen, das für die Heatmap geeignet ist
-# Wir gruppieren nach jeder Kategorie und berechnen den Durchschnitt der Bewertungen
-heatmap_data = df_analysis.groupby(['month_name', 'season'])['rating'].mean().unstack()
-# 3. Jetzt können wir die Heatmap zeichnen
-plt.figure(figsize=(10, 6))
-sns.heatmap(heatmap_data, annot=True, fmt=".2f", cmap="YlGnBu")
-plt.title("Average Rating by Month and Season")
-plt.xlabel("Season")
-plt.ylabel("Month")
-st.pyplot(plt)
+
+# --- ANALYSE-SEKTION ---
+st.divider()
+st.header("🕵️ Correlation Analysis")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("1. Rating by Day Period")
+    # Durchschnittliches Rating pro Tageszeit berechnen
+    rating_period = df_processed.groupby('day_period')['rating'].mean().reset_index()
+    # Sortierung erzwingen: Morning -> Afternoon -> Evening -> Night
+    period_order = ['Morning', 'Afternoon', 'Evening', 'Night']
+    rating_period['day_period'] = pd.Categorical(rating_period['day_period'], categories=period_order, ordered=True)
+    rating_period = rating_period.sort_values('day_period')
+
+    fig_rating = px.bar(
+        rating_period, 
+        x='day_period', 
+        y='rating',
+        color='rating',
+        color_continuous_scale='RdYlGn',
+        title="Average Rating per Time of Day",
+        labels={'rating': 'Avg Rating', 'day_period': 'Time of Day'}
+    )
+    st.plotly_chart(fig_rating, use_container_width=True)
+
+with col2:
+    st.subheader("2. Review Volume: Season vs Day Period")
+    # Kreuztabelle für die Anzahl der Reviews erstellen
+    heatmap_data = pd.crosstab(df_processed['day_period'], df_processed['season'])
+    
+    # Sortierung für die Heatmap-Achsen
+    heatmap_data = heatmap_data.reindex(index=period_order, columns=['Spring', 'Summer', 'Autumn', 'Winter'])
+
+    fig_heat = px.imshow(
+        heatmap_data,
+        text_auto=True,
+        aspect="auto",
+        color_continuous_scale='Blues',
+        title="Number of Reviews (Season vs. Day Period)",
+        labels=dict(x="Season", y="Time of Day", color="Count")
+    )
+    st.plotly_chart(fig_heat, use_container_width=True)
+
+# --- ZUSATZ-INFO ---
+st.info("""
+💡 **Observation Tip:** 
+Check if the average rating drops during the 'Evening' or 'Night' – this could indicate customer frustration after business hours. 
+The Heatmap shows you when your customers are most active.
+""")
 
 
 
