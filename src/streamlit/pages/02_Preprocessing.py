@@ -440,17 +440,20 @@ with col1:
     rating_period['day_period'] = pd.Categorical(rating_period['day_period'], categories=period_order, ordered=True)
     rating_period = rating_period.sort_values('day_period')
 
-    # Balkendiagramm mit Zahlen über den Balken
     fig_day = px.bar(
         rating_period, x='day_period', y='rating',
         text=rating_period['rating'].round(2),
-        color='rating', 
-        color_continuous_scale='RdYlGn', 
-        range_color=[1, 5],
+        color='rating', color_continuous_scale='RdYlGn', range_color=[1, 5],
         title="Average Rating per Time of Day"
     )
     fig_day.update_traces(textposition='outside')
-    fig_day.update_layout(yaxis_range=[1, 5])
+    
+    # HÖHE ANGLEICHEN & RÄNDER OPTIMIEREN
+    fig_day.update_layout(
+        yaxis_range=[1, 5.5], 
+        height=500,           
+        margin=dict(l=50, r=50, t=80, b=50)
+    )
     st.plotly_chart(fig_day, use_container_width=True)
 
 with col2:
@@ -462,7 +465,7 @@ with col2:
     
     fig_combined = go.Figure()
 
-    # 1. Balken (Rechte Achse)
+    # Balken (Rechte Achse)
     fig_combined.add_trace(go.Bar(
         x=year_stats['year'],
         y=year_stats['review_count'],
@@ -471,7 +474,7 @@ with col2:
         yaxis='y2'
     ))
 
-    # 2. Linie (Linke Achse)
+    # Linie (Linke Achse)
     fig_combined.add_trace(go.Scatter(
         x=year_stats['year'],
         y=year_stats['avg_rating'],
@@ -483,37 +486,24 @@ with col2:
         yaxis='y'
     ))
 
-    # Layout-Anpassungen (Achsen & Legende)
     fig_combined.update_layout(
         title="Avg Rating vs. Volume per Year",
         xaxis=dict(type='category', title="Year"),
-        # Linke Achse (Rating)
-        yaxis=dict(
-            title="Average Rating", 
-            range=[1, 5], 
-            side="left"
-        ),
-        # Rechte Achse (Volume) mit deinen speziellen Wünschen
+        yaxis=dict(title="Average Rating", range=[1, 5.5], side="left"),
         yaxis2=dict(
-            title="Number of Reviews",
-            overlaying="y",
-            side="right",
-            range=[0, 3000],          # Maximum auf 3000 gesetzt
-            dtick=250,                # 250er Schritte für die Skala
+            title="Number of Reviews", 
+            overlaying="y", 
+            side="right", 
+            range=[0, 3000], 
+            dtick=250, 
             showgrid=False
         ),
-        # Legende in die Mitte (zwischen Rating 2 und 3.5)
-        legend=dict(
-            x=0.1,                    # Leicht eingerückt von links
-            y=0.45,                   # Vertikal in der Mitte (entspricht ca. Rating 2.5-3)
-            bgcolor="rgba(255,255,255,0.6)",
-            bordercolor="rgba(0,0,0,0.1)",
-            borderwidth=1
-        ),
-        height=550,
-        margin=dict(l=20, r=20, t=40, b=20)
+        legend=dict(x=0.1, y=0.3, bgcolor="rgba(255,255,255,0.6)"),
+        
+        # EXAKT DIE GLEICHE HÖHE UND RÄNDER WIE LINKS
+        height=500, 
+        margin=dict(l=50, r=50, t=80, b=50)
     )
-
     st.plotly_chart(fig_combined, use_container_width=True)
 
 
