@@ -623,7 +623,30 @@ with col6:
         st.info(f"No negative reviews found for {selected_year}.")
 
 
+st.divider()
+st.header("f-3-4 Final Analysis: The Evolution of Customer Sentiment")
 
+summary_html = """
+<div style="background-color: #f0f2f6; padding: 25px; border-radius: 10px; border-left: 8px solid #1f77b4;">
+    <h3 style="color: #1f77b4; margin-top: 0;">📉 Strategic Insights: 2018 vs. 2025</h3>
+    <p style="font-size: 18px; line-height: 1.6;">
+        Our data-driven journey reveals a significant shift in customer experience, confirming the <b>"Logistics-Collapse-Theory"</b> following the post-pandemic e-commerce boom:
+    </p>
+    <ul style="font-size: 16px; line-height: 1.6;">
+        <li><b>2018 - The "Niche Expert" Era:</b> High satisfaction driven by competitive pricing and a reliable niche service. Negative feedback was low-volume and mostly centered around general support issues.</li>
+        <li><b>2022-2025 - The "Mass Market Stress Test":</b> As order volumes exploded (confirming the online-shift theory), the shop's logistics reached a breaking point.</li>
+        <li><b>The "Tire Crisis":</b> By 2025, <b>'Tire'</b> emerged as the #1 driver of negative reviews. Bulky goods logistics seem unable to keep up with the scale of the business.</li>
+        <li><b>Time as a Currency:</b> Words like <i>'waiting'</i>, <i>'week'</i>, and <i>'never'</i> dominate 1-star reviews in 2025, showing that delivery delays have moved from "minor inconvenience" to a "trust-killing" factor.</li>
+        <li><b>The Polarization:</b> Interestingly, <i>'delivery'</i> remains a top word in 5-star reviews too. This indicates a "hit-or-miss" logistics system: It's either excellent or a total failure, with very little middle ground.</li>
+    </ul>
+    <p style="font-size: 16px; font-weight: bold; color: #e74c3c; margin-top: 15px;">
+        ⚠️ Conclusion: To stabilize the rating in 2026, the company must urgently fix its bulky goods (Tire) fulfillment and refund communication.
+    </p>
+</div>
+"""
+
+st.markdown(summary_html, unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
