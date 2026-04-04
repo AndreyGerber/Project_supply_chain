@@ -1198,7 +1198,7 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 # Abalyse von "company size" (Anzahl der Bewertungen pro Unternehmen) und "review length" (Anzahl der Wörter pro Bewertung) in Bezug auf die Bewertung (rating)
 
-st.header("🌐 Distribution of Reviews by Company Site")
+st.header("🌐 Distribution of Reviews by Company Site Domain")
 # 1. Daten für die Verteilung der Firmen-Webseiten vorbereiten
 site_counts = df_processed['company_site'].value_counts().reset_index()
 site_counts.columns = ['Company Site', 'Review Count']
@@ -1208,7 +1208,7 @@ fig_site = px.bar(
     site_counts, 
     x='Company Site', 
     y='Review Count', 
-    title='🌐 Distribution of Reviews by Company Site',
+    title='🌐 Domain distribution',
     text='Review Count',
     color_discrete_sequence=['#636EFA']
 )
