@@ -1101,12 +1101,6 @@ df_analytics_copy = df_processed.copy()
 
 
 
-
-
-
-
-
-
 # 2. Professionelle Info-Box (Business Insight)
 st.info("""
     💡 **Business Intelligence Insight:** 
@@ -1204,6 +1198,7 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 # Abalyse von "company size" (Anzahl der Bewertungen pro Unternehmen) und "review length" (Anzahl der Wörter pro Bewertung) in Bezug auf die Bewertung (rating)
 
+st.header("🌐 Distribution of Reviews by Company Site")
 # 1. Daten für die Verteilung der Firmen-Webseiten vorbereiten
 site_counts = df_processed['company_site'].value_counts().reset_index()
 site_counts.columns = ['Company Site', 'Review Count']
