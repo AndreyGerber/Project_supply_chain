@@ -43,38 +43,44 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-# 1. Daten wie gehabt vorbereiten
+# --- DATA PREVIEW TABLE ---
+st.markdown("### 📄 Raw Data Preview")
+
+# Find the first row where 'supplier_response' is present
 row_with_response = df[df['supplier_response'].notna()].head(1)
 
 if not row_with_response.empty:
-    st.subheader("Detailansicht: Erster Review mit Antwort")
+    st.subheader("Detailed View: First Review with Response")
     
+    # Columns to display
     cols_to_show = ['review_text', 'supplier_response', 'review_text_clean', 'review_text_clean_advanced']
     
-    # DataFrame für die Anzeige erstellen
+    # Prepare DataFrame for vertical display
     display_df = pd.DataFrame({
-        "Name der Spalte": cols_to_show,
-        "Text": row_with_response[cols_to_show].iloc[0].values
+        "Column Name": cols_to_show,
+        "Content": row_with_response[cols_to_show].iloc[0].values
     })
     
-    # 2. Anzeige mit Breitensteuerung und ohne Index
+    # Display with custom widths and hidden index
     st.dataframe(
         display_df,
         column_config={
-            "Name der Spalte": st.column_config.TextColumn(
-                "Name der Spalte",
-                width="small",  # Macht die erste Spalte schmal
+            "Column Name": st.column_config.TextColumn(
+                "Column Name",
+                width="small",
             ),
-            "Text": st.column_config.TextColumn(
-                "Text",
-                width="large",  # Gibt dem Text maximalen Platz
+            "Content": st.column_config.TextColumn(
+                "Content",
+                width="large",
             )
         },
-        hide_index=True,        # Entfernt die ID-Spalte (0, 1, 2...)
-        use_container_width=True # Nutzt die volle Seitenbreite
+        hide_index=True,
+        use_container_width=True
     )
 else:
-    st.warning("Keine Zeile mit einer Antwort gefunden.")
+    st.warning("No row with a supplier response found in the dataset.")
+
+# From here your remaining code for charts follows
 
 
 
