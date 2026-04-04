@@ -630,8 +630,6 @@ custom_stopwords = {
 }
 
 
-
-
 from collections import Counter
 
 def get_filtered_top_words(text_series, n=15):
@@ -645,13 +643,9 @@ neg_text = df_words[df_words['rating'] <= 2]['review_text_clean_advanced'].dropn
 
 
 
+col7, col8 = st.columns(2)
 
-
-
-
-col5, col6 = st.columns(2)
-
-with col5:
+with col7:
     st.subheader(f"✅ Positive Insights ({selected_year})")
     if not pos_text.empty:
         top_pos = get_filtered_top_words(pos_text)
@@ -661,7 +655,7 @@ with col5:
     else:
         st.info(f"No 5-star reviews found for {selected_year}.")
 
-with col6:
+with col8:
     st.subheader(f"❌ Negative Insights ({selected_year})")
     if not neg_text.empty:
         top_neg = get_filtered_top_words(neg_text)
@@ -702,53 +696,53 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
-
 st.markdown("<br><br>", unsafe_allow_html=True)
-# 1. Die Spalte 'location' aus dem bearbeiteten DF entfernen
-df_processed = df_processed.drop(columns=['year', 'month_name', 'weekday', 'season', 'day_period'])  # Wir entfernen die Zeit-Features, um die Übersicht zu behalten
 
+# 1. Spalte 'issue_categories' aus dem Arbeits-DF löschen
+if 'issue_categories' in df_processed.columns:
+    df_processed = df_processed.drop(columns=['year', 'month_name', 'weekday', 'season', 'day_period'])  # Wir entfernen die Zeit-Features, um die Übersicht zu behalten
 
+# 2. Professionelle Info-Box (English)
+st.info("""
+    💡 **Feature Selection Update:** 
+    The 'issue_categories' column will been removed. Approximately **2/3 of the data (4,169 rows)** 
+    contained no classification (empty Counter objects). The remaining entries were 
+    technically corrupted, making the feature unreliable for model training.
+""")
 
+cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced']
+#aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
-
-st.markdown("<br><br>", unsafe_allow_html=True)
-# 1. Listen definieren
-cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced']  # Spalten, die wir bereinigt haben
-dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']  # Spalten, die wir entfernt haben (z.B. location)
-
-# 2. Den HTML-Block EXAKT zusammenbauen
-html_status = """
-<style>
-    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
-    .status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 14px; }
-    .status-table th { background-color: #f0f2f6; font-weight: bold; }
-    .strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.6; }
+# 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
+html_status = """<style>
+.status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
+.status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 16px; }
+.status-table th { background-color: #f0f2f6; font-weight: bold; }
+.strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.7; font-style: italic; }
 </style>
 <table class="status-table">
-    <thead>
-        <tr>
-            <th>Column Name</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-"""
+<thead><tr><th>Column Name</th><th>Unique Values</th><th>Status</th></tr></thead>
+<tbody>"""
 
-# 3. Schleife über alle Spalten für die Zeilen
-for col in list(df_processed.columns) + dropped_cols:
-    if col in dropped_cols:
-        html_status += f"<tr><td class='strikethrough'>{col}</td><td>🗑️ (Dropped)</td></tr>"
-    elif col in cleaned_cols:
-        html_status += f"<tr><td>{col}</td><td>✅</td></tr>"
-    else:
-        html_status += f"<tr><td>{col}</td><td>❌</td></tr>"
+# 3. Schleife über alle Spalten
+display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+
+for col in display_cols:
+    is_dropped = col in dropped_cols
+    row_class = 'class="strikethrough"' if is_dropped else ''
+    u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
+    status_icon = "🗑️" if col in dropped_cols else ("🎯" if col == "rating" else ("✅" if col in cleaned_cols else "❌"))
+
+    html_status += f'<tr {row_class}><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>'
 
 html_status += "</tbody></table>"
 
-# 4. DER ENTSCHEIDENDE BEFEHL (KEIN st.write nutzen!)
 st.markdown(html_status, unsafe_allow_html=True)
-st.markdown("<br><br>", unsafe_allow_html=True)
+
+
 st.markdown("---")
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
