@@ -746,53 +746,10 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
-
-
-
-
-
-
-
-
-
-# Status-Tabelle mit den neuen Spalten (Jahr, Monat, Wochentag, Saison, Tageszeit) und den alten Spalten (review_text, etc.) erstellen
-# 1. Liste der erledigten Spalten
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'review_text_clean', 'review_text_clean_advanced']  # Füge hier weitere Spalten hinzu, die du bereinigt hast
-
-# 2. HTML-Tabelle zusammenbauen
-html_status = """
-<style>
-    .status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
-    .status-table th, .status-table td { border: 1px solid #e6e9ef; padding: 10px; text-align: left; }
-    .status-table th { background-color: #f0f2f6; }
-</style>
-<table class="status-table">
-    <thead>
-        <tr>
-            <th>Column Name</th>
-            <th>Unique Values</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-"""
-
-# 3. Zeilen dynamisch generieren
-for col in df_processed.columns:
-    unique_count = df_processed[col].nunique()
-    status_icon = "✅" if col in cleaned_cols else "❌"
-    
-    html_status += f"<tr><td>{col}</td><td>{unique_count}</td><td>{status_icon}</td></tr>"
-
-html_status += "</tbody></table>"
-
-# 4. DER WICHTIGE TEIL: Nutze st.markdown mit unsafe_allow_html=True
-st.write("### 📋 Preprocessing Status Overview")
-st.markdown(html_status, unsafe_allow_html=True)
-st.markdown("<br><br>", unsafe_allow_html=True)
-
-
 st.markdown("---")
+
+
+
 # ab hier wird die Spalte "location" bearbeitet, um neue Features zu erstellen (Stadt, Bundesland, Land)
 st.subheader("📍 Location Analysis")
 
