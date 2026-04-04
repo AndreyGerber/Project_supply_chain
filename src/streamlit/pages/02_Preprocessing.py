@@ -548,59 +548,7 @@ with col4:
     st.plotly_chart(fig_rel, use_container_width=True)
 
 
-
-
-
-# --- DRITTE REIHE: WORT-ANALYSE (NLP) MIT CUSTOM FILTER ---
-st.divider()
-st.header("🔤 Advanced Word Analysis: Real Insights")
-
-# 1. Deine individuelle Filterliste (Custom Stopwords)
-# Hier packen wir Wörter rein, die "neutral" sind und in fast jeder Bewertung stehen
-custom_stopwords = {
-    'order', 'ordered', 'get', 'got', 'received', 'company', 'part', 'parts', 
-    'product', 'service', 'still', 'even', 'one', 'would', 'customer', 
-    'received', 'back', 'said', 'told', 'review', 'buy', 'item', 'items'
-}
-
-
-
-# --- INTERAKTIVER ZEIT-FILTER FÜR DIE WORT-ANALYSE ---
-st.divider()
-st.header("📅 Historical Word Analysis: Track the Evolution")
-
-# 1. Jahres-Auswahl (Dropdown)
-available_years = sorted(df_processed['year'].unique(), reverse=True)
-selected_year = st.selectbox("Select a year to analyze the feedback:", options=["All Years"] + list(available_years))
-
-# 2. Daten basierend auf Auswahl filtern
-if selected_year == "All Years":
-    df_words = df_processed
-else:
-    df_words = df_processed[df_processed['year'] == selected_year]
-
-# 3. Deine Custom Stopwords (erweitert um neutrale Wörter)
-custom_stopwords = {
-    'order', 'ordered', 'get', 'got', 'received', 'company', 'part', 'parts', 
-    'product', 'service', 'still', 'even', 'one', 'would', 'customer', 
-    'back', 'said', 'told', 'review', 'buy', 'item', 'items', '2'
-}
-
-
-
-
-from collections import Counter
-
-def get_filtered_top_words(text_series, n=15):
-    all_words = " ".join(text_series.astype(str)).lower().split()
-    filtered_words = [w for w in all_words if w not in custom_stopwords and len(w) > 2]
-    return pd.DataFrame(Counter(filtered_words).most_common(n), columns=['Word', 'Count'])
-
-# Masken für die gefilterten Daten
-pos_text = df_words[df_words['rating'] == 5]['review_text_clean_advanced'].dropna()
-neg_text = df_words[df_words['rating'] <= 2]['review_text_clean_advanced'].dropna()
-
-
+# --- DRITTE REIHE: MONTHLY HEATMAPS (ABSOLUT VS RELATIV) ---
 st.markdown("### 📅 Monthly Rating Distribution")
 col5, col6 = st.columns(2)
 
@@ -650,9 +598,60 @@ with col6:
 
 
 
-col7, col8 = st.columns(2)
 
-with col7:
+# 1. Deine individuelle Filterliste (Custom Stopwords)
+# Hier packen wir Wörter rein, die "neutral" sind und in fast jeder Bewertung stehen
+custom_stopwords = {
+    'order', 'ordered', 'get', 'got', 'received', 'company', 'part', 'parts', 
+    'product', 'service', 'still', 'even', 'one', 'would', 'customer', 
+    'received', 'back', 'said', 'told', 'review', 'buy', 'item', 'items'
+}
+
+
+# --- INTERAKTIVER ZEIT-FILTER FÜR DIE WORT-ANALYSE ---
+st.divider()
+st.header("📅 Historical Word Analysis: Track the Evolution")
+
+# 1. Jahres-Auswahl (Dropdown)
+available_years = sorted(df_processed['year'].unique(), reverse=True)
+selected_year = st.selectbox("Select a year to analyze the feedback:", options=["All Years"] + list(available_years))
+
+# 2. Daten basierend auf Auswahl filtern
+if selected_year == "All Years":
+    df_words = df_processed
+else:
+    df_words = df_processed[df_processed['year'] == selected_year]
+
+# 3. Deine Custom Stopwords (erweitert um neutrale Wörter)
+custom_stopwords = {
+    'order', 'ordered', 'get', 'got', 'received', 'company', 'part', 'parts', 
+    'product', 'service', 'still', 'even', 'one', 'would', 'customer', 
+    'back', 'said', 'told', 'review', 'buy', 'item', 'items', '2'
+}
+
+
+
+
+from collections import Counter
+
+def get_filtered_top_words(text_series, n=15):
+    all_words = " ".join(text_series.astype(str)).lower().split()
+    filtered_words = [w for w in all_words if w not in custom_stopwords and len(w) > 2]
+    return pd.DataFrame(Counter(filtered_words).most_common(n), columns=['Word', 'Count'])
+
+# Masken für die gefilterten Daten
+pos_text = df_words[df_words['rating'] == 5]['review_text_clean_advanced'].dropna()
+neg_text = df_words[df_words['rating'] <= 2]['review_text_clean_advanced'].dropna()
+
+
+
+
+
+
+
+col5, col6 = st.columns(2)
+
+with col5:
     st.subheader(f"✅ Positive Insights ({selected_year})")
     if not pos_text.empty:
         top_pos = get_filtered_top_words(pos_text)
@@ -662,7 +661,7 @@ with col7:
     else:
         st.info(f"No 5-star reviews found for {selected_year}.")
 
-with col8:
+with col6:
     st.subheader(f"❌ Negative Insights ({selected_year})")
     if not neg_text.empty:
         top_neg = get_filtered_top_words(neg_text)
