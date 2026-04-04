@@ -43,28 +43,31 @@ df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
 
 
-# --- 1. FILTER: Zeile suchen, in der eine Antwort steht ---
+
+# --- TABELLE: VERGLEICH DER TEXT-STUFEN ---
+
+# 1. Wir suchen eine Zeile, in der eine Antwort vorhanden ist
 mask_resp = df['supplier_response'].notna() & (df['supplier_response'].astype(str).str.strip() != "")
 df_with_res = df[mask_resp]
 
 if not df_with_res.empty:
-    # Wir nehmen die erste passende Zeile
+    # Wir nehmen die erste passende Zeile (Index 0)
     sample = df_with_res.iloc[0]
 
-    # --- 2. DATEN FÜR DIE TABELLE VORBEREITEN ---
-    # Wir nutzen eine Liste von Listen, das ist am sichersten für DataFrames
-    data_rows =,
+    # 2. Daten für die vertikale Tabelle (2 Spalten: Name & Inhalt)
+    # Falls die 'clean'-Spalten noch nicht in deiner CSV sind, steht dort 'N/A'
+    comparison_data =,
         ["supplier response", str(sample.get('supplier_response', 'N/A'))],,
     ]
 
-    # DataFrame erstellen
-    display_df = pd.DataFrame(data_rows, columns=["Name der Spalte", "Inhalt"])
+    # In einen DataFrame für die Anzeige umwandeln
+    display_df = pd.DataFrame(comparison_data, columns=["Name der Spalte", "Inhalt"])
 
-    # --- 3. ANZEIGE ---
-    st.markdown("### 🔍 Transformation Table")
+    # 3. Anzeige in Streamlit
+    st.markdown("### 🔍 Transformation Check")
     st.table(display_df)
 else:
-    st.warning("Keine Daten mit 'supplier_response' gefunden.")
+    st.warning("Keine Zeile mit 'supplier_response' gefunden.")
 
 
 
