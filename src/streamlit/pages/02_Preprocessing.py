@@ -974,16 +974,14 @@ with col_v2:
 
 
 
-st.markdown("---")
 st.markdown("<br><br>", unsafe_allow_html=True)
-st.info("💡 **Feature Selection:** 'verified' stays. However the 'company' column will be removed, as it shows no significant correlation with the rating and could introduce model bias.")
+st.info("💡 **Feature Selection:** 'verified' stays. <br>However the 'company' column will be removed, as it shows no significant correlation with the rating and could introduce model bias.")
 
 
 
-#Spalte "company" löschen, da sie für die Analyse nicht relevant ist (sie könnte sogar zu Datenlecks führen, da es sich um eine ID handelt).
-# 1. Listen definieren
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
-dropped_cols = ['location', 'company']
+cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced', 'verified']
+#aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
 html_status = """<style>
@@ -1003,8 +1001,8 @@ for col in display_cols:
     is_dropped = col in dropped_cols
     row_class = 'class="strikethrough"' if is_dropped else ''
     u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
-    status_icon = "🗑️" if is_dropped else ("✅" if col in cleaned_cols else "❌")
-    
+    status_icon = "🗑️" if col in dropped_cols else ("🎯" if col == "rating" else ("✅" if col in cleaned_cols else "❌"))
+
     html_status += f'<tr {row_class}><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>'
 
 html_status += "</tbody></table>"
