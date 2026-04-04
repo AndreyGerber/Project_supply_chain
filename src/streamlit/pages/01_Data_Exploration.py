@@ -9,35 +9,11 @@ st.set_page_config(page_title="Auto parts store Review Dashboard", layout="wide"
 # 2. Data Loading Function
 @st.cache_data
 def load_data():
-    # 1. Lade hier die ECHTE Rohdatei (mit Emojis, rating_svg etc.)
-    file_path = Path("src/data/raw/reviews_raw.csv") 
+    file_path = Path("src/data/clean/reviews_clean.csv") # Tipp: Nutze hier idealerweise die UNBEREINIGTE Datei
     df = pd.read_csv(file_path)
-    
-    # Wir behalten die Rohdaten in einer extra Variable
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
     return df
 
-df_raw = load_data()
-
-# Erst HIER in der App zeigst du die Transformation
-st.subheader("📄 Raw Data Preview (As Scraped)")
-st.info("This is how the data looked directly after Selenium extraction:")
-st.dataframe(df_raw.head(5)) # Zeigt Emojis und alle Spalten
-
-# --- JETZT DIE BEREINIGUNG SICHTBAR MACHEN ---
-if st.checkbox("Show Cleaning Steps"):
-    st.markdown("### 🧹 Applied Cleaning Transformations:")
-    
-    # Schritt 1: Spalten entfernen
-    cols_to_drop = ['rating_numeric', 'rating_svg']
-    st.write(f"1. Removed technical columns: `{cols_to_drop}`")
-    
-    # Schritt 2: Emojis/Cleaning (nur zur Demo an den ersten Zeilen)
-    df_clean = df_raw.copy()
-    df_clean = df_clean.drop(columns=cols_to_drop)
-    # Hier dein Code zum Emoji-Entfernen...
-    
-    st.dataframe(df_clean.head(5))
-    st.success("Now the data is ready for Analysis!")
 
 # Initialize Data
 df = load_data()
