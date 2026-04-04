@@ -980,10 +980,10 @@ st.info("""
 However, the 'company' column will be removed, as it shows no significant correlation with the rating and could introduce model bias.
 """)
 st.markdown("<br><br>", unsafe_allow_html=True)
-
+df_processed = df_processed.drop(columns=['company'])  # 'company' wird hier entfernt, da es kein relevantes Feature für die Bewertung ist und potenziell zu Verzerrungen führen könnte
 cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced', 'verified']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
-dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location', 'company']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
 html_status = """<style>
