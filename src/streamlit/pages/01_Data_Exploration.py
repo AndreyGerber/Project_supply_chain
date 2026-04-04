@@ -15,22 +15,32 @@ def load_data():
         return pd.DataFrame()
 
     df = pd.read_csv(file_path)
+    # Hier NUR das Datum konvertieren, sonst NICHTS löschen!
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df = df.dropna(subset=['date'])
-    
-    if 'rating_svg' in df.columns:
-        df['rating'] = df['rating_svg']#.str.extract('(\d+)').astype(float).fillna(0).astype(int)
-    
-    columns_to_drop = ['rating_numeric', 'rating_svg']
-    df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
     return df
 
-# Initialize Data
-df = load_data()
+# --- AB HIER WIRD ES WICHTIG ---
 
-# 2. WICHTIG: Das df für die anderen Seiten (Preprocessing etc.) bereitstellen
-if not df.empty:
-    st.session_state['raw_data'] = df
+# 1. Wir laden die ECHTEN Rohdaten (inkl. Emojis & SVG-Spalten)
+df_raw = load_data()
+
+# 2. Wir speichern die ROHDATEN für die anderen Seiten (Preprocessing)
+if not df_raw.empty:
+    st.session_state['raw_data'] = df_raw # <--- Hier liegt jetzt das "Dreckige" drin
+
+# 3. JETZT erst erstellen wir eine saubere Kopie für die Charts auf DIESER Seite
+df = df_raw.copy()
+
+if 'rating_svg' in df.columns:
+    # Hier kannst du die Sterne extrahieren, falls nötig
+    df['rating'] = df['rating_svg'].str.extract('(\d+)').astype(float).fillna(0).astype(int)
+
+# Spalten löschen NUR für die aktuelle Anzeige (Exploration)
+columns_to_drop = ['rating_numeric', 'rating_svg']
+df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+
+# Ab hier nutzt dein restlicher Code wieder "df" für die Grafiken
 
 
 
