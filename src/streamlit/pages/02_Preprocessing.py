@@ -551,6 +551,43 @@ with col4:
 
 
 
+from collections import Counter
+import plotly.express as px
+
+st.divider()
+st.header("🔤 Word Analysis: What do customers actually say?")
+
+# Wir teilen die Daten in "Positiv" (5 Sterne) und "Negativ" (1-2 Sterne)
+positive_reviews = df_processed[df_processed['rating'] == 5]['review_text_clean_advanced'].dropna()
+negative_reviews = df_processed[df_processed['rating'] <= 2]['review_text_clean_advanced'].dropna()
+
+def get_top_words(text_series, n=15):
+    # Alle Wörter in einer langen Liste sammeln
+    words = " ".join(text_series).split()
+    return pd.DataFrame(Counter(words).most_common(n), columns=['Word', 'Count'])
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("✅ Top Words in 5-Star Reviews")
+    top_pos = get_top_words(positive_reviews)
+    fig_pos = px.bar(top_pos, x='Count', y='Word', orientation='h', 
+                     color_discrete_sequence=['#2ecc71'], title="Why they love us")
+    fig_pos.update_layout(yaxis={'categoryorder':'total ascending'})
+    st.plotly_chart(fig_pos, use_container_width=True)
+
+with col2:
+    st.subheader("❌ Top Words in 1-2 Star Reviews")
+    top_neg = get_top_words(negative_reviews)
+    fig_neg = px.bar(top_neg, x='Count', y='Word', orientation='h', 
+                     color_discrete_sequence=['#e74c3c'], title="Why they are angry")
+    fig_neg.update_layout(yaxis={'categoryorder':'total ascending'})
+    st.plotly_chart(fig_neg, use_container_width=True)
+
+
+
+
+
 
 
 
