@@ -920,95 +920,58 @@ st.info(f"""
 
 
 
-# 1. Daten vorbereiten
-# Wir gruppieren nach 'verified' und 'rating' und berechnen die Prozente pro Gruppe
+
+# --- ANALYSIS: VERIFICATION STATUS (SIDE BY SIDE) ---
+st.divider()
+st.header("🎯 Verification Analysis")
+
+# 1. Daten Vorbereiten (Absolut)
 pivot_ver = df_processed.groupby(['verified', 'rating']).size().unstack(fill_value=0)
+pivot_ver.index = ['Not Verified (0)', 'Verified (1)']
+rating_labels = ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars']
+
+# 2. Daten Vorbereiten (Relativ/Prozent)
 pivot_ver_norm = pivot_ver.div(pivot_ver.sum(axis=1), axis=0) * 100
 
-# Namen für die Achse schöner machen
-pivot_ver_norm.index = ['Not Verified (0)', 'Verified (1)']
+# Spalten-Layout für Nebeneinander-Darstellung
+col_v1, col_v2 = st.columns(2)
 
-# 2. Die Heatmap erstellen
-fig_ver_heat = px.imshow(
-    pivot_ver_norm,
-    labels=dict(x="Rating (Stars)", y="Verification Status", color="Percentage %"),
-    x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-    y=pivot_ver_norm.index,
-    color_continuous_scale='RdYlGn', # Rot (schlecht) zu Grün (gut)
-    text_auto='.1f', # Zeigt Prozente direkt in den Kacheln
-    aspect="auto"
-)
+with col_v1:
+    # RECHTE GRAFIK AUS DEINEM SCREENSHOT (RELATIV)
+    fig_ver_heat = px.imshow(
+        pivot_ver_norm,
+        labels=dict(x="Rating (Stars)", y="Verification Status", color="Percentage %"),
+        x=rating_labels,
+        y=pivot_ver.index,
+        color_continuous_scale='RdYlGn', 
+        text_auto='.1f',
+        aspect="auto"
+    )
+    fig_ver_heat.update_layout(
+        title="🎯 Relative Distribution (%)", 
+        height=450,
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
+    st.plotly_chart(fig_ver_heat, use_container_width=True, key="heatmap_percent_final")
 
-# 3. Design-Feinschliff
-fig_ver_heat.update_layout(
-    title="🎯 Heatmap: Verified Status vs. Rating Distribution (%)",
-    font=dict(size=14),
-    height=400
-)
+with col_v2:
+    # LINKE GRAFIK (ABSOLUT)
+    fig_ver_abs = px.imshow(
+        pivot_ver,
+        labels=dict(x="Rating (Stars)", y="Verification Status", color="Count"),
+        x=rating_labels,
+        y=pivot_ver.index,
+        color_continuous_scale='Blues',
+        text_auto=True,
+        aspect="auto"
+    )
+    fig_ver_abs.update_layout(
+        title="📊 Absolute Counts", 
+        height=450,
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
+    st.plotly_chart(fig_ver_abs, use_container_width=True, key="heatmap_absolute_final")
 
-# 4. In Streamlit anzeigen
-st.plotly_chart(fig_ver_heat, use_container_width=True, key="heatmap_percent")
-
-# 5. Die Spalte 'verified' in der Status-Tabelle abhaken
-if 'verified' not in cleaned_cols:
-    cleaned_cols.append('verified')
-
-
-    # 1. Daten vorbereiten
-# Wir gruppieren nach 'verified' und 'rating' und berechnen die Prozente pro Gruppe
-pivot_ver = df_processed.groupby(['verified', 'rating']).size().unstack(fill_value=0)
-pivot_ver_norm = pivot_ver.div(pivot_ver.sum(axis=1), axis=0) * 100
-
-# Namen für die Achse schöner machen
-pivot_ver_norm.index = ['Not Verified (0)', 'Verified (1)']
-
-# 2. Die Heatmap erstellen
-fig_ver_heat = px.imshow(
-    pivot_ver_norm,
-    labels=dict(x="Rating (Stars)", y="Verification Status", color="Percentage %"),
-    x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-    y=pivot_ver_norm.index,
-    color_continuous_scale='RdYlGn', # Rot (schlecht) zu Grün (gut)
-    text_auto='.1f', # Zeigt Prozente direkt in den Kacheln
-    aspect="auto"
-)
-
-# 3. Design-Feinschliff
-fig_ver_heat.update_layout(
-    title="🎯 Heatmap: Verified Status vs. Rating Distribution (%)",
-    font=dict(size=14),
-    height=400
-)
-
-# 4. In Streamlit anzeigen
-st.plotly_chart(fig_ver_heat, use_container_width=True)
-
-# 5. Die Spalte 'verified' in der Status-Tabelle abhaken
-if 'verified' not in cleaned_cols:
-    cleaned_cols.append('verified')
-
-
-
-pivot_ver2 = df_processed.groupby(['verified', 'rating']).size().unstack(fill_value=0)
-pivot_ver2.index = ['Not Verified (0)', 'Verified (1)']
-
-# 2. Deine Heatmap (die schon im Screenshot steht)
-fig_ver_abs = px.imshow(
-    pivot_ver2, # Hier nutzt du jetzt die neue Variable
-    labels=dict(x="Rating (Stars)", y="Verification Status", color="Count of Reviews"),
-    x=['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-    y=pivot_ver2.index,
-    color_continuous_scale='Blues',
-    text_auto=True,
-    aspect="auto"
-)
-
-fig_ver_abs.update_layout(
-    title="📊 Absolute Counts: Verified Status vs. Rating",
-    font=dict(size=14)
-)
-
-st.plotly_chart(fig_ver_abs, use_container_width=True, key="heatmap_absolute")
 
 
 st.markdown("---")
