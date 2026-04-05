@@ -143,25 +143,22 @@ st.info(f"**Final Dataset Shape:** {df.shape[0]} rows and {df.shape[1]} columns.
 
 
 
-st.write("### 🤖 Bot & Duplicate Review Filter")
+st.write("### 🔍 Review Inspection")
 
-# 1. Identify EXACT text duplicates (ignoring the index)
-# We find all rows where the 'review_text' appears more than once
-duplicate_mask = df.duplicated(subset=['review_text'], keep=False)
-duplicates_to_remove = df[duplicate_mask].sort_values(by='review_text')
+# Nutzer wählt eine Zeile aus
+row_index = st.number_input("Select a Row Index to inspect:", min_value=0, max_value=len(df)-1, value=0)
+selected_row = df.iloc[row_index]
 
-if not duplicates_to_remove.empty:
-    st.warning(f"🚩 Potential Bot/Fake Reviews: Found {len(duplicates_to_remove)} suspicious rows with identical text.")
-    
-    with st.expander("📋 View Suspicious Identical Reviews"):
-        st.write("These reviews are identical and might be automated or purchased:")
-        st.dataframe(duplicates_to_remove, use_container_width=True)
-    
-    # 2. Action: Keep only the first occurrence to reduce noise
-    df = df.drop_duplicates(subset=['review_text'], keep='first')
-    st.success(f"✅ Cleaned! Kept only one version of each unique text. New dataset size: {len(df)} rows.")
-else:
-    st.success("✨ No identical text blocks found. Your data seems naturally diverse.")
+# Wir zeigen nur noch die Spalten an, die auch wirklich im DF existieren
+col1, col2 = st.columns(2)
 
-# Update Session State
-st.session_state['ml_data'] = df
+with col1:
+    st.info("**Original Review Text**")
+    st.write(selected_row['review_text'])
+
+with col2:
+    st.success("**Metadata**")
+    # Zeigt Rating und Verified Status anstelle der gelöschten Clean-Spalten
+    st.write(f"⭐ Rating: {selected_row['rating']}")
+    if 'verified' in selected_row:
+        st.write(f"✅ Verified: {selected_row['verified']}")
