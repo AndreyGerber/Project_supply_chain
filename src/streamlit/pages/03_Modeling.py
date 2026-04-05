@@ -102,3 +102,38 @@ else:
 duplicates = df.duplicated().sum()
 if duplicates > 0:
     st.info(f"👥 **Note:** There are {duplicates} exact duplicate rows in your data.")
+
+
+
+
+st.markdown("### 🧹 Final Data Cleaning for Modeling")
+
+# 1. Drop the problematic 'clean' columns
+cols_to_drop = ['review_text_clean', 'review_text_clean_advanced']
+df = df.drop(columns=[c for c in cols_to_drop if c in df.columns])
+
+# 2. Remove rows where 'review_text' is NaN
+initial_shape = df.shape[0]
+df = df.dropna(subset=['review_text'])
+removed_nans = initial_shape - df.shape[0]
+
+# 3. Identify and display duplicates before removing them
+duplicate_rows = df[df.duplicated(keep=False)].sort_values(by='review_text')
+
+if not duplicate_rows.empty:
+    st.warning(f"🔍 Found {len(duplicate_rows)} rows that are part of a duplicate set.")
+    
+    with st.expander("📋 View Duplicate Rows"):
+        st.write("These rows have identical content across all columns:")
+        st.dataframe(duplicate_rows, use_container_width=True)
+    
+    # 4. Remove Duplicates
+    df = df.drop_duplicates()
+    st.success(f"✅ Cleaning complete: Removed {removed_nans} NaNs and {len(duplicate_rows) // 2} duplicate pairs.")
+else:
+    st.success("✨ No duplicates found after NaN removal.")
+
+# Update Session State with the cleaned data
+st.session_state['ml_data'] = df
+
+st.info(f"**Final Dataset Shape:** {df.shape[0]} rows and {df.shape[1]} columns.")
