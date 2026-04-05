@@ -12,9 +12,9 @@ if 'ml_data' in st.session_state:
         remaining_cols = list(df.columns)
         st.code(f"{remaining_cols}")
 
-    # 3. Preview of the first 10 rows
-    st.write("### 📋 Data Preview (Top 10 Rows)")
-    st.dataframe(df.head(10), use_container_width=True)
+        # 3. Preview of the first 10 rows
+        st.write("### 📋 Data Preview (Top 10 Rows)")
+        st.dataframe(df.head(10), use_container_width=True)
 
 else:
     st.error("⚠️ No data found. Please run the Preprocessing first!")
