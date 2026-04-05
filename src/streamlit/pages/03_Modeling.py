@@ -143,3 +143,25 @@ st.info(f"**Final Dataset Shape:** {df.shape[0]} rows and {df.shape[1]} columns.
 
 
 
+st.write("### 🤖 Bot & Duplicate Review Filter")
+
+# 1. Identify EXACT text duplicates (ignoring the index)
+# We find all rows where the 'review_text' appears more than once
+duplicate_mask = df.duplicated(subset=['review_text'], keep=False)
+duplicates_to_remove = df[duplicate_mask].sort_values(by='review_text')
+
+if not duplicates_to_remove.empty:
+    st.warning(f"🚩 Potential Bot/Fake Reviews: Found {len(duplicates_to_remove)} suspicious rows with identical text.")
+    
+    with st.expander("📋 View Suspicious Identical Reviews"):
+        st.write("These reviews are identical and might be automated or purchased:")
+        st.dataframe(duplicates_to_remove, use_container_width=True)
+    
+    # 2. Action: Keep only the first occurrence to reduce noise
+    df = df.drop_duplicates(subset=['review_text'], keep='first')
+    st.success(f"✅ Cleaned! Kept only one version of each unique text. New dataset size: {len(df)} rows.")
+else:
+    st.success("✨ No identical text blocks found. Your data seems naturally diverse.")
+
+# Update Session State
+st.session_state['ml_data'] = df
