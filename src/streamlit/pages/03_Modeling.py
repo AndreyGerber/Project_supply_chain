@@ -21,9 +21,9 @@ if 'ml_data' in st.session_state:
         value=10  # Default value
     )
 
-        # 4. Preview with the dynamic variable 'num_rows'
-        st.write(f"### 📋 Previewing the first {num_rows} Rows")
-        st.dataframe(df.head(num_rows), use_container_width=True)
+    # 4. Preview with the dynamic variable 'num_rows'
+    st.write(f"### 📋 Previewing the first {num_rows} Rows")
+    st.dataframe(df.head(num_rows), use_container_width=True)
 
 else:
     st.error("⚠️ Please run the Preprocessing step first to load the data.")
