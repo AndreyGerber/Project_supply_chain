@@ -1,22 +1,22 @@
 import streamlit as st
 
-# 1. Expandable Section for Raw Data (as seen in your image)
-with st.expander("🔍 View Raw Data Columns"):
-    st.write("Current columns in our dataset:")
-    
-    # Highlighting the column names in a code block for better readability
-    remaining_cols = list(df_processed.columns)
-    st.code(f"{remaining_cols}")
+# 1. Load data from session state
+if 'ml_data' in st.session_state:
+    df = st.session_state['ml_data']
+    st.success(f"✅ Dataset with {df.shape[0]} rows loaded successfully!")
 
-# 2. Data Preview Header
-st.write("### Data Preview (First 10 rows)")
+    # 2. The Expander (as requested, in English)
+    with st.expander("🔍 View Raw Data Columns"):
+        st.write("Current columns in our dataset:")
+        # We use 'df' here instead of 'df_processed'
+        remaining_cols = list(df.columns)
+        st.code(f"{remaining_cols}")
 
-# 3. Interactive Dataframe
-# This will show only the remaining columns of your processed DF
-st.dataframe(
-    df_processed.head(10), 
-    use_container_width=True,
-    hide_index=False
-)
+    # 3. Preview of the first 10 rows
+    st.write("### 📋 Data Preview (Top 10 Rows)")
+    st.dataframe(df.head(10), use_container_width=True)
+
+else:
+    st.error("⚠️ No data found. Please run the Preprocessing first!")
 
 st.markdown("---")
