@@ -142,23 +142,28 @@ st.info(f"**Final Dataset Shape:** {df.shape[0]} rows and {df.shape[1]} columns.
 
 
 
+st.markdown("---")
 
-st.write("### 🔍 Review Inspection")
 
-# Nutzer wählt eine Zeile aus
-row_index = st.number_input("Select a Row Index to inspect:", min_value=0, max_value=len(df)-1, value=0)
-selected_row = df.iloc[row_index]
 
-# Wir zeigen nur noch die Spalten an, die auch wirklich im DF existieren
-col1, col2 = st.columns(2)
+st.write("### 🧹 Handling Duplicates")
 
-with col1:
-    st.info("**Original Review Text**")
-    st.write(selected_row['review_text'])
+# 1. Count how many unique texts we have vs total rows
+total_rows = len(df)
+unique_texts = df['review_text'].nunique()
+duplicate_count = total_rows - unique_texts
 
-with col2:
-    st.success("**Metadata**")
-    # Zeigt Rating und Verified Status anstelle der gelöschten Clean-Spalten
-    st.write(f"⭐ Rating: {selected_row['rating']}")
-    if 'verified' in selected_row:
-        st.write(f"✅ Verified: {selected_row['verified']}")
+if duplicate_count > 0:
+    st.warning(f"🔍 Found {duplicate_count} duplicate reviews. We will keep **one** of each to preserve the information.")
+    
+    # 2. Keep only the first occurrence of each unique text
+    df = df.drop_duplicates(subset=['review_text'], keep='first')
+    
+    st.success(f"✅ Cleanup complete! Kept {unique_texts} unique reviews.")
+    
+    # Update Session State
+    st.session_state['ml_data'] = df
+else:
+    st.success("✨ No duplicates found. Every review is unique!")
+
+st.info(f"**Current Dataset Size:** {len(df)} rows.")
