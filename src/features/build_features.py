@@ -1,127 +1,59 @@
 import pandas as pd
-import os
-import re
-import numpy as np
-
-from textblob import TextBlob
-from scipy.sparse import hstack
+from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+import joblib
 
-BASE_CLEAN = "../data/clean/"
+# interne Funktionen importieren
+from src.utils.text_preprocessing import clean_text, add_structured_features
+from src.data.load_data import load_raw_data
 
-os.makedirs(BASE_CLEAN, exist_ok=True)
+PROCESSED_PATH = Path(__file__).resolve().parent.parent.parent / "data/processed/reviews_clean.csv"
 
-df = pd.read_csv(BASE_CLEAN + "reviews_clean_test.csv")
+def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Komplette Preprocessing-Pipeline:
+    - Text cleaning
+    - Rating numerisch
+    - Strukturierte Features
+    """
+    df = df.copy()
+    # Text cleaning
+    df["review_text_clean"] = df["review_text"].astype(str).apply(clean_text)
+    #Rating numerisch
+    df['rating'] = df['rating_svg'].astype(float)
+    # Zusätzliche Features
+    df = add_structured_features(df)
+    
+    return df
 
-#Datums-Engineering
-# Datum konvertieren
-df['date'] = pd.to_datetime(df['date'], errors='coerce') 
-#habe ich schon in clean.py gemacht?
-# Jahr, Monat, Wochentag
-df['year'] = df['date'].dt.year
-df['month'] = df['date'].dt.month
-df['weekday'] = df['date'].dt.day_name()
+def generate_tfidf(df: pd.DataFrame, max_features: int = 5000) -> (Pipeline, pd.DataFrame):
+    """
+    Erstellt TF-IDF Features und kombiniert sie mit strukturierten Features
+    """
+    text_features = "review_text_clean"
+    structured_features = ["review_length", "verified", "has_response"]
+    
+    # TF-IDF Vectorizer
+    tfidf = TfidfVectorizer(max_features=max_features, ngram_range=(1,2))
+    
+    # Spalten-Transformer
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("tfidf", tfidf, text_features),
+            ("struct", StandardScaler(), structured_features)
+        ]
+    )
+    
+    return preprocessor, df
 
-# Jahreszeit
-def get_season(month):
-    if month in [12, 1, 2]:
-        return "Winter"
-    elif month in [3, 4, 5]:
-        return "Spring"
-    elif month in [6, 7, 8]:
-        return "Summer"
-    else:
-        return "Autumn"
+def save_processed(df: pd.DataFrame):
+    df.to_csv(PROCESSED_PATH, index=False)
+    print(f"Processed data saved to {PROCESSED_PATH}")
 
-df['season'] = df['month'].apply(get_season)
-
-# Tageszeit
-def get_daytime(hour):
-    if pd.isna(hour):
-        return "Unknown"
-    elif 5 <= hour < 11:
-        return "Morning"
-    elif 11 <= hour < 16:
-        return "Midday"
-    elif 16 <= hour < 21:
-        return "Evening"
-    else:
-        return "Night"
-
-df['hour'] = df['date'].dt.hour
-df['daytime'] = df['hour'].apply(get_daytime)
-#-> nach untersuchung der Daten, eine weitere Kategororische Variable hinzufügen?
-
-
-# Kategorische Daten 
-# Fehlwerte füllen
-df['company_site'] = df['company_site'].fillna("Unknown")
-df['company'] = df['company'].fillna("Unknown")
-df['location'] = df['location'].fillna("Unknown")
-
-# One-Hot-Encoding
-df_encoded = pd.get_dummies(
-    df,
-    columns=['company_site', 'company', 'location'],
-    drop_first=False
-)
-
-
-
-#Text-Vektorisierung (TF-IDF)
-
-# Fehlwerte behandeln
-df['review_text'] = df['review_text'].fillna("")
-df['supplier_response'] = df['supplier_response'].fillna("")
-
-# TF-IDF für Reviews
-tfidf_review = TfidfVectorizer(max_features=500)
-X_review = tfidf_review.fit_transform(df['review_text'])
-
-# TF-IDF für Supplier Response
-tfidf_response = TfidfVectorizer(max_features=300)
-X_response = tfidf_response.fit_transform(df['supplier_response'])
-
-
-#Sentiment Analyse
-
-
-
-
-def get_sentiment(text):
-    if not text:
-        return 0
-    return TextBlob(text).sentiment.polarity  # -1 bis +1
-
-df['sentiment_review'] = df['review_text'].apply(get_sentiment)
-df['sentiment_response'] = df['supplier_response'].apply(get_sentiment)
-
-#Numerische Features
-# Anzahl Issues (falls noch nicht vorhanden)
-df['num_issues'] = df['issue_categories'].apply(lambda x: len(x) if isinstance(x, list) else 0)
-
-# Länge des Reviews
-df['review_length'] = df['review_text'].apply(lambda x: len(x.split()))
-
-#Alles zusammenführen (Feature Matrix)
-
-
-# Numerische Features
-numerical_features = df[[
-    'num_issues',
-    'review_length',
-    'sentiment_review',
-    'sentiment_response'
-]].values
-
-# Sparse Matrix kombinieren
-X = hstack([
-    X_review,
-    X_response,
-    numerical_features
-])
-# Target Variable (Regression)
-# rating vorbereiten (falls mein scraper oder cleaner sich ändert)
-df['rating'] = df['rating_svg'].astype(float)
-
-y = df['rating']
+if __name__ == "__main__":
+    df_raw = load_raw_data()
+    df_processed = preprocess_dataframe(df_raw)
+    save_processed(df_processed)
