@@ -24,7 +24,11 @@ os.makedirs(BASE_RAW, exist_ok=True)
 BASE_CLEAN = "../data/clean/"
 os.makedirs(BASE_CLEAN, exist_ok=True)
 
-df = pd.read_json(BASE_RAW +"trustpilot_reviews_production.json")
+df1 = pd.read_json(BASE_RAW +"trustpilot_reviews_production.json")
+df2 = pd.read_json(BASE_RAW +"trustpilot_reviews_production2.json")
+
+df = pd.concat([df1, df2], ignore_index=True)
+
 
 #zerlegt in numerisches rating
 def extract_numeric_rating(svg):
@@ -32,7 +36,7 @@ def extract_numeric_rating(svg):
     return number
     
 
-# bereinigt rewiew_text
+# bereinigt rewiew_text -> überarbeitet in text_preprocessing.py
 def clean_text(text):
     # Entferne Zeilenumbrüche und überflüssige Leerzeichen
     cleaned_text = ' '.join(text.split())
@@ -229,6 +233,10 @@ def categorize_issues_weighted(text):
 #weg mit allen zeilen ohne Komentar 
 df = df.dropna(subset=["review_text"])
 
+#korrektur des company eintrags
+df["company"] = df["company"].str.replace(r"-de$", "_de", regex=True)
+#df["company"] = df["company"].str.replace(r"-(?=[^_]*$)", "_", regex=True)
+
 #neue Spalte review_text_clean
 df["review_text_clean"] = df["review_text"].apply(clean_text)
 
@@ -248,7 +256,7 @@ df["review_text_clean_advanced"] = df["review_text_clean"].apply(clean_text_adva
 df['issue_categories'] = df['review_text'].apply(categorize_issues_weighted)
 
 #speichern unter -> wichtig zum später aufrufen
-df.to_csv(BASE_CLEAN + "reviews_clean_test.csv", index=False)
+df.to_csv(BASE_CLEAN + "reviews_clean_big.csv", index=False)
 
 print("Clean dataset:", len(df))
 
