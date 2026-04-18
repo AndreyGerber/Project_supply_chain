@@ -30,35 +30,36 @@ First, let's verify that we have access to the same dataset from the previous ph
 
 
 
-# 3. Retrieve data from memory (Session State) (from "01_Data_Exploration.py")
+# --- 3. RETRIEVE & PREPARE DATA ---
 if 'raw_data' in st.session_state:
-    # Wir nehmen die Daten und führen die gleiche Bereinigung wie auf Seite 1 aus
+    # A. MASTER-DATAFRAME (df) erstellen
     df = st.session_state['raw_data'].copy()
     
-    # Extraktion der Zahl aus dem SVG-String (für die 'rating' Spalte)
+    # B. RATING EXTRAHIEREN (Ganz wichtig!)
     if 'rating_svg' in df.columns:
         df['rating'] = df['rating_svg'].astype(str).str.extract('(\d+)').fillna(0).astype(int)
-        
-    # Entferne die störenden technischen Spalten vor der Anzeige
-    columns_to_drop = ['rating_numeric', 'rating_svg']
-    df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+    
+    # C. DISPLAY-DATAFRAME (df_display) für die Optik
+    cols_to_hide = ["review_text_clean_advanced", "review_text_clean", "issue_categories", "rating_numeric", "rating_svg"]
+    df_display = df.drop(columns=[c for c in cols_to_hide if c in df.columns], errors='ignore')
 
     st.success(f"✅ Successfully linked to the dataset! ({len(df)} rows loaded)")
 
-    # Rohdaten-Vorschau (Exakt wie auf der Vorseite)
+    # D. VORSCHAU (Nutze df_display für die Optik)
     with st.expander("🔍 View Raw Data Columns"):
-        st.write("Current columns in our dataset:")
-        st.code(list(df.columns))
+        st.write("Current relevant columns in our dataset:")
+        st.code(list(df_display.columns))
         
         st.subheader("Data Preview (First 10 rows)")
-        # Zeige die ersten 10 Zeilen an, so wie im Screenshot der ersten Seite
-        st.dataframe(df.head(10), use_container_width=True)
+        st.dataframe(df_display.head(10), use_container_width=True)
+
+    # E. DER ENTSCHEIDENDE SCHRITT FÜR DEINE ANALYSE:
+    # Dein späterer Code nutzt 'df_processed'. 
+    # Wir erstellen diesen jetzt auf Basis von 'df' (inkl. Rating)!
+    df_processed = df.copy()
 
 else:
-    # Falls die Daten nicht im Speicher sind
     st.error("⚠️ No data found in memory!")
-    st.info("Please go back to the **Data Exploration** page to initialize the dataset.")
-    
     if st.button("Go to Data Exploration"):
         st.switch_page("pages/01_Data_Exploration.py")
 
@@ -285,9 +286,9 @@ column_info = []
 
 # Liste der Spalten, die wir als "cleaned" markieren wollen
 # (Du kannst diese Liste erweitern, wenn du mehr Spalten bearbeitest)
-cleaned_columns = ['review_text', 'review_text_clean', 'review_text_clean_advanced']
+cleaned_columns = ['review_text']
 
-for col in df.columns:
+for col in df_display.columns:
     # Check, ob die Spalte in unserer Liste der bereinigten Spalten ist
     is_cleaned = "✅" if col in cleaned_columns else "❌"
     
@@ -354,6 +355,9 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("---")
 
 
+
+
+
 #Ab hier die Spalte "date" bearbeiten, um neue Features zu erstellen (Jahr, Monat, Wochentag, Saison, Tageszeit)
 
 # 1. Sicherstellen, dass Daten im Session State vorhanden sind
@@ -397,30 +401,21 @@ if 'raw_data' in st.session_state:
 
     # Schritt F: Ergebnis anzeigen (Erste 15 Zeilen)
     st.write("### 🚀 Lets work on our date-data")
-    st.dataframe(df_processed.head(15), use_container_width=True)
+    
+    # Statt einfach alles anzuzeigen, blende die unerwünschten Spalten in der Vorschau aus:
+    cols_to_hide = ["review_text_clean_advanced", "review_text_clean", "issue_categories"]
+    st.dataframe(df_processed.drop(columns=[c for c in cols_to_hide if c in df_processed.columns], errors='ignore').head(15), use_container_width=True)
     st.markdown("<br><br>", unsafe_allow_html=True)
     
     
-    # Bestätigung der Dimensionen
-    info_html = f"""
-    <div style="
-        background-color: #e8f4f8; 
-        border-radius: 5px; 
-        padding: 15px; 
-        border: 1px solid #c5e1eb; 
-        color: #1e3a45; 
-        font-size: 20px; 
-        font-family: sans-serif;
-        margin-bottom: 20px;">
-        ℹ️ The new dataframe has <b>{df_processed.shape[0]}</b> rows and <b>{df_processed.shape[1]}</b> columns.
-    </div>
-    """
 
-    st.markdown(info_html, unsafe_allow_html=True)
 else:
     st.error("⚠️ No data found! Please load the dataset on the first page.")
 
-st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
+
+
+
 
 
 #den Zusammenhang zwischen dem rating (Sterne) und den neuen Zeit-Features (Jahr, Monat, Wochentag, Saison, Tageszeit) analysieren und visualisieren
@@ -705,9 +700,10 @@ st.info("""
     Time features (year, month_name, weekday, season, day_period) will been removed from the dataset because they are not directly relevant for our current analysis of customer reviews.
     """)
 
-cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced']
+cleaned_cols = ['review_text']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
 dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+df_display = df_display.drop(columns=["date"])
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
 html_status = """<style>
@@ -721,7 +717,7 @@ html_status = """<style>
 <tbody>"""
 
 # 3. Schleife über alle Spalten
-display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+display_cols = list(df_display.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
 for col in display_cols:
     is_dropped = col in dropped_cols
@@ -819,8 +815,6 @@ fig.update_layout(title="🎯 Detailed Rating Distribution per Location", font=d
 st.plotly_chart(fig, use_container_width=True)
 
 
-
-
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 
@@ -832,8 +826,9 @@ if 'issue_categories' in df_processed.columns:
 
 # 2. Professionelle Info-Box (English)
 st.success("✅ Column 'location' was successfully dropped.")
+df_display = df_display.drop(columns=['location'])   # zur Visualisierung der Tabelle wird paralleles df bearbeitet.
 
-cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced']
+cleaned_cols = ['review_text']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
 dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
@@ -849,7 +844,7 @@ html_status = """<style>
 <tbody>"""
 
 # 3. Schleife über alle Spalten
-display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+display_cols = list(df_display.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
 for col in display_cols:
     is_dropped = col in dropped_cols
@@ -981,7 +976,9 @@ However, the 'company' column will be removed, as it shows no significant correl
 """)
 st.markdown("<br><br>", unsafe_allow_html=True)
 df_processed = df_processed.drop(columns=['company'])  # 'company' wird hier entfernt, da es kein relevantes Feature für die Bewertung ist und potenziell zu Verzerrungen führen könnte
-cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced', 'verified']
+df_display = df_display.drop(columns=['company']) # DF zur Visualisierung (ohne Spalten "cleaned" und "cleaned_advanced")
+
+cleaned_cols = ['review_text', 'verified']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
 dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location', 'company']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
@@ -997,7 +994,7 @@ html_status = """<style>
 <tbody>"""
 
 # 3. Schleife über alle Spalten
-display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+display_cols = list(df_display.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
 for col in display_cols:
     is_dropped = col in dropped_cols
@@ -1101,6 +1098,7 @@ df_analytics_copy = df_processed.copy()
 
 
 
+
 # 2. Professionelle Info-Box (Business Insight)
 st.info("""
     💡 **Business Intelligence Insight:** 
@@ -1151,8 +1149,11 @@ st.info(f"""
 
 
 st.markdown("<br><br>", unsafe_allow_html=True)
+
 df_processed = df_processed.drop(columns=['has_response', 'supplier_response'])  # 'company' wird hier entfernt, da es kein relevantes Feature für die Bewertung ist und potenziell zu Verzerrungen führen könnte
-cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced', 'verified']
+df_display = df_display.drop(columns=['supplier_response'])  # in df_display wurde keine Spalte "has_response" erstellt, deswegen wird sie nicht.
+
+cleaned_cols = ['review_text', 'verified']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
 dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location', 'company', 'supplier_response']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
@@ -1168,7 +1169,7 @@ html_status = """<style>
 <tbody>"""
 
 # 3. Schleife über alle Spalten
-display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+display_cols = list(df_display.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
 for col in display_cols:
     is_dropped = col in dropped_cols
@@ -1235,7 +1236,9 @@ st.info(f"💡 **Insight:** We have {len(site_counts)} unique domains. If one or
 if 'company_site' in df_processed.columns:
     df_processed = df_processed.drop(columns=['company_site'])
 
-cleaned_cols = ['review_text', 'review_text_clean', 'review_text_clean_advanced', 'verified']
+df_display = df_display.drop(columns=['company_site'])  # DF zur Visualisierung der bearbeiteten Spalten (enthält keine "cleaned" und 'cleaned_advanced' Spalten)
+
+cleaned_cols = ['review_text', 'verified']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
 dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location', 'company', 'supplier_response', 'company_site']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
@@ -1251,7 +1254,7 @@ html_status = """<style>
 <tbody>"""
 
 # 3. Schleife über alle Spalten
-display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
+display_cols = list(df_display.columns) + [c for c in dropped_cols if c not in df_processed.columns]
 
 for col in display_cols:
     is_dropped = col in dropped_cols
@@ -1269,26 +1272,6 @@ st.markdown("---")
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 
-
-
-# issue categories analysieren (z.B. wie viele Bewertungen pro Kategorie, welche Kategorien haben die besten/schlechtesten Bewertungen, etc.)
-
-# 1. Alle 69 Kategorien zählen und sortieren
-issue_full_list = df_processed['issue_categories'].value_counts(dropna=False).reset_index()
-issue_full_list.columns = ['Issue Category Content', 'Occurrences (Count)']
-
-# 2. Anzeige als interaktive Tabelle in Streamlit
-st.write("### 📋 Complete List of all 69 Issue Categories")
-
-# Wir nutzen st.dataframe, damit du scrollen und nach Häufigkeit sortieren kannst
-st.dataframe(
-    issue_full_list, 
-    use_container_width=True, 
-    hide_index=True
-)
-
-# 3. Kleiner Helfer-Text für die Analyse
-st.info(f"💡 **Insight:** You are seeing all **{len(issue_full_list)}** unique entries. Many look like technical 'Counter' objects. You can click on the column headers to sort them!")
 
 
 
@@ -1296,50 +1279,18 @@ st.info(f"💡 **Insight:** You are seeing all **{len(issue_full_list)}** unique
 if 'issue_categories' in df_processed.columns:
     df_processed = df_processed.drop(columns=['issue_categories'])
 
-# 2. Professionelle Info-Box (English)
-st.info("""
-    💡 **Feature Selection Update:** 
-    The 'issue_categories' column will been removed. Approximately **2/3 of the data (4,169 rows)** 
-    contained no classification (empty Counter objects). The remaining entries were 
-    technically corrupted, making the feature unreliable for model training.
-""")
+if 'review_text_clean' in df_processed.columns:
+    df_processed = df_processed.drop(columns=['review_text_clean'])
 
+if 'review_text_clean_advanced' in df_processed.columns:
+    df_processed = df_processed.drop(columns=['review_text_clean_advanced'])
 
-
-cleaned_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'review_text', 'verified', 'review_text_clean', 'review_text_clean_advanced']
-#aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
-dropped_cols = ['location', 'company', 'supplier_response', 'has_response', 'company_site', 'issue_categories']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
-
-# 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
-html_status = """<style>
-.status-table { width: 100%; border-collapse: collapse; font-family: sans-serif; color: #31333F; }
-.status-table th, .status-table td { border-bottom: 1px solid #f0f2f6; padding: 12px; text-align: left; font-size: 16px; }
-.status-table th { background-color: #f0f2f6; font-weight: bold; }
-.strikethrough { text-decoration: line-through; color: #9e9e9e; opacity: 0.7; font-style: italic; }
-</style>
-<table class="status-table">
-<thead><tr><th>Column Name</th><th>Unique Values</th><th>Status</th></tr></thead>
-<tbody>"""
-
-# 3. Schleife über alle Spalten
-display_cols = list(df_processed.columns) + [c for c in dropped_cols if c not in df_processed.columns]
-
-for col in display_cols:
-    is_dropped = col in dropped_cols
-    row_class = 'class="strikethrough"' if is_dropped else ''
-    u_count = df_processed[col].nunique() if col in df_processed.columns else "-"
-    status_icon = "🗑️" if col in dropped_cols else ("🎯" if col == "rating" else ("✅" if col in cleaned_cols else "❌"))
-
-    html_status += f'<tr {row_class}><td>{col}</td><td>{u_count}</td><td>{status_icon}</td></tr>'
-
-html_status += "</tbody></table>"
-
-st.markdown(html_status, unsafe_allow_html=True)
+if 'rating_svg' in df_processed.columns:
+    df_processed = df_processed.drop(columns=['rating_svg'])
 
 
 st.markdown("---")
 st.markdown("<br><br>", unsafe_allow_html=True)
-
 
 
 
@@ -1367,6 +1318,37 @@ st.markdown("<br><br><br>", unsafe_allow_html=True)
 
 
 
+# df_processed im Ordner "data" speichern
+
+import os
+from pathlib import Path
+
+# 1. Wir finden heraus, wo wir sind (src/streamlit/pages/)
+# Und gehen 3 Ebenen hoch zum Hauptverzeichnis (My_first_project)
+root_path = Path(__file__).parents[3] 
+
+# 2. Wir definieren den Zielordner relativ zum Hauptverzeichnis
+base_path = root_path / "src" / "data" / "clean"
+file_path = base_path / "df_ML.csv"
+
+# 3. Ordner erstellen (Pathlib kümmert sich um die Rechte)
+base_path.mkdir(parents=True, exist_ok=True)
+
+# 4. Speichern
+df_processed.to_csv(file_path, index=False)
+
+# 5. Kontrolle
+if file_path.exists():
+    st.success(f"✅ Datei erfolgreich gespeichert unter: `{file_path.name}`")
+    st.info(f"📍 Speicherort: `{file_path}`")
+else:
+    st.error("❌ Datei wurde nicht erstellt.")
+
+
+
+
+
+
 # Wir speichern den finalen, bereinigten DataFrame im Session State
 if not df_final_view.empty:
     # 2. Die echte Sicherheitskopie für die nächste Seite erstellen
@@ -1380,7 +1362,7 @@ else:
 # 4. Deine grüne Erfolgs-Box (jetzt mit dem Backup-Status)
 success_text = f"""
 🏁 **Phase 'Preprocessing' Complete:** Our dataset is now high-octane fuel for Machine Learning! <br>
-Total: <b>{df_processed.shape[0]}</b> reviews and <b>{df_processed.shape[1]}</b> clean features. <br>
+Total: <b>{df_processed.shape[0]}</b> reviews and <b>{df_processed.shape[1]}</b> displayed features. <br>
 <i>{backup_status}</i>
 """
 
@@ -1401,3 +1383,5 @@ success_html = f"""
 """
 
 st.markdown(success_html, unsafe_allow_html=True)
+
+

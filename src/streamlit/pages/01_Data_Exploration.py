@@ -127,12 +127,15 @@ if not df.empty:
     st.subheader("📄 Raw Data Preview")
     st.info("Direct preview of the filtered dataset:")
 
-    # Wir setzen die Höhe auf 550 Pixel. 
-    # Das reicht bei Standard-Schriftgröße für ca. 15 Zeilen + Header + Menüleiste.
+    # Spalten definieren, die NICHT angezeigt werden sollen
+    cols_to_exclude = ["review_text_clean_advanced", "review_text_clean", "issue_categories"]
+    
+    # Wir zeigen nur die Spalten an, die nicht in der Ausschlussliste sind
+    # .drop(columns=...) erzeugt eine Kopie ohne die genannten Spalten
     st.dataframe(
-        df_filtered.head(76),   # so sieht man bis zur Zeile 75 (inklusive). 
+        df_filtered.drop(columns=cols_to_exclude, errors='ignore').head(76), 
         use_container_width=True,
-        height=550 
+        height=450 
     )
     
     # Fügt eine Leerzeile ein
