@@ -153,32 +153,39 @@ else:
 
 
 # 4. Preventing Data Leakage: Target Creation & Train-Test Split
-st.divider()
-st.subheader("⚠️ Attention: Preventing Data Leakage")
+import plotly.express as px
 
-# --- FIRST: Create the target_group column ---
-def categorize_rating(r):
-    if r <= 2: return "Low (1-2 ⭐)"
-    elif r <= 4: return "Mid (3-4 ⭐)"
-    else: return "High (5 ⭐)"
+st.write("### Train vs. Test Distribution")
 
-# Create the column BEFORE splitting
-df['target_group'] = df['rating'].apply(categorize_rating)
+# Wir erstellen zwei Spalten
+col1, col2 = st.columns(2)
 
-# --- SECOND: Now perform the split ---
-from sklearn.model_selection import train_test_split
+# Konvertierung der Series in DataFrames für Plotly
+train_dist = pd.DataFrame(y_train).rename(columns={y_train.name: 'rating_group'})
+test_dist = pd.DataFrame(y_test).rename(columns={y_test.name: 'rating_group'})
 
-X = df['review_text']
-y = df['target_group'] # Now this column exists!
+# Festlegung der Reihenfolge für die X-Achse
+category_order = ["Low (1-2)", "Mid (3-4)", "High (5)"]
 
-X_train_raw, X_test_raw, y_train, y_test = train_test_split(
-    X, y, 
-    test_size=0.2, 
-    random_state=42, 
-    stratify=y
-)
+with col1:
+    fig_train = px.histogram(
+        train_dist, 
+        x="rating_group", 
+        title="Training Set (80%)",
+        category_orders={"rating_group": category_order},
+        color_discrete_sequence=['#00CC96'] # Grün
+    )
+    st.plotly_chart(fig_train, use_container_width=True)
 
-# Success display
-st.success("Target groups created and data successfully split!")
-st.metric("Training Samples", len(X_train_raw))
-st.metric("Test Samples", len(X_test_raw))
+with col2:
+    fig_test = px.histogram(
+        test_dist, 
+        x="rating_group", 
+        title="Test Set (20%)",
+        category_orders={"rating_group": category_order},
+        color_discrete_sequence=['#636EFA'] # Blau
+    )
+    st.plotly_chart(fig_test, use_container_width=True)
+
+st.info("💡 **Observation:** Notice how both sets maintain the same proportions. This is thanks to the 'stratify' parameter.")
+
