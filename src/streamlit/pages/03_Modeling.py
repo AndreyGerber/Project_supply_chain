@@ -6,7 +6,7 @@ import os
 st.header("Fake-News")
 
 # Pfad zu deinem Bild in der VM
-img_path = "src/streamlit/static/"Analysis.png"  
+img_path = "src/streamlit/static/Analysis.png"  
 
 if os.path.exists(img_path):
     image = Image.open(img_path)
