@@ -221,3 +221,49 @@ with col2:
     st.plotly_chart(fig_test, use_container_width=True)
 
 st.info("💡 **Observation:** Notice how both sets maintain the same proportions. This is thanks to the 'stratify' parameter.")
+
+
+
+
+from sklearn.compose import ColumnTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from imblearn.over_sampling import SMOTE
+import scipy.sparse
+
+st.divider()
+st.subheader("5. Balancing the Training Set (SMOTE)")
+
+# 1. Vorbereitung: Text vektorisieren & 'verified' beibehalten
+# Wir sagen dem Transformer: Textspalte -> TF-IDF, verified -> einfach durchreichen (passthrough)
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('text', TfidfVectorizer(max_features=1000, stop_words='english'), 'review_text'),
+        ('num', 'passthrough', ['verified'])
+    ]
+)
+
+# 2. Transformation nur auf dem Training-Set 'fitten'
+X_train_transformed = preprocessor.fit_transform(X_train_raw)
+# Das Test-Set nur transformieren (Wichtig gegen Data Leakage!)
+X_test_transformed = preprocessor.transform(X_test_raw)
+
+# 3. SMOTE anwenden (nur auf die Trainingsdaten!)
+smote = SMOTE(random_state=42)
+X_train_resampled, y_train_resampled = smote.fit_resample(X_train_transformed, y_train)
+
+# 4. Ergebnis visualisieren
+st.write("### Training Set after SMOTE Balancing")
+balanced_dist = pd.DataFrame(y_train_resampled).rename(columns={y_train_resampled.name: 'target_group'})
+category_order = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
+
+fig_balanced = px.histogram(
+    balanced_dist, 
+    x="target_group", 
+    title="Perfectly Balanced Training Classes",
+    category_orders={"target_group": category_order},
+    color_discrete_sequence=['#00CC96']
+)
+fig_balanced.update_xaxes(categoryorder='array', categoryarray=category_order)
+st.plotly_chart(fig_balanced, use_container_width=True)
+
+st.success(f"✅ Balancing complete! All classes now have {len(y_train_resampled)//3} samples.")
