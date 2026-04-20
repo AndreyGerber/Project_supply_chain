@@ -150,26 +150,27 @@ else:
 
 
 
-# --- VISUAL SEPARATOR ---
-st.divider() # Erzeugt eine saubere Trennlinie
 
-# --- 4. TRAIN-TEST SPLIT ---
+
+# 4. Preventing Data Leakage: Target Creation & Train-Test Split
+st.divider()
 st.subheader("⚠️ Attention: Preventing Data Leakage")
 
-st.info("""
-    **Strategy:** To avoid data leakage, we split the dataset into training and testing sets 
-    **before** applying any balancing techniques (like SMOTE) or vectorization. 
-    This ensures our test data remains unseen and represents real-world conditions.
-""")
+# --- FIRST: Create the target_group column ---
+def categorize_rating(r):
+    if r <= 2: return "Low (1-2 ⭐)"
+    elif r <= 4: return "Mid (3-4 ⭐)"
+    else: return "High (5 ⭐)"
 
+# Create the column BEFORE splitting
+df['target_group'] = df['rating'].apply(categorize_rating)
+
+# --- SECOND: Now perform the split ---
 from sklearn.model_selection import train_test_split
 
-# Defining features (X) and target (y)
 X = df['review_text']
-y = df['target_group']
+y = df['target_group'] # Now this column exists!
 
-# Implementing the split (80% Training, 20% Testing)
-# 'stratify=y' maintains the original proportion of ratings in both sets
 X_train_raw, X_test_raw, y_train, y_test = train_test_split(
     X, y, 
     test_size=0.2, 
@@ -177,11 +178,7 @@ X_train_raw, X_test_raw, y_train, y_test = train_test_split(
     stratify=y
 )
 
-# Displaying the results of the split
-col1, col2 = st.columns(2)
-with col1:
-    st.metric("Training Samples", len(X_train_raw))
-with col2:
-    st.metric("Test Samples", len(X_test_raw))
-
-st.write("---") # Ein weiterer kleiner Trenner vor dem nächsten Schritt
+# Success display
+st.success("Target groups created and data successfully split!")
+st.metric("Training Samples", len(X_train_raw))
+st.metric("Test Samples", len(X_test_raw))
