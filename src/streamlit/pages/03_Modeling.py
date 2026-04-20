@@ -154,22 +154,23 @@ else:
 
 # 4. Preventing Data Leakage: Target Creation & Train-Test Split
 st.divider()
+st.divider()
 st.subheader("⚠️ Attention: Preventing Data Leakage")
 
-# --- FIRST: Create the target_group column ---
+# --- 1. DATA PREPARATION & GROUPING ---
 def categorize_rating(r):
     if r <= 2: return "Low (1-2 ⭐)"
     elif r <= 4: return "Mid (3-4 ⭐)"
     else: return "High (5 ⭐)"
 
-# Create the column BEFORE splitting
+# Create the target column before splitting
 df['target_group'] = df['rating'].apply(categorize_rating)
 
-# --- SECOND: Now perform the split ---
+# --- 2. TRAIN-TEST SPLIT ---
 from sklearn.model_selection import train_test_split
 
 X = df['review_text']
-y = df['target_group'] # Now this column exists!
+y = df['target_group']
 
 X_train_raw, X_test_raw, y_train, y_test = train_test_split(
     X, y, 
@@ -178,43 +179,45 @@ X_train_raw, X_test_raw, y_train, y_test = train_test_split(
     stratify=y
 )
 
-# Success display
 st.success("Target groups created and data successfully split!")
-st.metric("Training Samples", len(X_train_raw))
-st.metric("Test Samples", len(X_test_raw))
 
-import plotly.express as px
-
+# --- 3. VISUALIZATION: METRICS & DISTRIBUTIONS ---
 st.write("### Train vs. Test Distribution")
 
-# Wir erstellen zwei Spalten
+# Define the correct order for the X-axis
+category_order = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
+
+# Create two main columns for the entire layout
 col1, col2 = st.columns(2)
 
-# Konvertierung der Series in DataFrames für Plotly
-train_dist = pd.DataFrame(y_train).rename(columns={y_train.name: 'rating_group'})
-test_dist = pd.DataFrame(y_test).rename(columns={y_test.name: 'rating_group'})
-
-# Festlegung der Reihenfolge für die X-Achse
-category_order = ["Low (1-2)", "Mid (3-4)", "High (5)"]
-
 with col1:
+    # Metric at the top of the column
+    st.metric("Training Samples (80%)", len(y_train))
+    
+    # Training distribution plot
     fig_train = px.histogram(
-        train_dist, 
-        x="rating_group", 
-        title="Training Set (80%)",
-        category_orders={"rating_group": category_order},
-        color_discrete_sequence=['#00CC96'] # Grün
+        pd.DataFrame(y_train), 
+        x="target_group", 
+        title="Training Set Distribution",
+        category_orders={"target_group": category_order},
+        color_discrete_sequence=['#00CC96']
     )
+    fig_train.update_xaxes(categoryorder='array', categoryarray=category_order)
     st.plotly_chart(fig_train, use_container_width=True)
 
 with col2:
+    # Metric at the top of the column
+    st.metric("Test Samples (20%)", len(y_test))
+    
+    # Test distribution plot
     fig_test = px.histogram(
-        test_dist, 
-        x="rating_group", 
-        title="Test Set (20%)",
-        category_orders={"rating_group": category_order},
-        color_discrete_sequence=['#636EFA'] # Blau
+        pd.DataFrame(y_test), 
+        x="target_group", 
+        title="Test Set Distribution",
+        category_orders={"target_group": category_order},
+        color_discrete_sequence=['#636EFA']
     )
+    fig_test.update_xaxes(categoryorder='array', categoryarray=category_order)
     st.plotly_chart(fig_test, use_container_width=True)
 
 st.info("💡 **Observation:** Notice how both sets maintain the same proportions. This is thanks to the 'stratify' parameter.")
