@@ -2,17 +2,16 @@ import streamlit as st
 from PIL import Image
 import os
 
-st.title("Modeling Phase")
+# Die gewünschte Überschrift für das Bild
+st.header("Fake-News")
 
-# Pfad zum Bild (Passe den Namen an, z.B. maria_note.jpg)
-img_path = "src/static/maria_note.jpg"
+# Pfad zu deinem Bild in der VM
+img_path = "src/static/"Analysis".jpg" 
 
 if os.path.exists(img_path):
     image = Image.open(img_path)
-    # Bild mit Bildunterschrift anzeigen
-    st.image(image, caption="Feedback von Maria zur Modeling-Phase", use_container_width=True)
+    # Bild anzeigen
+    st.image(image, use_container_width=True)
 else:
-    st.warning("Das Notiz-Bild wurde im Ordner 'src/static/' nicht gefunden.")
-
-st.write("---")
-st.write("Basierend auf diesem Feedback werden wir nun verschiedene Modelle testen.")
+    st.error(f"Bild nicht gefunden unter: {img_path}")
+    st.info("Bitte stelle sicher, dass das Bild im Ordner 'src/static/' liegt.")
