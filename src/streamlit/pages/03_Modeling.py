@@ -98,96 +98,67 @@ if 'ml_data' in st.session_state:
     y = df['target_group']
 
     X_train_raw, X_test_raw, y_train, y_test = train_test_split(
-        X, y, 
-        test_size=0.2, 
-        random_state=42, 
-        stratify=y
+    X, y, 
+    test_size=0.2, 
+    random_state=42, 
+    stratify=y
     )
 
-    # Visualisierung Split
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Training Samples (80%)", len(y_train))
-        fig_train = px.histogram(
-            pd.DataFrame(y_train), x="target_group", title="Training Set",
-            category_orders={"target_group": category_order}, color_discrete_sequence=['#00CC96']
-        )
-        st.plotly_chart(fig_train, use_container_width=True)
+    # --- NEU: Implementierung von Strategie A (Ziel: ca. 2000 pro Gruppe) ---
+    st.divider()
+    st.subheader("⚖️ Balancing Training Data (Strategy A)")
 
-    with col2:
-        st.metric("Test Samples (20%)", len(y_test))
-        fig_test = px.histogram(
-            pd.DataFrame(y_test), x="target_group", title="Test Set",
-            category_orders={"target_group": category_order}, color_discrete_sequence=['#636EFA']
-        )
-        st.plotly_chart(fig_test, use_container_width=True)
+    # Wir führen X und y kurz zusammen, um leichter zu filtern
+    train_df = X_train_raw.copy()
+    train_df['target_group'] = y_train
 
-    # WICHTIG: Alles im Session State für die nächste Seite speichern
-    st.session_state['df_modeling_final'] = df
+    target_count = 2000
+    balanced_frames = []
+
+    for group in train_df['target_group'].unique():
+        subset = train_df[train_df['target_group'] == group]
+        
+        if group == 'High (5 ⭐)':
+            # 1. Undersampling für High
+            subset_balanced = subset.sample(n=min(len(subset), target_count), random_state=42)
+        else:
+            # 2. Oversampling für Mid und Low
+            # (Hier kannst du später deine Synonym-Funktionen einbauen)
+            how_many_to_add = target_count - len(subset)
+            if how_many_to_add > 0:
+                # Aktuell: Einfaches Kopieren (Random Oversampling)
+                extras = subset.sample(n=how_many_to_add, replace=True, random_state=42)
+                subset_balanced = pd.concat([subset, extras])
+            else:
+                subset_balanced = subset
+        
+        balanced_frames.append(subset_balanced)
+
+    # Zusammenführen und neu mischen
+    train_df_balanced = pd.concat(balanced_frames).sample(frac=1, random_state=42)
+    
+    # Zurück trennen in X_train und y_train
+    X_train_final = train_df_balanced.drop(columns=['target_group'])
+    y_train_final = train_df_balanced['target_group']
+
+    # --- Visualisierung des neuen Status ---
+    st.success(f"Resampling abgeschlossen! Jede Klasse hat nun ca. {target_count} Samples.")
+    
+    fig_balanced = px.histogram(
+        train_df_balanced, x="target_group", 
+        title="Balanced Training Set (New)",
+        category_orders={"target_group": category_order},
+        color_discrete_sequence=['#FF7F0E'] # Andere Farbe zur Unterscheidung
+    )
+    st.plotly_chart(fig_balanced, use_container_width=True)
+
+    # WICHTIG: Die BALANCIERTEN Daten im Session State speichern
     st.session_state['train_test_split'] = {
-        'X_train': X_train_raw, 
-        'X_test': X_test_raw, 
-        'y_train': y_train, 
+        'X_train': X_train_final, 
+        'X_test': X_test_raw, # Testdaten bleiben unangetastet!
+        'y_train': y_train_final, 
         'y_test': y_test
     }
-    st.info("💡 **Ready for Vektorization!** The split data is saved in session state.")
-
-else:
-    st.error("❌ No processed data found in memory!")
-    st.info("Please run the **'02 Preprocessing'** page first.")
 
 
 
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from imblearn.over_sampling import SMOTE
-
-st.divider()
-st.header("4. Balanced Dataset (SMOTE Results)")
-
-# --- STEP 1: TF-IDF VECTORIZATION (Technisch notwendig für SMOTE) ---
-# Wir nutzen 1000 Features, um die Berechnung schnell zu halten
-tfidf_smote = TfidfVectorizer(max_features=1000)
-X_train_tfidf = tfidf_smote.fit_transform(X_train_raw['review_text'])
-
-# --- STEP 2: SMOTE ANWENDEN ---
-smote = SMOTE(random_state=42)
-X_resampled, y_resampled = smote.fit_resample(X_train_tfidf, y_train)
-
-# --- STEP 3: DATEN FÜR DIE GRAFIK VORBEREITEN ---
-# Wir zählen die Häufigkeiten vor und nach SMOTE
-before_counts = y_train.value_counts().reset_index()
-before_counts['Status'] = 'Original (Imbalanced)'
-
-after_counts = y_resampled.value_counts().reset_index()
-after_counts['Status'] = 'After SMOTE (Balanced)'
-
-# Zusammenführen für Plotly
-plot_df = pd.concat([before_counts, after_counts])
-plot_df.columns = ['Rating Group', 'Count', 'Status']
-
-# --- STEP 4: DAS BILD (GRAFIK) ERSTELLEN ---
-fig_smote = px.bar(
-    plot_df, 
-    x="Rating Group", 
-    y="Count", 
-    color="Status", 
-    barmode="group",
-    title="SMOTE Impact: Balancing the Minority Classes",
-    category_orders={"Rating Group": ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]},
-    color_discrete_map={
-        'Original (Imbalanced)': '#EF553B', # Rot für das Ungleichgewicht
-        'After SMOTE (Balanced)': '#00CC96'  # Grün für die Lösung
-    },
-    text_auto=True
-)
-
-st.plotly_chart(fig_smote, use_container_width=True)
-
-# --- STEP 5: ZUSAMMENFASSUNG ---
-st.info(f"""
-    **Visual Analysis:**
-    - The **red bars** show your real data (very few Low/Mid reviews).
-    - The **green bars** show the synthetic data created by SMOTE.
-    - Every class now has exactly **{len(y_resampled)//3}** samples.
-""")
