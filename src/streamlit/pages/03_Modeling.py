@@ -6,19 +6,23 @@ import plotly.express as px
 from sklearn.model_selection import train_test_split
 
 import sys
+import subprocess
 import os
 
-# Pfad aus deinem Screenshot hinzufügen, damit Streamlit das Paket findet
-user_site_packages = "/home/ubuntu/.local/lib/python3.12/site-packages"
-if user_site_packages not in sys.path:
-    sys.path.append(user_site_packages)
+# 1. Versuch: Paket im Standardpfad oder im User-Pfad suchen
+user_site = os.path.expanduser("~/.local/lib/python3.12/site-packages")
+if user_site not in sys.path:
+    sys.path.append(user_site)
 
-# Jetzt sollte der Import klappen
+# 2. Versuch: Wenn Import scheitert, sofortige Installation erzwingen
 try:
     from imblearn.over_sampling import SMOTE
 except ImportError:
-    st.error("Still can't find imbalanced-learn. Please restart the Streamlit server.")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "imbalanced-learn"])
+    from imblearn.over_sampling import SMOTE
 
+# Wenn wir hier ankommen, ist SMOTE bereit!
+st.success("✅ Module 'imbalanced-learn' is ready!")
 
 
 # --- 1. HEADER & IMAGE ---
