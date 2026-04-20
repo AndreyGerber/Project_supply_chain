@@ -98,67 +98,43 @@ if 'ml_data' in st.session_state:
     y = df['target_group']
 
     X_train_raw, X_test_raw, y_train, y_test = train_test_split(
-    X, y, 
-    test_size=0.2, 
-    random_state=42, 
-    stratify=y
+        X, y, 
+        test_size=0.2, 
+        random_state=42, 
+        stratify=y
     )
 
-    # --- NEU: Implementierung von Strategie A (Ziel: ca. 2000 pro Gruppe) ---
-    st.divider()
-    st.subheader("⚖️ Balancing Training Data (Strategy A)")
+    # Visualisierung Split
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Training Samples (80%)", len(y_train))
+        fig_train = px.histogram(
+            pd.DataFrame(y_train), x="target_group", title="Training Set",
+            category_orders={"target_group": category_order}, color_discrete_sequence=['#00CC96']
+        )
+        st.plotly_chart(fig_train, use_container_width=True)
 
-    # Wir führen X und y kurz zusammen, um leichter zu filtern
-    train_df = X_train_raw.copy()
-    train_df['target_group'] = y_train
+    with col2:
+        st.metric("Test Samples (20%)", len(y_test))
+        fig_test = px.histogram(
+            pd.DataFrame(y_test), x="target_group", title="Test Set",
+            category_orders={"target_group": category_order}, color_discrete_sequence=['#636EFA']
+        )
+        st.plotly_chart(fig_test, use_container_width=True)
 
-    target_count = 2000
-    balanced_frames = []
-
-    for group in train_df['target_group'].unique():
-        subset = train_df[train_df['target_group'] == group]
-        
-        if group == 'High (5 ⭐)':
-            # 1. Undersampling für High
-            subset_balanced = subset.sample(n=min(len(subset), target_count), random_state=42)
-        else:
-            # 2. Oversampling für Mid und Low
-            # (Hier kannst du später deine Synonym-Funktionen einbauen)
-            how_many_to_add = target_count - len(subset)
-            if how_many_to_add > 0:
-                # Aktuell: Einfaches Kopieren (Random Oversampling)
-                extras = subset.sample(n=how_many_to_add, replace=True, random_state=42)
-                subset_balanced = pd.concat([subset, extras])
-            else:
-                subset_balanced = subset
-        
-        balanced_frames.append(subset_balanced)
-
-    # Zusammenführen und neu mischen
-    train_df_balanced = pd.concat(balanced_frames).sample(frac=1, random_state=42)
-    
-    # Zurück trennen in X_train und y_train
-    X_train_final = train_df_balanced.drop(columns=['target_group'])
-    y_train_final = train_df_balanced['target_group']
-
-    # --- Visualisierung des neuen Status ---
-    st.success(f"Resampling abgeschlossen! Jede Klasse hat nun ca. {target_count} Samples.")
-    
-    fig_balanced = px.histogram(
-        train_df_balanced, x="target_group", 
-        title="Balanced Training Set (New)",
-        category_orders={"target_group": category_order},
-        color_discrete_sequence=['#FF7F0E'] # Andere Farbe zur Unterscheidung
-    )
-    st.plotly_chart(fig_balanced, use_container_width=True)
-
-    # WICHTIG: Die BALANCIERTEN Daten im Session State speichern
+    # WICHTIG: Alles im Session State für die nächste Seite speichern
+    st.session_state['df_modeling_final'] = df
     st.session_state['train_test_split'] = {
-        'X_train': X_train_final, 
-        'X_test': X_test_raw, # Testdaten bleiben unangetastet!
-        'y_train': y_train_final, 
+        'X_train': X_train_raw, 
+        'X_test': X_test_raw, 
+        'y_train': y_train, 
         'y_test': y_test
     }
+    st.info("💡 **Ready for Vektorization!** The split data is saved in session state.")
+
+else:
+    st.error("❌ No processed data found in memory!")
+    st.info("Please run the **'02 Preprocessing'** page first.")
 
 
 
