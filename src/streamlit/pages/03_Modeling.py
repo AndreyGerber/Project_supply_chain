@@ -48,30 +48,47 @@ else:
 
 
 
-st.subheader("2. Duplicate Analysis")
+# --- 2. SCHRITT: ECHTE USER-DUPLIKATE BERECHNEN ---
+df_no_system = df[~system_mask].copy()
 
-# Wir suchen Zeilen, die exakt identisch sind
-duplicates_df = df[df.duplicated(keep=False)] # keep=False zeigt alle Kopien an
+# A. Erstmaliger Check (wie der Text aktuell ist)
+raw_extra_rows = len(df_no_system) - df_no_system['review_text'].nunique()
 
-if not duplicates_df.empty:
-    st.write(f"""
-        Initially, we found {raw_extra_rows} duplicates. 
-        Now, we **normalize the text** (converting everything to lowercase and removing extra spaces) and check again: 
-        We found **{normalized_extra_rows}** rows that are potential duplicates.
-    """)
+# B. Normalisierung durchführen
+df_no_system['review_text_normalized'] = df_no_system['review_text'].str.lower().str.strip()
+unique_user_count = df_no_system['review_text_normalized'].nunique()
+normalized_extra_rows = len(df_no_system) - unique_user_count
+
+# --- 3. DARSTELLUNG ABSCHNITT B ---
+st.write(f"**B. Genuine Comment Duplicates:**")
+
+# Dein gewünschter Satz mit den dynamischen Zahlen
+st.write(f"""
+    Initially, we found {raw_extra_rows} duplicates. 
+    Now, we **normalize the text** (converting everything to lowercase and removing extra spaces) and check again: 
+    We found **{normalized_extra_rows}** rows that are potential duplicates.
+""")
+
+# Top 10 Liste der echten Duplikate (normalisiert)
+text_counts = df_no_system['review_text_normalized'].value_counts()
+real_duplicates = text_counts[text_counts > 1].reset_index()
+
+if not real_duplicates.empty:
+    real_duplicates.columns = ['Review Content (normalized)', 'Occurrence Count']
+    st.dataframe(real_duplicates.head(10), use_container_width=True, hide_index=True)
+
+# --- 4. DIE FINALE KORREKTE CONCLUSION ---
+total_identified = sys_count + normalized_extra_rows
+
+st.info(f"""
+    💡 **Conclusion:** We have identified all **{total_identified}** redundant entries:
+    * **{sys_count}** are automated system replies.
+    * **{normalized_extra_rows}** are extra copies (found after normalization).
     
-    # Anzeige der ersten 10 Duplikate zum Check
-    st.write("Preview of duplicate rows:")
-    st.dataframe(duplicates_df.head(10), use_container_width=True)
-    
-    # Entscheidung: Nur komplett identische Zeilen löschen
-    before_count = len(df)
-    df = df.drop_duplicates()
-    after_count = len(df)
-    
-    st.info(f"Removed {before_count - after_count} exact duplicates. Unique rows remaining: {after_count}")
-else:
-    st.success("No exact duplicates found!")
+    Total: {sys_count} + {normalized_extra_rows} = **{total_identified}**.
+    This leaves us with **{unique_user_count}** unique customer comments for our analysis.
+""")
+
 
 
 
