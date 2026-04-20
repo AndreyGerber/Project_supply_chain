@@ -169,7 +169,7 @@ df['target_group'] = df['rating'].apply(categorize_rating)
 # --- 2. TRAIN-TEST SPLIT ---
 from sklearn.model_selection import train_test_split
 
-X = df['review_text']
+X = df[['review_text', 'verified']] 
 y = df['target_group']
 
 X_train_raw, X_test_raw, y_train, y_test = train_test_split(
