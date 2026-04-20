@@ -123,43 +123,51 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from imblearn.over_sampling import SMOTE
 
 st.divider()
-st.header("4. Class Balancing with SMOTE")
+st.header("4. Balanced Dataset (SMOTE Results)")
 
-# --- SCHRITT 1: Vektorisierung (Nötig für SMOTE) ---
-# SMOTE braucht Zahlen. Wir wandeln den Text kurz in eine Matrix um.
-tfidf_temp = TfidfVectorizer(max_features=1000) 
-X_train_tfidf = tfidf_temp.fit_transform(X_train_raw['review_text'])
+# --- STEP 1: TF-IDF VECTORIZATION (Technisch notwendig für SMOTE) ---
+# Wir nutzen 1000 Features, um die Berechnung schnell zu halten
+tfidf_smote = TfidfVectorizer(max_features=1000)
+X_train_tfidf = tfidf_smote.fit_transform(X_train_raw['review_text'])
 
-# --- SCHRITT 2: SMOTE anwenden ---
+# --- STEP 2: SMOTE ANWENDEN ---
 smote = SMOTE(random_state=42)
 X_resampled, y_resampled = smote.fit_resample(X_train_tfidf, y_train)
 
-# --- SCHRITT 3: Visualisierung ---
-st.write("### Comparison: Before vs. After SMOTE")
+# --- STEP 3: DATEN FÜR DIE GRAFIK VORBEREITEN ---
+# Wir zählen die Häufigkeiten vor und nach SMOTE
+before_counts = y_train.value_counts().reset_index()
+before_counts['Status'] = 'Original (Imbalanced)'
 
-# Wir bereiten die Daten für Plotly vor
-df_before = pd.DataFrame({'target_group': y_train, 'Status': 'Original (Imbalanced)'})
-df_after = pd.DataFrame({'target_group': y_resampled, 'Status': 'After SMOTE (Balanced)'})
-df_combined = pd.concat([df_before, df_after])
+after_counts = y_resampled.value_counts().reset_index()
+after_counts['Status'] = 'After SMOTE (Balanced)'
 
-# Das kombinierte Histogramm
-fig_smote = px.histogram(
-    df_combined, 
-    x="target_group", 
+# Zusammenführen für Plotly
+plot_df = pd.concat([before_counts, after_counts])
+plot_df.columns = ['Rating Group', 'Count', 'Status']
+
+# --- STEP 4: DAS BILD (GRAFIK) ERSTELLEN ---
+fig_smote = px.bar(
+    plot_df, 
+    x="Rating Group", 
+    y="Count", 
     color="Status", 
     barmode="group",
-    title="Effect of SMOTE on Training Data",
-    category_orders={"target_group": ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]},
-    color_discrete_map={'Original (Imbalanced)': '#636EFA', 'After SMOTE (Balanced)': '#00CC96'}
+    title="SMOTE Impact: Balancing the Minority Classes",
+    category_orders={"Rating Group": ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]},
+    color_discrete_map={
+        'Original (Imbalanced)': '#EF553B', # Rot für das Ungleichgewicht
+        'After SMOTE (Balanced)': '#00CC96'  # Grün für die Lösung
+    },
+    text_auto=True
 )
 
 st.plotly_chart(fig_smote, use_container_width=True)
 
-# --- SCHRITT 4: Metriken ---
-col1, col2 = st.columns(2)
-with col1:
-    st.metric("Total Samples Before", len(y_train))
-with col2:
-    st.metric("Total Samples After", len(y_resampled))
-
-st.info("💡 **What happened?** SMOTE created synthetic examples for the 'Low' and 'Mid' classes so they now match the count of the 'High' class.")
+# --- STEP 5: ZUSAMMENFASSUNG ---
+st.info(f"""
+    **Visual Analysis:**
+    - The **red bars** show your real data (very few Low/Mid reviews).
+    - The **green bars** show the synthetic data created by SMOTE.
+    - Every class now has exactly **{len(y_resampled)//3}** samples.
+""")
