@@ -123,37 +123,44 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from imblearn.over_sampling import SMOTE
 
 st.divider()
-st.subheader("5. Balancing with SMOTE")
+st.header("4. Class Balancing with SMOTE")
 
-# --- SCHRITT A: Vektorisierung (Text -> Zahlen) ---
-# Wir müssen den Text umwandeln, bevor SMOTE arbeiten kann
-tfidf = TfidfVectorizer(max_features=2000) # Wir nehmen die 2000 wichtigsten Wörter
+# --- SCHRITT 1: Vektorisierung (Nötig für SMOTE) ---
+# SMOTE braucht Zahlen. Wir wandeln den Text kurz in eine Matrix um.
+tfidf_temp = TfidfVectorizer(max_features=1000) 
+X_train_tfidf = tfidf_temp.fit_transform(X_train_raw['review_text'])
 
-X_train_tfidf = tfidf.fit_transform(X_train_raw['review_text'])
-X_test_tfidf = tfidf.transform(X_test_raw['review_text'])
-
-# --- SCHRITT B: SMOTE Anwendung ---
+# --- SCHRITT 2: SMOTE anwenden ---
 smote = SMOTE(random_state=42)
-X_train_resampled, y_train_resampled = smote.fit_resample(X_train_tfidf, y_train)
+X_resampled, y_resampled = smote.fit_resample(X_train_tfidf, y_train)
 
-# --- SCHRITT C: Visualisierung des Erfolgs ---
+# --- SCHRITT 3: Visualisierung ---
+st.write("### Comparison: Before vs. After SMOTE")
+
+# Wir bereiten die Daten für Plotly vor
+df_before = pd.DataFrame({'target_group': y_train, 'Status': 'Original (Imbalanced)'})
+df_after = pd.DataFrame({'target_group': y_resampled, 'Status': 'After SMOTE (Balanced)'})
+df_combined = pd.concat([df_before, df_after])
+
+# Das kombinierte Histogramm
+fig_smote = px.histogram(
+    df_combined, 
+    x="target_group", 
+    color="Status", 
+    barmode="group",
+    title="Effect of SMOTE on Training Data",
+    category_orders={"target_group": ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]},
+    color_discrete_map={'Original (Imbalanced)': '#636EFA', 'After SMOTE (Balanced)': '#00CC96'}
+)
+
+st.plotly_chart(fig_smote, use_container_width=True)
+
+# --- SCHRITT 4: Metriken ---
 col1, col2 = st.columns(2)
-
 with col1:
-    st.write("### Before SMOTE")
-    st.dataframe(y_train.value_counts())
-
+    st.metric("Total Samples Before", len(y_train))
 with col2:
-    st.write("### After SMOTE")
-    st.dataframe(y_train_resampled.value_counts())
+    st.metric("Total Samples After", len(y_resampled))
 
-st.success(f"✅ Balancing complete! The Training Set now has {len(y_train_resampled)} balanced samples.")
-
-# Daten für das eigentliche Training im Session State speichern
-st.session_state['final_training_data'] = {
-    'X_train': X_train_resampled,
-    'y_train': y_train_resampled,
-    'X_test': X_test_tfidf,
-    'y_test': y_test,
-    'vectorizer': tfidf
+st.info("💡 **What happened?** SMOTE created synthetic examples for the 'Low' and 'Mid' classes so they now match the count of the 'High' class.")
 }
