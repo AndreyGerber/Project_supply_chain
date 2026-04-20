@@ -206,14 +206,14 @@ if __name__ == "__main__":
     print("\n🚀 Starting Model Comparison")
 
     df = get_data(use_processed=True)
-    df = clean_raw_data(df)
+    #df = clean_raw_data(df)
     df = preprocess_dataframe(df)
     
     df = df.dropna(subset=["review_text_clean", "rating"])
 
     y = prepare_target(df)
 
-    # 🔥 getrennte Pipelines (sauber!)
+    # getrennte Pipelines (sauber!)
     df_tfidf, models_tfidf = train_tfidf(df, y, use_tuning=True)
     df_emb, models_emb = train_embeddings(df, y, use_tuning=True)
 

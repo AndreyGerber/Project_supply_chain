@@ -29,14 +29,18 @@ def clean_raw_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df[df["review_text"].apply(lambda x: len(x.split()) >= 3)]
     print(f"After removing short texts: {df.shape}")
 
+     # ---------------- Remove review_text starts with "Reply" ----------------
+    df = df[~df["review_text"].str.startswith("Reply", na=False)]
+    print(f"After removing Reply texts: {df.shape}")
+
     # ---------------- Clean supplier_response ----------------
     if "supplier_response" in df.columns:
         df["supplier_response"] = df["supplier_response"].fillna("")
 
     # ---------------- Validate rating ----------------
-    if "rating_svg" in df.columns:
-        df = df[df["rating_svg"].notna()]
-        df = df[df["rating_svg"].between(1, 5)]
+    if "rating" in df.columns:
+        df = df[df["rating"].notna()]
+        #df = df[df["rating"].between(1.0, 5.0)]
         print(f"After rating cleaning: {df.shape}")
 
     return df

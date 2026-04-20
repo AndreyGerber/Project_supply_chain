@@ -52,7 +52,7 @@ def generate_feature_hash(df: pd.DataFrame, version: str) -> str:
 def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["review_text_clean"] = df["review_text"].astype(str).apply(clean_text)
-    df["rating"] = df["rating_svg"].astype(float)
+    df["rating"] = df["rating"].astype(float)
 
     df = add_structured_features(df)
 
