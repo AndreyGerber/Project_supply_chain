@@ -163,4 +163,3 @@ with col2:
     st.metric("Total Samples After", len(y_resampled))
 
 st.info("💡 **What happened?** SMOTE created synthetic examples for the 'Low' and 'Mid' classes so they now match the count of the 'High' class.")
-}
