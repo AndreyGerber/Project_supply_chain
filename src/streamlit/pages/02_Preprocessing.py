@@ -234,6 +234,9 @@ sys_count = len(df_system) # Das sind deine 503 Zeilen
 # Wir nehmen nur die Zeilen, die KEINE System-Antworten sind
 df_no_system = df[~system_mask]
 
+#Normalisieren der Texte (Alles in Kleinbuchstaben, damit "The product is great" und "the product is great" als gleiche Aussage erkannt werden)
+df_no_system['review_text_normalized'] = df_no_system['review_text'].str.lower().
+
 # Die Anzahl der "extra Kopien" ist: (Alle User-Zeilen) minus (Einzigartige User-Texte)
 unique_user_count = df_no_system['review_text'].nunique()
 extra_rows = len(df_no_system) - unique_user_count # Das sind die restlichen Duplikate (z.B. 469)
