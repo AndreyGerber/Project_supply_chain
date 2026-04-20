@@ -153,6 +153,36 @@ else:
 
 
 # 4. Preventing Data Leakage: Target Creation & Train-Test Split
+st.divider()
+st.subheader("⚠️ Attention: Preventing Data Leakage")
+
+# --- FIRST: Create the target_group column ---
+def categorize_rating(r):
+    if r <= 2: return "Low (1-2 ⭐)"
+    elif r <= 4: return "Mid (3-4 ⭐)"
+    else: return "High (5 ⭐)"
+
+# Create the column BEFORE splitting
+df['target_group'] = df['rating'].apply(categorize_rating)
+
+# --- SECOND: Now perform the split ---
+from sklearn.model_selection import train_test_split
+
+X = df['review_text']
+y = df['target_group'] # Now this column exists!
+
+X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42, 
+    stratify=y
+)
+
+# Success display
+st.success("Target groups created and data successfully split!")
+st.metric("Training Samples", len(X_train_raw))
+st.metric("Test Samples", len(X_test_raw))
+
 import plotly.express as px
 
 st.write("### Train vs. Test Distribution")
@@ -188,4 +218,3 @@ with col2:
     st.plotly_chart(fig_test, use_container_width=True)
 
 st.info("💡 **Observation:** Notice how both sets maintain the same proportions. This is thanks to the 'stratify' parameter.")
-
