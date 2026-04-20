@@ -48,6 +48,35 @@ else:
 
 
 
+st.subheader("2. Duplicate Analysis")
+
+# Wir suchen Zeilen, die exakt identisch sind
+duplicates_df = df[df.duplicated(keep=False)] # keep=False zeigt alle Kopien an
+
+if not duplicates_df.empty:
+    st.warning(f"Found {len(duplicates_df)} rows that are potential duplicates.")
+    
+    # Anzeige der ersten 10 Duplikate zum Check
+    st.write("Preview of duplicate rows:")
+    st.dataframe(duplicates_df.head(10), use_container_width=True)
+    
+    # Entscheidung: Nur komplett identische Zeilen löschen
+    before_count = len(df)
+    df = df.drop_duplicates()
+    after_count = len(df)
+    
+    st.info(f"Removed {before_count - after_count} exact duplicates. Unique rows remaining: {after_count}")
+else:
+    st.success("No exact duplicates found!")
+
+
+
+
+
+
+
+
+
 # 3. Data Quality Checks & Grouping Logic
 import plotly.express as px
 
