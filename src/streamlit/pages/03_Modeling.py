@@ -225,35 +225,57 @@ st.info("💡 **Observation:** Notice how both sets maintain the same proportion
 
 
 
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-import seaborn as sns
-import matplotlib.pyplot as plt
+from sklearn.compose import ColumnTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from imblearn.over_sampling import SMOTE
+import plotly.express as px
+import pandas as pd
 
 st.divider()
-st.subheader("6. Model Training & Evaluation")
+st.subheader("5. Feature Engineering & SMOTE Balancing")
 
-with st.spinner('Training the Random Forest model...'):
-    # 1. Modell initialisieren und trainieren
-    rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
-    rf_model.fit(X_train_resampled, y_train_resampled)
+# 1. ColumnTransformer: Text (TF-IDF) und numerische Spalte (verified) kombinieren
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('text', TfidfVectorizer(max_features=1000, stop_words='english'), 'review_text'),
+        ('num', 'passthrough', ['verified'])
+    ]
+)
 
-    # 2. Vorhersage auf den UNBEREINIGTEN Testdaten
-    y_pred = rf_model.predict(X_test_transformed)
+# 2. Daten transformieren (Vektorisierung)
+# WICHTIG: Fit nur auf Training, Transform auf Test (Vermeidung von Data Leakage)
+X_train_transformed = preprocessor.fit_transform(X_train_raw)
+X_test_transformed = preprocessor.transform(X_test_raw)
 
-st.success("✅ Model training complete!")
+# 3. SMOTE auf die Trainingsdaten anwenden
+# Erzeugt künstliche Datenpunkte für 'Low' und 'Mid', bis sie so groß wie 'High' sind
+smote = SMOTE(random_state=42)
+X_train_resampled, y_train_resampled = smote.fit_resample(X_train_transformed, y_train)
 
-# 3. Ergebnisse anzeigen
-st.write("### Model Performance Report")
-report = classification_report(y_test, y_pred, output_dict=True)
-st.dataframe(pd.DataFrame(report).transpose(), use_container_width=True)
+# 4. Visualisierung der ausgeglichenen Klassen
+st.write("### Training Set after SMOTE Balancing")
 
-# 4. Confusion Matrix (Was wird verwechselt?)
-st.write("### Confusion Matrix")
-cm = confusion_matrix(y_test, y_pred, labels=category_order)
-fig_cm, ax = plt.subplots()
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-            xticklabels=category_order, yticklabels=category_order)
-plt.ylabel('Actual')
-plt.xlabel('Predicted')
-st.pyplot(fig_cm)
+# Ergebnisse in DataFrame für Plotly umwandeln
+balanced_df = pd.DataFrame(y_train_resampled).rename(columns={y_train_resampled.name: 'target_group'})
+category_order = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
+
+fig_balanced = px.histogram(
+    balanced_df, 
+    x="target_group", 
+    title="Perfectly Balanced Training Classes (Synthetically Enhanced)",
+    category_orders={"target_group": category_order},
+    color_discrete_sequence=['#00CC96'] # Ein sattes Grün für Erfolg
+)
+
+# Erzwinge die korrekte Reihenfolge der Balken
+fig_balanced.update_xaxes(categoryorder='array', categoryarray=category_order)
+
+st.plotly_chart(fig_balanced, use_container_width=True)
+
+# 5. Zusammenfassung anzeigen
+st.success(f"""
+    ✅ **Balancing successful!**
+    * Original Training Size: {len(y_train)}
+    * Resampled Training Size: {len(y_train_resampled)}
+    * Each class now contains {len(y_train_resampled)//3} samples.
+""")
