@@ -5,6 +5,22 @@ from PIL import Image
 import plotly.express as px
 from sklearn.model_selection import train_test_split
 
+import sys
+import os
+
+# Pfad aus deinem Screenshot hinzufügen, damit Streamlit das Paket findet
+user_site_packages = "/home/ubuntu/.local/lib/python3.12/site-packages"
+if user_site_packages not in sys.path:
+    sys.path.append(user_site_packages)
+
+# Jetzt sollte der Import klappen
+try:
+    from imblearn.over_sampling import SMOTE
+except ImportError:
+    st.error("Still can't find imbalanced-learn. Please restart the Streamlit server.")
+
+
+
 # --- 1. HEADER & IMAGE ---
 st.title("Modeling Phase")
 st.header("Fake-News Analysis")
