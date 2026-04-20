@@ -115,3 +115,45 @@ if 'ml_data' in st.session_state:
 else:
     st.error("❌ No processed data found in memory!")
     st.info("Please run the **'02 Preprocessing'** page first.")
+
+
+
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from imblearn.over_sampling import SMOTE
+
+st.divider()
+st.subheader("5. Balancing with SMOTE")
+
+# --- SCHRITT A: Vektorisierung (Text -> Zahlen) ---
+# Wir müssen den Text umwandeln, bevor SMOTE arbeiten kann
+tfidf = TfidfVectorizer(max_features=2000) # Wir nehmen die 2000 wichtigsten Wörter
+
+X_train_tfidf = tfidf.fit_transform(X_train_raw['review_text'])
+X_test_tfidf = tfidf.transform(X_test_raw['review_text'])
+
+# --- SCHRITT B: SMOTE Anwendung ---
+smote = SMOTE(random_state=42)
+X_train_resampled, y_train_resampled = smote.fit_resample(X_train_tfidf, y_train)
+
+# --- SCHRITT C: Visualisierung des Erfolgs ---
+col1, col2 = st.columns(2)
+
+with col1:
+    st.write("### Before SMOTE")
+    st.dataframe(y_train.value_counts())
+
+with col2:
+    st.write("### After SMOTE")
+    st.dataframe(y_train_resampled.value_counts())
+
+st.success(f"✅ Balancing complete! The Training Set now has {len(y_train_resampled)} balanced samples.")
+
+# Daten für das eigentliche Training im Session State speichern
+st.session_state['final_training_data'] = {
+    'X_train': X_train_resampled,
+    'y_train': y_train_resampled,
+    'X_test': X_test_tfidf,
+    'y_test': y_test,
+    'vectorizer': tfidf
+}
