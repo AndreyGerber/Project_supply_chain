@@ -5,7 +5,7 @@ import os
 st.title("Private Datenanalyse - Reviews")
 
 # Der Pfad zu deiner CSV im privaten Projekt
-file_path = "data/processed/reviews_clean.csv"
+file_path = "src/data/clean/reviews_clean.csv"
 
 if os.path.exists(file_path):
     # Daten laden
