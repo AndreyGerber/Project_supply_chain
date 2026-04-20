@@ -54,7 +54,11 @@ st.subheader("2. Duplicate Analysis")
 duplicates_df = df[df.duplicated(keep=False)] # keep=False zeigt alle Kopien an
 
 if not duplicates_df.empty:
-    st.warning(f"Found {len(duplicates_df)} rows that are potential duplicates.")
+    st.write(f"""
+    Initially, we found {raw_extra_rows} duplicates. 
+    Now, we **normalize the text** (converting everything to lowercase and removing extra spaces) and check again: 
+    We found **{normalized_extra_rows}** rows that are potential duplicates.
+    """)
     
     # Anzeige der ersten 10 Duplikate zum Check
     st.write("Preview of duplicate rows:")
