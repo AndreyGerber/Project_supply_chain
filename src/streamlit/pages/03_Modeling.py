@@ -85,46 +85,6 @@ else:
 
 
 
-# --- VISUAL SEPARATOR ---
-st.divider() # Erzeugt eine saubere Trennlinie
-
-# --- 4. TRAIN-TEST SPLIT ---
-st.subheader("⚠️ Attention: Preventing Data Leakage")
-
-st.info("""
-    **Strategy:** To avoid data leakage, we split the dataset into training and testing sets 
-    **before** applying any balancing techniques (like SMOTE) or vectorization. 
-    This ensures our test data remains unseen and represents real-world conditions.
-""")
-
-from sklearn.model_selection import train_test_split
-
-# Defining features (X) and target (y)
-X = df['review_text']
-y = df['target_group']
-
-# Implementing the split (80% Training, 20% Testing)
-# 'stratify=y' maintains the original proportion of ratings in both sets
-X_train_raw, X_test_raw, y_train, y_test = train_test_split(
-    X, y, 
-    test_size=0.2, 
-    random_state=42, 
-    stratify=y
-)
-
-# Displaying the results of the split
-col1, col2 = st.columns(2)
-with col1:
-    st.metric("Training Samples", len(X_train_raw))
-with col2:
-    st.metric("Test Samples", len(X_test_raw))
-
-st.write("---") # Ein weiterer kleiner Trenner vor dem nächsten Schritt
-
-
-
-
-
 
 
 
@@ -186,3 +146,42 @@ if 'ml_data' in st.session_state:
 
 else:
     st.error("Please run the Preprocessing page first!")
+
+
+
+
+# --- VISUAL SEPARATOR ---
+st.divider() # Erzeugt eine saubere Trennlinie
+
+# --- 4. TRAIN-TEST SPLIT ---
+st.subheader("⚠️ Attention: Preventing Data Leakage")
+
+st.info("""
+    **Strategy:** To avoid data leakage, we split the dataset into training and testing sets 
+    **before** applying any balancing techniques (like SMOTE) or vectorization. 
+    This ensures our test data remains unseen and represents real-world conditions.
+""")
+
+from sklearn.model_selection import train_test_split
+
+# Defining features (X) and target (y)
+X = df['review_text']
+y = df['target_group']
+
+# Implementing the split (80% Training, 20% Testing)
+# 'stratify=y' maintains the original proportion of ratings in both sets
+X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42, 
+    stratify=y
+)
+
+# Displaying the results of the split
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("Training Samples", len(X_train_raw))
+with col2:
+    st.metric("Test Samples", len(X_test_raw))
+
+st.write("---") # Ein weiterer kleiner Trenner vor dem nächsten Schritt
