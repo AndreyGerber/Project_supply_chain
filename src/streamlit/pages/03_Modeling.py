@@ -601,14 +601,15 @@ Switching from single words to **Bi-grams (pairs of words)** in the TfidfVectori
 st.balloons() # Ein kleiner feierlicher Abschluss für dein fertiges Projekt!
 
 # Punkt 5: Deep Learning Integration
-st.markdown("### 5. Transition to Neural Networks (Deep Learning)")
+st.markdown("### 5. Transition to Deep Learning Frameworks")
 st.write("""
-Moving from tree-based models to **Artificial Neural Networks (ANNs)** or 
-**Recurrent Neural Networks (RNNs/LSTMs)**. 
+Implementing the model using specialized Deep Learning libraries like 
+**Keras (TensorFlow)** or **PyTorch**.
 """)
 st.info("""
-**The Benefit:** Neural Networks can automatically learn complex hierarchical features 
-from text. Using **Negative Log-Likelihood (NLL)** as a loss function during training 
-would allow the network to optimize for the probability distribution across the 
-three rating classes, potentially solving the 'Mid-Rating' ambiguity more effectively.
+*   **Keras/TensorFlow:** Ideal for rapid prototyping of Dense Neural Networks to 
+    capture non-linear relationships between words.
+*   **PyTorch:** Offers great flexibility for implementing advanced architectures 
+    like LSTMs or Transformers (the tech behind ChatGPT), which understand the 
+    **context** and **order** of words far better than traditional models.
 """)
