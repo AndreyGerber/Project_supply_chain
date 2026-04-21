@@ -279,8 +279,6 @@ def preprocess_text_full(text):
     filtered_tokens = [w for w in tokens if w not in stop_words]
 
 
-    stop_words = set(stopwords.words('english'))
-
     
     # STEP 5: Re-Join (Zurückbauen zum String)
     # WICHTIG: TfidfVectorizer braucht einen String, keine Liste!
