@@ -382,7 +382,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
     # --- BUTTON 1: BASIS MODELL ---
     if st.button("🚀 Run Base Model Training"):
-        with st.spinner("Training Base Model..."):
+        with st.spinner("Training Gradient Boosting Model... this might take a minute.):
             start_time = time.time()
             model_base = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
             model_base.fit(X_train, y_train)
@@ -410,7 +410,14 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
         col_code1, col_code2 = st.columns(2)
         with col_code1:
             st.caption("Standard Model (Base)")
-            st.code("max_depth=3\nn_estimators=100", language="python")
+            st.code("""
+            model = GradientBoostingClassifier(
+                n_estimators=100,
+                learning_rate=0.1,
+                max_depth=3,
+                random_state=42
+            )
+                """, language="python")
         with col_code2:
             st.caption("Optimized Model (Tuned)")
             st.code("max_depth=5\nn_estimators=150\nsubsample=0.8", language="python")
@@ -420,7 +427,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
     st.subheader("🤖 Step 5 (Second Try): Optimized Model")
     
     if st.button("🚀 Run Optimized Training"):
-        with st.spinner("Training Optimized Model..."):
+        with st.spinner("Training Optimized Model... this may take a bit longer."):
             start_time = time.time()
             model_opt = GradientBoostingClassifier(n_estimators=150, learning_rate=0.1, max_depth=5, subsample=0.8, random_state=42)
             model_opt.fit(X_train, y_train)
