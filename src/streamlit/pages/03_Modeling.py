@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 
 # --- 1. HEADER & IMAGE ---
-st.title("Modeling Phase")
+st.title("Modeling")
 st.header("Fake-News")
 
 img_path = "src/streamlit/static/Analysis.png"
