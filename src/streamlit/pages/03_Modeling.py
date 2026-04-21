@@ -270,7 +270,9 @@ def preprocess_text_full(text):
     
     # STEP 4: Stopword Filtering
     stop_words = set(stopwords.words('english'))
-    negation_words = {'not', 'no', 'never', 'neither', 'nor', 'none'}
+    negation_words = {'not', 'no', 'never', 'neither', 'nor', 'none', 'but',
+        'dont', 'doesnt', 'didnt', 'wasnt', 'werent', 'havent', 'hasnt', 'hadnt',
+        'isnt', 'arent', 'wouldnt', 'shouldnt', 'couldnt', 'cant', 'cannot'     }
     stop_words = stop_words - negation_words 
     # Option: zusätzliche Stopwörter hinzufügen
     new_stop_words = [",", ".", "``", "@", "*", "(", ")", "...", "!", "?", "-", "_", ">", "<", ":", "/", "=", "--", "©", "~", ";", "\\", "\\\\"]
