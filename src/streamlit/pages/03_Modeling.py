@@ -592,10 +592,13 @@ The model is trained 5 times, each time using a different area as the 'mini-test
 st.success("🎯 **Benefit:** This ensures the results are stable and not just a 'lucky punch' from one specific split.")
 
 # Bonus: N-Grams
-st.markdown("### 4. Semantic Nuances (N-Grams)")
+st.markdown("### 4. Linguistic & Semantic Refinement")
 st.write("""
-Switching from single words to **Bi-grams (pairs of words)** in the TfidfVectorizer:
-`ngram_range=(1,2)`. This helps to capture meanings like 'not good' vs. 'good'.
+Enhancing the text preprocessing by adding **Lemmatization** and **N-Grams**.
+""")
+st.info("""
+*   **Lemmatization:** Reducing words to their base form (e.g., 'running' → 'run') to unify the vocabulary.
+*   **N-Grams:** Using word pairs (Bi-grams) like 'not good' instead of single words. This captures the true meaning of negated sentiments much better.
 """)
 
 st.balloons() # Ein kleiner feierlicher Abschluss für dein fertiges Projekt!
