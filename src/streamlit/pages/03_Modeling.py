@@ -545,3 +545,57 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
     st.dataframe(pd.DataFrame(report).transpose())
 
     st.session_state['final_model'] = model
+
+
+
+
+
+
+st.divider()
+st.subheader("🚀 Future Improvements & Outlook")
+
+st.write("""
+To further increase the model's performance (especially for the 'Mid' class), 
+the following strategies could be implemented in the next iteration:
+""")
+
+# Spalten für die Übersicht
+col_opt1, col_opt2 = st.columns(2)
+
+with col_opt1:
+    st.markdown("### 1. Advanced Balancing")
+    st.write("""
+    Instead of physical resampling (shrinking/growing data), we could use the 
+    entire dataset and handle the imbalance mathematically via **Class Weights**.
+    """)
+    st.code("# weights = compute_sample_weight(class_weight='balanced', y=y_train)\n# model.fit(X_train, y_train, sample_weight=weights)", language="python")
+
+with col_opt2:
+    st.markdown("### 2. Hyperparameter Tuning")
+    st.write("""
+    Using **GridSearchCV** or **RandomizedSearchCV** to systematically iterate 
+    through different combinations of:
+    """)
+    st.info("n_estimators, max_depth, learning_rate & subsample")
+
+st.write("---")
+
+# Punkt 3: Cross-Validation
+st.markdown("### 3. Cross-Validation (K-Fold)")
+st.write(f"""
+Instead of a single Train-Test-Split, we could use **Cross-Validation**. 
+This means splitting the training data into e.g., 5 smaller areas (folds). 
+The model is trained 5 times, each time using a different area as the 'mini-test-set'.
+""")
+
+# Visualisierungs-Idee für Cross-Validation (einfach per Text-Baustein)
+st.success("🎯 **Benefit:** This ensures the results are stable and not just a 'lucky punch' from one specific split.")
+
+# Bonus: N-Grams
+st.markdown("### 4. Semantic Nuances (N-Grams)")
+st.write("""
+Switching from single words to **Bi-grams (pairs of words)** in the TfidfVectorizer:
+`ngram_range=(1,2)`. This helps to capture meanings like 'not good' vs. 'good'.
+""")
+
+st.balloons() # Ein kleiner feierlicher Abschluss für dein fertiges Projekt!
