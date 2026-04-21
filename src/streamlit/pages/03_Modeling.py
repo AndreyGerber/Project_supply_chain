@@ -356,195 +356,99 @@ if 'train_test_split' in st.session_state:
 
 
 
+import streamlit as st
+import pandas as pd
+import time
+import plotly.figure_factory as ff
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-import plotly.figure_factory as ff
-import time
+
+# --- INITIALISIERUNG DES SESSION STATES ---
+if 'base_model_done' not in st.session_state:
+    st.session_state['base_model_done'] = False
+if 'optimized_model_done' not in st.session_state:
+    st.session_state['optimized_model_done'] = False
 
 st.divider()
-st.subheader("🤖 Step 5: Model Training & Evaluation")
+st.subheader("🤖 Step 5: Base Model Training & Evaluation")
 
+# Überprüfung der Daten
 if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
-    # 1. Daten aus dem Session State laden
     X_train = st.session_state['tfidf_data']['X_train']
     X_test = st.session_state['tfidf_data']['X_test']
     y_train = st.session_state['train_test_split']['y_train']
     y_test = st.session_state['train_test_split']['y_test']
-
-    # 2. Modell initialisieren
-    # Wir nehmen moderate Standardwerte für eine gute Balance zwischen Speed und Power
-    model = GradientBoostingClassifier(
-        n_estimators=100, 
-        learning_rate=0.1, 
-        max_depth=3, 
-        random_state=42
-    )
-
-    # 3. Training mit Zeitmessung
-    with st.spinner("Training Gradient Boosting Model... this might take a minute."):
-        start_time = time.time()
-        model.fit(X_train, y_train)
-        duration = time.time() - start_time
-    
-    st.success(f"✅ Training finished in {duration:.2f} seconds!")
-
-    # 4. Vorhersage (Prediction)
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-
-    # 5. Metriken anzeigen
-    st.metric("Model Accuracy", f"{accuracy:.2%}")
-
-    # 6. Confusion Matrix (Visualisierung)
-    st.write("### Confusion Matrix")
-
-    # Definieren der gewünschten Reihenfolge
     ordered_labels = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
 
-    # Confusion Matrix mit expliziten Labels berechnen
-    cm = confusion_matrix(y_test, y_pred, labels=ordered_labels)
+    # --- BUTTON 1: BASIS MODELL ---
+    if st.button("🚀 Run Base Model Training"):
+        with st.spinner("Training Base Model..."):
+            start_time = time.time()
+            model_base = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
+            model_base.fit(X_train, y_train)
+            
+            # Ergebnisse speichern
+            st.session_state['y_pred_base'] = model_base.predict(X_test)
+            st.session_state['duration_base'] = time.time() - start_time
+            st.session_state['base_model_done'] = True
+            # Wir speichern das Basis-Modell NICHT als final_model, das macht das optimierte
+    
+    # Anzeige Basis-Ergebnisse
+    if st.session_state['base_model_done']:
+        y_pred_base = st.session_state['y_pred_base']
+        st.success(f"✅ Base Training finished in {st.session_state['duration_base']:.2f}s")
+        st.metric("Base Accuracy", f"{accuracy_score(y_test, y_pred_base):.2%}")
+        
+        cm_base = confusion_matrix(y_test, y_pred_base, labels=ordered_labels)
+        fig_base = ff.create_annotated_heatmap(z=cm_base[::-1], x=ordered_labels, y=ordered_labels[::-1], colorscale='Viridis')
+        fig_base.update_layout(xaxis_title="Predicted rating", yaxis_title="True rating", xaxis=dict(side="top"))
+        st.plotly_chart(fig_base, use_container_width=True)
 
-    # Heatmap erstellen
-    fig_cm = ff.create_annotated_heatmap(
-        z=cm[::-1],            # Matrix umkehren für korrekte Y-Anzeige
-        x=ordered_labels, 
-        y=ordered_labels[::-1], # Labels umkehren
-        colorscale='Viridis', 
-        showscale=True
-    )
+    # --- DER THEORIE-BLOCK (Dazwischen geschaltet) ---
+    st.markdown(f'<div style="margin-top: 50px;"></div>', unsafe_allow_html=True)
+    st.write("### Something to optimize?")
+    col_code1, col_code2 = st.columns(2)
+    with col_code1:
+        st.caption("Standard Model (Base)")
+        st.code("max_depth=3\nn_estimators=100", language="python")
+    with col_code2:
+        st.caption("Optimized Model (Tuned)")
+        st.code("max_depth=5\nn_estimators=150\nsubsample=0.8", language="python")
 
-    # Achsenbeschriftung optimieren
-    fig_cm.update_layout(
-        xaxis_title="**Predicted rating**", 
-        yaxis_title="**True rating**",
-        xaxis=dict(side="top") # Schiebt die Labels der X-Achse nach oben für bessere Lesbarkeit
-    )
+    # --- BUTTON 2: OPTIMIERTES MODELL ---
+    st.divider()
+    st.subheader("🤖 Step 5 (Second Try): Optimized Model")
+    
+    if st.button("🚀 Run Optimized Training"):
+        with st.spinner("Training Optimized Model..."):
+            start_time = time.time()
+            model_opt = GradientBoostingClassifier(n_estimators=150, learning_rate=0.1, max_depth=5, subsample=0.8, random_state=42)
+            model_opt.fit(X_train, y_train)
+            
+            st.session_state['y_pred_opt'] = model_opt.predict(X_test)
+            st.session_state['duration_opt'] = time.time() - start_time
+            st.session_state['optimized_model_done'] = True
+            # Dieses Modell wird für die Live-Demo gespeichert!
+            st.session_state['final_model'] = model_opt
 
-    st.plotly_chart(fig_cm, use_container_width=True)
-
-    # 7. Detaillierter Report
-    st.write("### Classification Report")
-    report = classification_report(y_test, y_pred, output_dict=True)
-    st.dataframe(pd.DataFrame(report).transpose())
-
-    # Modell im Session State für spätere Vorhersagen speichern
-    st.session_state['final_model'] = model
+    # Anzeige Optimierte Ergebnisse
+    if st.session_state['optimized_model_done']:
+        y_pred_opt = st.session_state['y_pred_opt']
+        st.success(f"✅ Optimized Training finished in {st.session_state['duration_opt']:.2f}s")
+        st.metric("Optimized Accuracy", f"{accuracy_score(y_test, y_pred_opt):.2%}")
+        
+        cm_opt = confusion_matrix(y_test, y_pred_opt, labels=ordered_labels)
+        fig_opt = ff.create_annotated_heatmap(z=cm_opt[::-1], x=ordered_labels, y=ordered_labels[::-1], colorscale='Viridis')
+        fig_opt.update_layout(xaxis_title="Predicted rating", yaxis_title="True rating", xaxis=dict(side="top"))
+        st.plotly_chart(fig_opt, use_container_width=True)
+        
+        st.write("### Classification Report (Optimized)")
+        report_opt = classification_report(y_test, y_pred_opt, output_dict=True)
+        st.dataframe(pd.DataFrame(report_opt).transpose())
 
 else:
     st.error("No vectorized data found. Please complete the previous steps.")
 
-
-
-
-st.markdown(f'<div style="margin-top: 50px;"></div>', unsafe_allow_html=True)
-st.write("Something to optimize?")
-
-col_code1, col_code2 = st.columns(2)
-
-with col_code1:
-    st.caption("Standard Model (Base)")
-    st.code("""
-model = GradientBoostingClassifier(
-    n_estimators=100,
-    learning_rate=0.1,
-    max_depth=3,
-    random_state=42
-)
-    """, language="python")
-
-with col_code2:
-    st.caption("Optimized Model (Tuned)")
-    st.code("""
-model = GradientBoostingClassifier(
-    n_estimators=150,   # More trees
-    learning_rate=0.1,
-    max_depth=5,        # Deeper trees
-    subsample=0.8,      # Better generalization.
-    random_state=42
-)
-    """, language="python")
-
-
-
-
-
-
-
-
-
-
-#Optimierung des Modells mit Hyperparameter Tuning (GridSearchCV)
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.utils.class_weight import compute_sample_weight
-import plotly.figure_factory as ff
-import time
-import pandas as pd
-
-st.divider()
-st.subheader("🤖 Step 5 (second try): Optimized Model Training & Evaluation")
-
-if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
-    X_train = st.session_state['tfidf_data']['X_train']
-    X_test = st.session_state['tfidf_data']['X_test']
-    y_train = st.session_state['train_test_split']['y_train']
-    y_test = st.session_state['train_test_split']['y_test']
-
-    # --- OPTIMIERUNG 1: Class Weights berechnen ---
-    # Da "Mid" oft schwer zu greifen ist, helfen Gewichte dem Modell, 
-    # diese Klasse ernster zu nehmen.
-    #weights = compute_sample_weight(class_weight='balanced', y=y_train)
-
-    # --- OPTIMIERUNG 2: Stärkeres Modell-Setup ---
-    model = GradientBoostingClassifier(
-        n_estimators=150,      # Mehr Bäume für feinere Nuancen (vorher 100)
-        learning_rate=0.1, 
-        max_depth=5,           # Tiefere Bäume, um komplexere Wort-Kombinationen zu verstehen (vorher 3)
-        subsample=0.8,         # Nutzt nur 80% der Daten pro Baum (verhindert Overfitting)
-        random_state=42
-    )
-
-    with st.spinner("Training Optimized Model... this may take a bit longer."):
-        start_time = time.time()
-        # Wir trainieren das Modell mit den berechneten Gewichten
-        model.fit(X_train, y_train)
-        duration = time.time() - start_time
-    
-    st.success(f"✅ Optimized Training finished in {duration:.2f} seconds!")
-
-    # Vorhersage
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-
-    st.metric("Model Accuracy", f"{accuracy:.2%}")
-
-    # --- OPTIMIERUNG 3: Korrekte Matrix-Reihenfolge (Top-Down) ---
-    st.write("### Confusion Matrix")
-    ordered_labels = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
-    
-    # Für die Heatmap drehen wir die Y-Achse um, damit 1-2 oben links steht
-    cm = confusion_matrix(y_test, y_pred, labels=ordered_labels)
-    
-    fig_cm = ff.create_annotated_heatmap(
-        z=cm[::-1],            # Matrix umkehren für korrekte Y-Anzeige
-        x=ordered_labels, 
-        y=ordered_labels[::-1], # Labels umkehren
-        colorscale='Viridis', 
-        showscale=True
-    )
-
-    fig_cm.update_layout(
-        xaxis_title="**Predicted rating**", 
-        yaxis_title="**True rating**",
-        xaxis=dict(side="top")
-    )
-    st.plotly_chart(fig_cm, use_container_width=True)
-
-    st.write("### Classification Report")
-    report = classification_report(y_test, y_pred, output_dict=True)
-    st.dataframe(pd.DataFrame(report).transpose())
-
-    st.session_state['final_model'] = model
 
 
 
