@@ -392,7 +392,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
     st.metric("Model Accuracy", f"{accuracy:.2%}")
 
     # 6. Confusion Matrix (Visualisierung)
-    st.write("### Confusion Matrix (Ordered 1-2 to 5 ⭐)")
+    st.write("### Confusion Matrix")
 
     # Definieren der gewünschten Reihenfolge
     ordered_labels = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
@@ -411,9 +411,9 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
     # Achsenbeschriftung optimieren
     fig_cm.update_layout(
-        xaxis_title="**Predicted Label**", 
-        yaxis_title="**True Label**",
-        xaxis=dict(side="bottom") # Schiebt die Labels der X-Achse nach unten für bessere Lesbarkeit
+        xaxis_title="**Predicted rating**", 
+        yaxis_title="**True rating**",
+        xaxis=dict(side="top") # Schiebt die Labels der X-Achse nach oben für bessere Lesbarkeit
     )
 
     st.plotly_chart(fig_cm, use_container_width=True)
