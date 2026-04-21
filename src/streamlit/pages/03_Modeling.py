@@ -121,3 +121,115 @@ else:
 
 
 
+
+import pandas as pd
+import random
+import plotly.express as px
+import streamlit as st
+from sklearn.model_selection import train_test_split
+
+# --- 1. Helper Function for Text Augmentation ---
+def simple_augment(text):
+    """Swaps two random words to slightly vary the text without changing its meaning."""
+    if not isinstance(text, str): return text
+    words = text.split()
+    if len(words) < 3: return text # Too short to swap
+    
+    # Select two random indices to swap
+    idx1, idx2 = random.sample(range(len(words)), 2)
+    words[idx1], words[idx2] = words[idx2], words[idx1]
+    return " ".join(words)
+
+# --- 2. Initial Data Split ---
+st.divider()
+st.subheader("⚠️ Attention: Preventing Data Leakage")
+
+# Features and Target
+X = df[['review_text', 'verified']] 
+y = df['target_group']
+
+# Splitting before Resampling to keep the test set "unseen"
+X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42, 
+    stratify=y
+)
+
+# --- 3. Implementation of Resampling Strategy A ---
+st.divider()
+st.subheader("⚖️ Balancing Training Data (Strategy A)")
+
+# Combine X and y temporarily for easier filtering
+train_df = X_train_raw.copy()
+train_df['target_group'] = y_train
+
+target_count = 2000
+balanced_frames = []
+
+# Define categories to ensure correct ordering
+category_order = ["High (5 ⭐)", "Mid (3-4 ⭐)", "Low (1-2 ⭐)"]
+
+for group in train_df['target_group'].unique():
+    subset = train_df[train_df['target_group'] == group]
+    
+    if "5 ⭐" in group:
+        # A) UNDERSAMPLING: Reduce the 5-Star group to 2000
+        subset_balanced = subset.sample(n=min(len(subset), target_count), random_state=42)
+        st.write(f"✅ **{group}**: Reduced from {len(subset)} to {len(subset_balanced)} (Undersampling).")
+        
+    else:
+        # B) OVERSAMPLING + AUGMENTATION for Mid & Low
+        how_many_to_add = target_count - len(subset)
+        if how_many_to_add > 0:
+            # Draw random rows (keeping the 'verified' status linked to the text)
+            extras = subset.sample(n=how_many_to_add, replace=True, random_state=42)
+            
+            # Slightly vary the text in the extra rows
+            extras['review_text'] = extras['review_text'].apply(simple_augment)
+            
+            # Combine original subset with augmented extras
+            subset_balanced = pd.concat([subset, extras])
+            st.write(f"🚀 **{group}**: Increased from {len(subset)} to {len(subset_balanced)} (Augmentation).")
+        else:
+            subset_balanced = subset
+            
+    balanced_frames.append(subset_balanced)
+
+# Recombine all balanced groups and shuffle them
+train_df_balanced = pd.concat(balanced_frames).sample(frac=1, random_state=42).reset_index(drop=True)
+
+# Separate back into X and y for training
+X_train_final = train_df_balanced[['review_text', 'verified']]
+y_train_final = train_df_balanced['target_group']
+
+# --- 4. Visualization of Results ---
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("Final Training Samples", len(y_train_final))
+    fig_balanced = px.histogram(
+        train_df_balanced, x="target_group", title="Balanced Training Set",
+        category_orders={"target_group": category_order}, 
+        color_discrete_sequence=['#FF7F0E']
+    )
+    st.plotly_chart(fig_balanced, use_container_width=True)
+
+with col2:
+    st.metric("Test Samples (Original)", len(y_test))
+    # Test set visualization (should still show original distribution)
+    fig_test = px.histogram(
+        pd.DataFrame(y_test), x="target_group", title="Original Test Set",
+        category_orders={"target_group": category_order}, color_discrete_sequence=['#636EFA']
+    )
+    st.plotly_chart(fig_test, use_container_width=True)
+    st.info("Note: The test set remains untouched to ensure honest evaluation.")
+
+# --- 5. Saving to Session State ---
+st.session_state['train_test_split'] = {
+    'X_train': X_train_final, 
+    'X_test': X_test_raw, 
+    'y_train': y_train_final, 
+    'y_test': y_test
+}
+st.success("💡 **Resampling successful!** Balanced training data is now saved and ready for vectorization.")
+
