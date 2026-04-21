@@ -146,7 +146,6 @@ def simple_augment(text):
     return " ".join(words)
 
 # --- 2. Initial Data Split ---
-st.divider()
 
 # Features and Target
 X = df[['review_text', 'verified']] 
