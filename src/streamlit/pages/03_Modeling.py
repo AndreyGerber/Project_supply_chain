@@ -599,3 +599,16 @@ Switching from single words to **Bi-grams (pairs of words)** in the TfidfVectori
 """)
 
 st.balloons() # Ein kleiner feierlicher Abschluss für dein fertiges Projekt!
+
+# Punkt 5: Deep Learning Integration
+st.markdown("### 5. Transition to Neural Networks (Deep Learning)")
+st.write("""
+Moving from tree-based models to **Artificial Neural Networks (ANNs)** or 
+**Recurrent Neural Networks (RNNs/LSTMs)**. 
+""")
+st.info("""
+**The Benefit:** Neural Networks can automatically learn complex hierarchical features 
+from text. Using **Negative Log-Likelihood (NLL)** as a loss function during training 
+would allow the network to optimize for the probability distribution across the 
+three rating classes, potentially solving the 'Mid-Rating' ambiguity more effectively.
+""")
