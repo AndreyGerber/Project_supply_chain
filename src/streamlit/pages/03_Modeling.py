@@ -270,11 +270,17 @@ def preprocess_text_full(text):
     
     # STEP 4: Stopword Filtering
     stop_words = set(stopwords.words('english'))
+    negation_words = {'not', 'no', 'never', 'neither', 'nor', 'none'}
+    stop_words = stop_words - negation_words 
     # Option: zusätzliche Stopwörter hinzufügen
     new_stop_words = [",", ".", "``", "@", "*", "(", ")", "...", "!", "?", "-", "_", ">", "<", ":", "/", "=", "--", "©", "~", ";", "\\", "\\\\"]
     stop_words.update(new_stop_words)
     
     filtered_tokens = [w for w in tokens if w not in stop_words]
+
+
+    stop_words = set(stopwords.words('english'))
+
     
     # STEP 5: Re-Join (Zurückbauen zum String)
     # WICHTIG: TfidfVectorizer braucht einen String, keine Liste!
