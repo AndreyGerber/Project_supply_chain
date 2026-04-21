@@ -382,7 +382,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
     # --- BUTTON 1: BASIS MODELL ---
     if st.button("🚀 Run Base Model Training"):
-        with st.spinner("Training Gradient Boosting Model... this might take a minute.):
+        with st.spinner("Training Gradient Boosting Model... this might take a minute."):
             start_time = time.time()
             model_base = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
             model_base.fit(X_train, y_train)
