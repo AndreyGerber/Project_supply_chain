@@ -455,7 +455,7 @@ model = GradientBoostingClassifier(
     n_estimators=150,   # More trees
     learning_rate=0.1,
     max_depth=5,        # Deeper trees
-    subsample=0.8,      # Better gen.
+    subsample=0.8,      # Better generalization.
     random_state=42
 )
 # + Weighted Training
@@ -493,7 +493,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
     # --- OPTIMIERUNG 1: Class Weights berechnen ---
     # Da "Mid" oft schwer zu greifen ist, helfen Gewichte dem Modell, 
     # diese Klasse ernster zu nehmen.
-    weights = compute_sample_weight(class_weight='balanced', y=y_train)
+    #weights = compute_sample_weight(class_weight='balanced', y=y_train)
 
     # --- OPTIMIERUNG 2: Stärkeres Modell-Setup ---
     model = GradientBoostingClassifier(
@@ -507,7 +507,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
     with st.spinner("Training Optimized Model... this may take a bit longer."):
         start_time = time.time()
         # Wir trainieren das Modell mit den berechneten Gewichten
-        model.fit(X_train, y_train, sample_weight=weights)
+        model.fit(X_train, y_train)
         duration = time.time() - start_time
     
     st.success(f"✅ Optimized Training finished in {duration:.2f} seconds!")
