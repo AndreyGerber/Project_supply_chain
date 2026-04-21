@@ -369,10 +369,13 @@ if 'base_model_done' not in st.session_state:
 if 'optimized_model_done' not in st.session_state:
     st.session_state['optimized_model_done'] = False
 
+
+
+
 st.divider()
 st.subheader("🤖 Step 5: Base Model Training & Evaluation")
 
-# Überprüfung der Daten
+# 1. Datenprüfung (Alles Weitere muss in diesen Block eingerückt sein!)
 if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
     X_train = st.session_state['tfidf_data']['X_train']
     X_test = st.session_state['tfidf_data']['X_test']
@@ -382,19 +385,17 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
     # --- BUTTON 1: BASIS MODELL ---
     if st.button("🚀 Run Base Model Training"):
-        with st.spinner("Training Gradient Boosting Model... this might take a minute."):
+        with st.spinner("Training Gradient Boosting Model..."):
             start_time = time.time()
             model_base = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
             model_base.fit(X_train, y_train)
             
-            # Ergebnisse speichern
             st.session_state['y_pred_base'] = model_base.predict(X_test)
             st.session_state['duration_base'] = time.time() - start_time
             st.session_state['base_model_done'] = True
-            # Wir speichern das Basis-Modell NICHT als final_model, das macht das optimierte
     
     # Anzeige Basis-Ergebnisse
-    if st.session_state['base_model_done']:
+    if st.session_state.get('base_model_done'):
         y_pred_base = st.session_state['y_pred_base']
         st.success(f"✅ Base Training finished in {st.session_state['duration_base']:.2f}s")
         st.metric("Base Accuracy", f"{accuracy_score(y_test, y_pred_base):.2%}")
@@ -404,70 +405,52 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
         fig_base.update_layout(xaxis_title="Predicted rating", yaxis_title="True rating", xaxis=dict(side="top"))
         st.plotly_chart(fig_base, use_container_width=True)
 
-        # --- DER THEORIE-BLOCK (Dazwischen geschaltet) ---
-        st.markdown(f'<div style="margin-top: 50px;"></div>', unsafe_allow_html=True)
+        # --- DER THEORIE-BLOCK (Nur anzeigen, wenn Basis-Modell fertig) ---
+        st.markdown('<div style="margin-top: 50px;"></div>', unsafe_allow_html=True)
         st.write("#### 💡 Something to optimize?")
 
         col_code1, col_code2 = st.columns(2)
-
         with col_code1:
             st.caption("Standard Model (Base)")
-            st.code("""
-        model = GradientBoostingClassifier(
-            n_estimators=100,
-            learning_rate=0.1,
-            max_depth=3,
-            random_state=42
-        )
-            """, language="python")
+            st.code("model = GradientBoostingClassifier(\n    n_estimators=100,\n    learning_rate=0.1,\n    max_depth=3,\n    random_state=42\n)", language="python")
 
         with col_code2:
             st.caption("Optimized Model (Tuned)")
-            st.code("""
-        model = GradientBoostingClassifier(
-            n_estimators=150,   # More trees
-            learning_rate=0.1,
-            max_depth=5,        # Deeper trees
-            subsample=0.8,      # Better generalization
-            random_state=42
-        )
-            """, language="python")
+            st.code("model = GradientBoostingClassifier(\n    n_estimators=150,\n    learning_rate=0.1,\n    max_depth=5,\n    subsample=0.8,\n    random_state=42\n)", language="python")
 
-st.write("---")
+        st.divider()
+        st.subheader("🤖 Step 5 (Second Try): Optimized Model")
+        
+        # --- BUTTON 2: OPTIMIERTES MODELL ---
+        if st.button("🚀 Run Optimized Training"):
+            with st.spinner("Training Optimized Model..."):
+                start_time = time.time()
+                model_opt = GradientBoostingClassifier(n_estimators=150, learning_rate=0.1, max_depth=5, subsample=0.8, random_state=42)
+                model_opt.fit(X_train, y_train)
+                
+                st.session_state['y_pred_opt'] = model_opt.predict(X_test)
+                st.session_state['duration_opt'] = time.time() - start_time
+                st.session_state['optimized_model_done'] = True
+                st.session_state['final_model'] = model_opt
 
-    # --- BUTTON 2: OPTIMIERTES MODELL ---
-    st.divider()
-    st.subheader("🤖 Step 5 (Second Try): Optimized Model")
-    
-    if st.button("🚀 Run Optimized Training"):
-        with st.spinner("Training Optimized Model... this may take a bit longer."):
-            start_time = time.time()
-            model_opt = GradientBoostingClassifier(n_estimators=150, learning_rate=0.1, max_depth=5, subsample=0.8, random_state=42)
-            model_opt.fit(X_train, y_train)
+        # Anzeige Optimierte Ergebnisse
+        if st.session_state.get('optimized_model_done'):
+            y_pred_opt = st.session_state['y_pred_opt']
+            st.success(f"✅ Optimized Training finished in {st.session_state['duration_opt']:.2f}s")
+            st.metric("Optimized Accuracy", f"{accuracy_score(y_test, y_pred_opt):.2%}")
             
-            st.session_state['y_pred_opt'] = model_opt.predict(X_test)
-            st.session_state['duration_opt'] = time.time() - start_time
-            st.session_state['optimized_model_done'] = True
-            # Dieses Modell wird für die Live-Demo gespeichert!
-            st.session_state['final_model'] = model_opt
-
-    # Anzeige Optimierte Ergebnisse
-    if st.session_state['optimized_model_done']:
-        y_pred_opt = st.session_state['y_pred_opt']
-        st.success(f"✅ Optimized Training finished in {st.session_state['duration_opt']:.2f}s")
-        st.metric("Optimized Accuracy", f"{accuracy_score(y_test, y_pred_opt):.2%}")
-        
-        cm_opt = confusion_matrix(y_test, y_pred_opt, labels=ordered_labels)
-        fig_opt = ff.create_annotated_heatmap(z=cm_opt[::-1], x=ordered_labels, y=ordered_labels[::-1], colorscale='Viridis')
-        fig_opt.update_layout(xaxis_title="Predicted rating", yaxis_title="True rating", xaxis=dict(side="top"))
-        st.plotly_chart(fig_opt, use_container_width=True)
-        
-        st.write("### Classification Report (Optimized)")
-        report_opt = classification_report(y_test, y_pred_opt, output_dict=True)
-        st.dataframe(pd.DataFrame(report_opt).transpose())
+            cm_opt = confusion_matrix(y_test, y_pred_opt, labels=ordered_labels)
+            fig_opt = ff.create_annotated_heatmap(z=cm_opt[::-1], x=ordered_labels, y=ordered_labels[::-1], colorscale='Viridis')
+            fig_opt.update_layout(xaxis_title="Predicted rating", yaxis_title="True rating", xaxis=dict(side="top"))
+            st.plotly_chart(fig_opt, use_container_width=True)
+            
+            st.write("### Classification Report (Optimized)")
+            report_opt = classification_report(y_test, y_pred_opt, output_dict=True)
+            st.dataframe(pd.DataFrame(report_opt).transpose())
 
 else:
-    st.error("No vectorized data found. Please complete the previous steps.")
+    st.error("❌ No vectorized data found. Please complete the previous steps.")
+
 
 
 
