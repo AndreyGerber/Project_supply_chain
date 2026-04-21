@@ -428,3 +428,82 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
 else:
     st.error("No vectorized data found. Please complete the previous steps.")
+
+
+
+
+
+
+
+#Optimierung des Modells mit Hyperparameter Tuning (GridSearchCV)
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.utils.class_weight import compute_sample_weight
+import plotly.figure_factory as ff
+import time
+import pandas as pd
+
+st.divider()
+st.subheader("🤖 Step 5: Optimized Model Training & Evaluation")
+
+if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
+    X_train = st.session_state['tfidf_data']['X_train']
+    X_test = st.session_state['tfidf_data']['X_test']
+    y_train = st.session_state['train_test_split']['y_train']
+    y_test = st.session_state['train_test_split']['y_test']
+
+    # --- OPTIMIERUNG 1: Class Weights berechnen ---
+    # Da "Mid" oft schwer zu greifen ist, helfen Gewichte dem Modell, 
+    # diese Klasse ernster zu nehmen.
+    weights = compute_sample_weight(class_weight='balanced', y=y_train)
+
+    # --- OPTIMIERUNG 2: Stärkeres Modell-Setup ---
+    model = GradientBoostingClassifier(
+        n_estimators=150,      # Mehr Bäume für feinere Nuancen (vorher 100)
+        learning_rate=0.1, 
+        max_depth=5,           # Tiefere Bäume, um komplexere Wort-Kombinationen zu verstehen (vorher 3)
+        subsample=0.8,         # Nutzt nur 80% der Daten pro Baum (verhindert Overfitting)
+        random_state=42
+    )
+
+    with st.spinner("Training Optimized Model... this may take a bit longer."):
+        start_time = time.time()
+        # Wir trainieren das Modell mit den berechneten Gewichten
+        model.fit(X_train, y_train, sample_weight=weights)
+        duration = time.time() - start_time
+    
+    st.success(f"✅ Optimized Training finished in {duration:.2f} seconds!")
+
+    # Vorhersage
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+
+    st.metric("Model Accuracy", f"{accuracy:.2%}")
+
+    # --- OPTIMIERUNG 3: Korrekte Matrix-Reihenfolge (Top-Down) ---
+    st.write("### Confusion Matrix")
+    ordered_labels = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
+    
+    # Für die Heatmap drehen wir die Y-Achse um, damit 1-2 oben links steht
+    cm = confusion_matrix(y_test, y_pred, labels=ordered_labels)
+    
+    fig_cm = ff.create_annotated_heatmap(
+        z=cm[::-1],            # Matrix umkehren für korrekte Y-Anzeige
+        x=ordered_labels, 
+        y=ordered_labels[::-1], # Labels umkehren
+        colorscale='Viridis', 
+        showscale=True
+    )
+
+    fig_cm.update_layout(
+        xaxis_title="**Predicted rating**", 
+        yaxis_title="**True rating**",
+        xaxis=dict(side="top")
+    )
+    st.plotly_chart(fig_cm, use_container_width=True)
+
+    st.write("### Classification Report")
+    report = classification_report(y_test, y_pred, output_dict=True)
+    st.dataframe(pd.DataFrame(report).transpose())
+
+    st.session_state['final_model'] = model
