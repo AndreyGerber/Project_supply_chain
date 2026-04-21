@@ -392,15 +392,30 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
     st.metric("Model Accuracy", f"{accuracy:.2%}")
 
     # 6. Confusion Matrix (Visualisierung)
-    st.write("### Confusion Matrix")
-    cm = confusion_matrix(y_test, y_pred)
-    labels = model.classes_
-    
+    st.write("### Confusion Matrix (Ordered 1-2 to 5 ⭐)")
+
+    # Definieren der gewünschten Reihenfolge
+    ordered_labels = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
+
+    # Confusion Matrix mit expliziten Labels berechnen
+    cm = confusion_matrix(y_test, y_pred, labels=ordered_labels)
+
+    # Heatmap erstellen
     fig_cm = ff.create_annotated_heatmap(
-        z=cm, x=list(labels), y=list(labels), 
-        colorscale='Viridis', showscale=True
+        z=cm, 
+        x=ordered_labels,      # X-Achse (Predicted)
+        y=ordered_labels,      # Y-Achse (True)
+        colorscale='Viridis', 
+        showscale=True
     )
-    fig_cm.update_layout(xaxis_title="Predicted Label", yaxis_title="True Label")
+
+    # Achsenbeschriftung optimieren
+    fig_cm.update_layout(
+        xaxis_title="**Predicted Label**", 
+        yaxis_title="**True Label**",
+        xaxis=dict(side="bottom") # Schiebt die Labels der X-Achse nach unten für bessere Lesbarkeit
+    )
+
     st.plotly_chart(fig_cm, use_container_width=True)
 
     # 7. Detaillierter Report
