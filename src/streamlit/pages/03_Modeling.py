@@ -304,10 +304,11 @@ else:
 
 
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 st.divider()
-sfrom sklearn.feature_extraction.text import TfidfVectorizer
+
+from sklearn.feature_extraction.text import TfidfVectorizer
 import scipy.sparse as sp
 
 st.divider()
