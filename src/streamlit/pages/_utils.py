@@ -1,12 +1,3 @@
-import re
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-
-# Ensure downloads
-nltk.download('punkt')
-nltk.download('stopwords')
-
 def preprocess_text_full(text):
     if not isinstance(text, str):
         return ""
@@ -23,8 +14,8 @@ def preprocess_text_full(text):
     # 4. Stopwords Handling
     stop_words = set(stopwords.words('english'))
     
-    # --- WICHTIGE ÄNDERUNG: Negationen behalten ---
-        negation_words = {
+    # --- KORREKTUR: Alle Zeilen müssen auf der gleichen Ebene starten ---
+    negation_words = {
         'not', 'no', 'never', 'neither', 'nor', 'none', 'but',
         'dont', 'doesnt', 'didnt', 'wasnt', 'werent', 'havent', 'hasnt', 'hadnt',
         'isnt', 'arent', 'wouldnt', 'shouldnt', 'couldnt', 'cant', 'cannot'
