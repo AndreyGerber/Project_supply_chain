@@ -5,29 +5,11 @@ from PIL import Image
 import plotly.express as px
 from sklearn.model_selection import train_test_split
 
-import sys
-import subprocess
-import os
-
-# 1. Versuch: Paket im Standardpfad oder im User-Pfad suchen
-user_site = os.path.expanduser("~/.local/lib/python3.12/site-packages")
-if user_site not in sys.path:
-    sys.path.append(user_site)
-
-# 2. Versuch: Wenn Import scheitert, sofortige Installation erzwingen
-try:
-    from imblearn.over_sampling import SMOTE
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "imbalanced-learn"])
-    from imblearn.over_sampling import SMOTE
-
-# Wenn wir hier ankommen, ist SMOTE bereit!
-st.success("✅ Module 'imbalanced-learn' is ready!")
 
 
 # --- 1. HEADER & IMAGE ---
 st.title("Modeling Phase")
-st.header("Fake-News Analysis")
+st.header("Fake-News")
 
 img_path = "src/streamlit/static/Analysis.png"
 if os.path.exists(img_path):
@@ -135,6 +117,7 @@ if 'ml_data' in st.session_state:
 else:
     st.error("❌ No processed data found in memory!")
     st.info("Please run the **'02 Preprocessing'** page first.")
+
 
 
 
