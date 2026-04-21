@@ -402,9 +402,9 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
     # Heatmap erstellen
     fig_cm = ff.create_annotated_heatmap(
-        z=cm, 
-        x=ordered_labels,      # X-Achse (Predicted)
-        y=ordered_labels,      # Y-Achse (True)
+        z=cm[::-1],            # Matrix umkehren für korrekte Y-Anzeige
+        x=ordered_labels, 
+        y=ordered_labels[::-1], # Labels umkehren
         colorscale='Viridis', 
         showscale=True
     )
@@ -428,6 +428,44 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
 else:
     st.error("No vectorized data found. Please complete the previous steps.")
+
+
+
+
+
+st.divider()
+st.subheader("🛠️ Optimization Strategy: Tuning the 'Mid' Class")
+
+# 1. Visualisierung des Problems: Ungleichgewicht im Training
+y_train_df = pd.DataFrame(y_train).value_counts().reset_index()
+y_train_df.columns = ['Rating Group', 'Count']
+
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    st.write("#### 1. Data Challenge")
+    fig_imbalance = px.bar(
+        y_train_df, x='Rating Group', y='Count',
+        title="Training Data Distribution",
+        color='Rating Group',
+        color_discrete_map={"High (5 ⭐)": "#00CC96", "Mid (3-4 ⭐)": "#AB63FA", "Low (1-2 ⭐)": "#EF553B"}
+    )
+    st.plotly_chart(fig_imbalance, use_container_width=True)
+    st.info("The 'Mid' class has fewer samples than 'High', making it harder for the model to learn its specific nuances.")
+
+with col2:
+    st.write("#### 2. The Tuning Knobs")
+    st.markdown("""
+    To improve the **Mid (3-4 ⭐)** detection, we are adjusting:
+    
+    *   **Class Weights:** ⚖️ Telling the model that mistakes in the 'Mid' category are 'more expensive' than in the dominant 'High' category.
+    *   **Tree Depth (max_depth):** 🌳 Increasing depth from 3 to 5 to capture more complex word combinations (e.g., "good but could be better").
+    *   **Boosting Strength (n_estimators):** 🚀 Adding more trees (150) to give the model more 'learning rounds' to fix errors in the middle.
+    """)
+
+st.write("---")
+
+
 
 
 
