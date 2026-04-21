@@ -337,6 +337,11 @@ if 'train_test_split' in st.session_state:
         'X_test': X_test_final_model,
         'vectorizer': tfidf
     }
+    # Anzeige der Matrix-Dimensionen (Zeilen x Spalten)
+    rows_train = X_train_final_model.shape[0]
+    cols_train = X_train_final_model.shape[1]
 
-    st.success(f"Vectorization complete! Features combined: {X_train_final_model.shape[1]} (Text + Verified)")
-    st.info("Your model will now learn from both the review content AND the verification status.")
+    st.success(f"✅ Vectorization complete!")
+    st.write(f"**Matrix Dimensions:** {rows_train} samples (rows) × {cols_train} features (columns)")
+    st.info("The features consist of 5000 text-terms (TF-IDF) + 1 verified-status column.")
+
