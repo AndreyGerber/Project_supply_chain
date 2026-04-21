@@ -433,35 +433,65 @@ else:
 
 
 
-st.divider()
-st.subheader("🛠️ Optimization Strategy: Tuning the 'Mid' Class")
+st.write("#### 3. Code Comparison: Base vs. Optimized")
 
-# 1. Visualisierung des Problems: Ungleichgewicht im Training
-y_train_df = pd.DataFrame(y_train).value_counts().reset_index()
-y_train_df.columns = ['Rating Group', 'Count']
+col_code1, col_code2 = st.columns(2)
 
-col1, col2 = st.columns([1, 1])
+with col_code1:
+    st.caption("Standard Model (Base)")
+    st.code("""
+model = GradientBoostingClassifier(
+    n_estimators=100,
+    learning_rate=0.1,
+    max_depth=3,
+    random_state=42
+)
+    """, language="python")
 
-with col1:
-    st.write("#### 1. Data Challenge")
-    fig_imbalance = px.bar(
-        y_train_df, x='Rating Group', y='Count',
-        title="Training Data Distribution",
-        color='Rating Group',
-        color_discrete_map={"High (5 ⭐)": "#00CC96", "Mid (3-4 ⭐)": "#AB63FA", "Low (1-2 ⭐)": "#EF553B"}
-    )
-    st.plotly_chart(fig_imbalance, use_container_width=True)
-    st.info("The 'Mid' class has fewer samples than 'High', making it harder for the model to learn its specific nuances.")
+with col_code2:
+    st.caption("Optimized Model (Tuned)")
+    st.code("""
+model = GradientBoostingClassifier(
+    n_estimators=150,   # More trees
+    learning_rate=0.1,
+    max_depth=5,        # Deeper trees
+    subsample=0.8,      # Better gen.
+    random_state=42
+)
+# + Weighted Training
+model.fit(X_train, y_train, 
+          sample_weight=weights)
+    """, language="python")
 
-with col2:
-    st.write("#### 2. The Tuning Knobs")
-    st.markdown("""
-    To improve the **Mid (3-4 ⭐)** detection, we are adjusting:
-    
-    *   **Class Weights:** ⚖️ Telling the model that mistakes in the 'Mid' category are 'more expensive' than in the dominant 'High' category.
-    *   **Tree Depth (max_depth):** 🌳 Increasing depth from 3 to 5 to capture more complex word combinations (e.g., "good but could be better").
-    *   **Boosting Strength (n_estimators):** 🚀 Adding more trees (150) to give the model more 'learning rounds' to fix errors in the middle.
-    """)
+st.write("---")st.write("#### 3. Code Comparison: Base vs. Optimized")
+
+col_code1, col_code2 = st.columns(2)
+
+with col_code1:
+    st.caption("Standard Model (Base)")
+    st.code("""
+model = GradientBoostingClassifier(
+    n_estimators=100,
+    learning_rate=0.1,
+    max_depth=3,
+    random_state=42
+)
+    """, language="python")
+
+with col_code2:
+    st.caption("Optimized Model (Tuned)")
+    st.code("""
+model = GradientBoostingClassifier(
+    n_estimators=150,   # More trees
+    learning_rate=0.1,
+    max_depth=5,        # Deeper trees
+    subsample=0.8,      # Better gen.
+    random_state=42
+)
+# + Weighted Training
+model.fit(X_train, y_train, 
+          sample_weight=weights)
+    """, language="python")
 
 st.write("---")
 
