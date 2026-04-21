@@ -4,6 +4,7 @@ import scipy.sparse as sp
 import plotly.express as px
 import sys
 import os
+from _utils import preprocess_text_full
 
 # --- 1. Pfad-Korrektur für den Import aus dem übergeordneten Ordner ---
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
