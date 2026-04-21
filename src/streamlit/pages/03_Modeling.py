@@ -230,5 +230,102 @@ st.session_state['train_test_split'] = {
     'y_train': y_train_final, 
     'y_test': y_test
 }
-st.success("💡 **Resampling successful!** Balanced training data is now saved and ready for vectorization.")
+st.success("💡 **Resampling successful!** Balanced training data is now saved and ready for removing stopwords.")
 
+
+
+
+
+
+
+#Ab hier werden die Kommentare für das Machine Learning Modell vorbereitet.
+import re
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+# --- 1. Vorbereitung (Downloads) ---
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('punkt_tab') # Für neuere NLTK Versionen oft nötig
+
+def preprocess_text_full(text):
+    if not isinstance(text, str):
+        return ""
+    
+    # STEP 1: Lowercase
+    text = text.lower()
+    
+    # STEP 2: Regex (Satzzeichen und Zahlen entfernen)
+    # Wir machen das VOR den Stopwörtern, um "saubere" Wörter zu erhalten
+    text = re.sub(r'[^a-zA-Z\s]', '', text) # Behält nur Buchstaben und Leerzeichen
+    text = re.sub(r'\d+', '', text)        # Entfernt restliche Zahlen
+    
+    # STEP 3: Tokenize
+    tokens = word_tokenize(text)
+    
+    # STEP 4: Stopword Filtering
+    stop_words = set(stopwords.words('english'))
+    # Option: zusätzliche Stopwörter hinzufügen
+    new_stop_words = [",", ".", "``", "@", "*", "(", ")", "...", "!", "?", "-", "_", ">", "<", ":", "/", "=", "--", "©", "~", ";", "\\", "\\\\"]
+    stop_words.update(new_stop_words)
+    
+    filtered_tokens = [w for w in tokens if w not in stop_words]
+    
+    # STEP 5: Re-Join (Zurückbauen zum String)
+    # WICHTIG: TfidfVectorizer braucht einen String, keine Liste!
+    return " ".join(filtered_tokens)
+
+# --- 2. Anwendung auf die Daten ---
+st.divider()
+st.subheader("🧪 Advanced Text Preprocessing")
+
+if 'train_test_split' in st.session_state:
+    with st.spinner("Processing: Lowercase -> Regex -> Tokenize -> Filter -> Join..."):
+        # Wir laden die Daten aus dem Session State
+        X_train = st.session_state['train_test_split']['X_train']
+        X_test = st.session_state['train_test_split']['X_test']
+        
+        # Anwendung der gesamten Kette
+        X_train['clean_review'] = X_train['review_text'].apply(preprocess_text_full)
+        X_test['clean_review'] = X_test['review_text'].apply(preprocess_text_full)
+        
+        # Ergebnisse zurück in den Session State
+        st.session_state['train_test_split']['X_train'] = X_train
+        st.session_state['train_test_split']['X_test'] = X_test
+
+    st.success("All steps completed! Your text is now 'Vectorization-ready'.")
+    
+    # Vergleichs-Vorschau
+    st.write("Comparison (Original vs. Processed):")
+    st.dataframe(X_train[['review_text', 'clean_review']].head(5))
+else:
+    st.error("No data found. Please run the previous steps first.")
+
+
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+st.divider()
+st.subheader("🔢 Step 4: Vectorization (TF-IDF)")
+
+if 'train_test_split' in st.session_state:
+    # 1. Initialisierung
+    tfidf = TfidfVectorizer(max_features=5000) # Begrenzung auf die 5000 wichtigsten Wörter
+
+    # 2. Fit & Transform auf Trainingsdaten
+    # Wir nutzen nur die 'clean_review' Spalte
+    X_train_tfidf = tfidf.fit_transform(X_train['clean_review'])
+
+    # 3. NUR Transform auf Testdaten (wichtig: kein Fit!)
+    X_test_tfidf = tfidf.transform(X_test['clean_review'])
+
+    # 4. Speichern für das Modell-Training
+    st.session_state['tfidf_data'] = {
+        'X_train': X_train_tfidf,
+        'X_test': X_test_tfidf,
+        'vectorizer': tfidf
+    }
+
+    st.success(f"Vectorization complete! Matrix shape: {X_train_tfidf.shape}")
+    st.info("The text is now converted into numerical vectors and ready for the Classifier.")
