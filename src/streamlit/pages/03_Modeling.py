@@ -25,7 +25,7 @@ if 'ml_data' in st.session_state:
     # Daten einmalig laden
     df = st.session_state['ml_data'].copy()
     
-    st.subheader("1. Data Integration & Advanced Cleaning")
+    st.subheader("Step 0-1. Data Integration & Advanced Cleaning")
     
     # A. Duplikat-Analyse (Normalisiert)
     raw_extra_rows = df.duplicated().sum()
@@ -52,7 +52,7 @@ if 'ml_data' in st.session_state:
     st.dataframe(df.head(10), use_container_width=True)
 
     # --- 3. RATING DISTRIBUTION & GROUPING ---
-    st.subheader("2. Rating Distribution & Grouping")
+    st.subheader("Step 0-2: Rating Distribution & Grouping")
 
     # Gruppierungslogik
     def group_ratings(rating):
