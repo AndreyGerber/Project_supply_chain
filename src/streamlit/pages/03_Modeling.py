@@ -282,7 +282,7 @@ def preprocess_text_full(text):
 
 # --- 2. Anwendung auf die Daten ---
 st.divider()
-st.subheader("🧪Step 3 Advanced Text Preprocessing")
+st.subheader("🧪Step 3: Advanced Text Preprocessing")
 
 if 'train_test_split' in st.session_state:
     with st.spinner("Processing: Lowercase -> Regex -> Tokenize -> Filter -> Join..."):
@@ -310,7 +310,7 @@ else:
 
 
 
-st.divider()
+
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 import scipy.sparse as sp
