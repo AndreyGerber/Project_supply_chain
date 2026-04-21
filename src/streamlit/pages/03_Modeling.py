@@ -463,36 +463,6 @@ model.fit(X_train, y_train,
           sample_weight=weights)
     """, language="python")
 
-st.write("---")st.write("#### 3. Code Comparison: Base vs. Optimized")
-
-col_code1, col_code2 = st.columns(2)
-
-with col_code1:
-    st.caption("Standard Model (Base)")
-    st.code("""
-model = GradientBoostingClassifier(
-    n_estimators=100,
-    learning_rate=0.1,
-    max_depth=3,
-    random_state=42
-)
-    """, language="python")
-
-with col_code2:
-    st.caption("Optimized Model (Tuned)")
-    st.code("""
-model = GradientBoostingClassifier(
-    n_estimators=150,   # More trees
-    learning_rate=0.1,
-    max_depth=5,        # Deeper trees
-    subsample=0.8,      # Better gen.
-    random_state=42
-)
-# + Weighted Training
-model.fit(X_train, y_train, 
-          sample_weight=weights)
-    """, language="python")
-
 st.write("---")
 
 
