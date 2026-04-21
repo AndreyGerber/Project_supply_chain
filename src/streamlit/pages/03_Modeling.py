@@ -72,9 +72,14 @@ if 'ml_data' in st.session_state:
     )
     st.plotly_chart(fig_grouped, use_container_width=True)
 
+
+
+
+
+
     # --- 4. TRAIN-TEST SPLIT (Data Leakage Protection) ---
     st.divider()
-    st.subheader("⚠️ Attention: Preventing Data Leakage")
+    st.subheader("⚠️Step 1: Attention: Preventing Data Leakage")
 
     X = df[['review_text', 'verified']] 
     y = df['target_group']
@@ -157,7 +162,7 @@ X_train_raw, X_test_raw, y_train, y_test = train_test_split(
 
 # --- 3. Implementation of Resampling Strategy A ---
 st.divider()
-st.subheader("⚖️ Balancing Training Data (word switching augmentation)")
+st.subheader("⚖️Step 2: Balancing Training Data (word switching augmentation)")
 
 # Combine X and y temporarily for easier filtering
 train_df = X_train_raw.copy()
@@ -278,7 +283,7 @@ def preprocess_text_full(text):
 
 # --- 2. Anwendung auf die Daten ---
 st.divider()
-st.subheader("🧪 Advanced Text Preprocessing")
+st.subheader("🧪Step 3 Advanced Text Preprocessing")
 
 if 'train_test_split' in st.session_state:
     with st.spinner("Processing: Lowercase -> Regex -> Tokenize -> Filter -> Join..."):
@@ -432,8 +437,8 @@ else:
 
 
 
-
-st.write("#### 3. Code Comparison: Base vs. Optimized")
+st.markdown(f'<div style="margin-top: 50px;"></div>', unsafe_allow_html=True)
+st.write("Something to optimize?")
 
 col_code1, col_code2 = st.columns(2)
 
@@ -458,12 +463,8 @@ model = GradientBoostingClassifier(
     subsample=0.8,      # Better generalization.
     random_state=42
 )
-# + Weighted Training
-model.fit(X_train, y_train, 
-          sample_weight=weights)
     """, language="python")
 
-st.write("---")
 
 
 
@@ -482,7 +483,7 @@ import time
 import pandas as pd
 
 st.divider()
-st.subheader("🤖 Step 5: Optimized Model Training & Evaluation")
+st.subheader("🤖 Step 5 (second try): Optimized Model Training & Evaluation")
 
 if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
     X_train = st.session_state['tfidf_data']['X_train']
