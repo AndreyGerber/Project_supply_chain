@@ -4,10 +4,21 @@ import scipy.sparse as sp
 import plotly.express as px
 
 # Import der Funktion aus der versteckten Datei im selben Ordner
+import sys
+import os
+
+# Wir fügen das Hauptverzeichnis des Projekts zum Pfad hinzu
+# Damit Python 'src.streamlit.pages._utils' finden kann
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+if root_path not in sys.path:
+    sys.path.append(root_path)
+
 try:
-    from _utils import preprocess_text_full
+    # Absoluter Pfad ausgehend von deinem Projekt-Root
+    from src.streamlit.pages._utils import preprocess_text_full
 except ImportError:
-    st.error("❌ Die Datei '_utils.py' wurde im 'pages'-Ordner nicht gefunden.")
+    # Falls das fehlschlägt (je nach Start-Verzeichnis), versuchen wir es relativ
+    from _utils import preprocess_text_full
 
 # --- UI SETUP ---
 st.title("🚀 Live Model Demo")
