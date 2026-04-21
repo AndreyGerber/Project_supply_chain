@@ -404,16 +404,16 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
         fig_base.update_layout(xaxis_title="Predicted rating", yaxis_title="True rating", xaxis=dict(side="top"))
         st.plotly_chart(fig_base, use_container_width=True)
 
-    # --- DER THEORIE-BLOCK (Dazwischen geschaltet) ---
-    st.markdown(f'<div style="margin-top: 50px;"></div>', unsafe_allow_html=True)
-    st.write("### Something to optimize?")
-    col_code1, col_code2 = st.columns(2)
-    with col_code1:
-        st.caption("Standard Model (Base)")
-        st.code("max_depth=3\nn_estimators=100", language="python")
-    with col_code2:
-        st.caption("Optimized Model (Tuned)")
-        st.code("max_depth=5\nn_estimators=150\nsubsample=0.8", language="python")
+        # --- DER THEORIE-BLOCK (Dazwischen geschaltet) ---
+        st.markdown(f'<div style="margin-top: 50px;"></div>', unsafe_allow_html=True)
+        st.write("### Something to optimize?")
+        col_code1, col_code2 = st.columns(2)
+        with col_code1:
+            st.caption("Standard Model (Base)")
+            st.code("max_depth=3\nn_estimators=100", language="python")
+        with col_code2:
+            st.caption("Optimized Model (Tuned)")
+            st.code("max_depth=5\nn_estimators=150\nsubsample=0.8", language="python")
 
     # --- BUTTON 2: OPTIMIERTES MODELL ---
     st.divider()
