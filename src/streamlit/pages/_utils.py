@@ -24,7 +24,11 @@ def preprocess_text_full(text):
     stop_words = set(stopwords.words('english'))
     
     # --- WICHTIGE ÄNDERUNG: Negationen behalten ---
-    negation_words = {'not', 'no', 'never', 'neither', 'nor', 'none', 'but'}
+        negation_words = {
+        'not', 'no', 'never', 'neither', 'nor', 'none', 'but',
+        'dont', 'doesnt', 'didnt', 'wasnt', 'werent', 'havent', 'hasnt', 'hadnt',
+        'isnt', 'arent', 'wouldnt', 'shouldnt', 'couldnt', 'cant', 'cannot'
+    }
     stop_words = stop_words - negation_words 
     
     # Custom symbols to remove
