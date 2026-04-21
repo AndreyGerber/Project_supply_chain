@@ -142,7 +142,6 @@ def simple_augment(text):
 
 # --- 2. Initial Data Split ---
 st.divider()
-st.subheader("⚠️ Attention: Preventing Data Leakage")
 
 # Features and Target
 X = df[['review_text', 'verified']] 
@@ -158,7 +157,7 @@ X_train_raw, X_test_raw, y_train, y_test = train_test_split(
 
 # --- 3. Implementation of Resampling Strategy A ---
 st.divider()
-st.subheader("⚖️ Balancing Training Data (Strategy A)")
+st.subheader("⚖️ Balancing Training Data (word switching augmentation)")
 
 # Combine X and y temporarily for easier filtering
 train_df = X_train_raw.copy()
@@ -168,7 +167,7 @@ target_count = 2000
 balanced_frames = []
 
 # Define categories to ensure correct ordering
-category_order = ["High (5 ⭐)", "Mid (3-4 ⭐)", "Low (1-2 ⭐)"]
+category_order = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
 
 for group in train_df['target_group'].unique():
     subset = train_df[train_df['target_group'] == group]
@@ -176,7 +175,7 @@ for group in train_df['target_group'].unique():
     if "5 ⭐" in group:
         # A) UNDERSAMPLING: Reduce the 5-Star group to 2000
         subset_balanced = subset.sample(n=min(len(subset), target_count), random_state=42)
-        st.write(f"✅ **{group}**: Reduced from {len(subset)} to {len(subset_balanced)} (Undersampling).")
+        st.write(f"**{group}**: Reduced from {len(subset)} to {len(subset_balanced)} (Undersampling).")
         
     else:
         # B) OVERSAMPLING + AUGMENTATION for Mid & Low
@@ -190,7 +189,7 @@ for group in train_df['target_group'].unique():
             
             # Combine original subset with augmented extras
             subset_balanced = pd.concat([subset, extras])
-            st.write(f"🚀 **{group}**: Increased from {len(subset)} to {len(subset_balanced)} (Augmentation).")
+            st.write(f"**{group}**: Increased from {len(subset)} to {len(subset_balanced)} (Augmentation).")
         else:
             subset_balanced = subset
             
