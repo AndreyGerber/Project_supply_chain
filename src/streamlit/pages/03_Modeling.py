@@ -4,6 +4,9 @@ import os
 from PIL import Image
 import plotly.express as px
 from sklearn.model_selection import train_test_split
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from _utils import preprocess_text_full
 
 
 
