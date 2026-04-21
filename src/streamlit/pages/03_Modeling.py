@@ -343,5 +343,73 @@ if 'train_test_split' in st.session_state:
 
     st.success(f"✅ Vectorization complete!")
     st.write(f"**Matrix Dimensions:** {rows_train} samples (rows, each rating of 2000) × {cols_train} features (columns, words + verified).")
-    st.info("The features consist of 5000 text-terms (TF-IDF) + 1 verified-status column.")
 
+
+
+
+
+
+
+
+
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+import plotly.figure_factory as ff
+import time
+
+st.divider()
+st.subheader("🤖 Step 5: Model Training & Evaluation")
+
+if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
+    # 1. Daten aus dem Session State laden
+    X_train = st.session_state['tfidf_data']['X_train']
+    X_test = st.session_state['tfidf_data']['X_test']
+    y_train = st.session_state['train_test_split']['y_train']
+    y_test = st.session_state['train_test_split']['y_test']
+
+    # 2. Modell initialisieren
+    # Wir nehmen moderate Standardwerte für eine gute Balance zwischen Speed und Power
+    model = GradientBoostingClassifier(
+        n_estimators=100, 
+        learning_rate=0.1, 
+        max_depth=3, 
+        random_state=42
+    )
+
+    # 3. Training mit Zeitmessung
+    with st.spinner("Training Gradient Boosting Model... this might take a minute."):
+        start_time = time.time()
+        model.fit(X_train, y_train)
+        duration = time.time() - start_time
+    
+    st.success(f"✅ Training finished in {duration:.2f} seconds!")
+
+    # 4. Vorhersage (Prediction)
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+
+    # 5. Metriken anzeigen
+    st.metric("Model Accuracy", f"{accuracy:.2%}")
+
+    # 6. Confusion Matrix (Visualisierung)
+    st.write("### Confusion Matrix")
+    cm = confusion_matrix(y_test, y_pred)
+    labels = model.classes_
+    
+    fig_cm = ff.create_annotated_heatmap(
+        z=cm, x=list(labels), y=list(labels), 
+        colorscale='Viridis', showscale=True
+    )
+    fig_cm.update_layout(xaxis_title="Predicted Label", yaxis_title="True Label")
+    st.plotly_chart(fig_cm, use_container_width=True)
+
+    # 7. Detaillierter Report
+    st.write("### Classification Report")
+    report = classification_report(y_test, y_pred, output_dict=True)
+    st.dataframe(pd.DataFrame(report).transpose())
+
+    # Modell im Session State für spätere Vorhersagen speichern
+    st.session_state['final_model'] = model
+
+else:
+    st.error("No vectorized data found. Please complete the previous steps.")
