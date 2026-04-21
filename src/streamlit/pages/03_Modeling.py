@@ -307,25 +307,35 @@ else:
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 st.divider()
-st.subheader("🔢 Step 4: Vectorization (TF-IDF)")
+sfrom sklearn.feature_extraction.text import TfidfVectorizer
+import scipy.sparse as sp
+
+st.divider()
+st.subheader("🔢 Step 4: Vectorization & Feature Combination")
 
 if 'train_test_split' in st.session_state:
-    # 1. Initialisierung
-    tfidf = TfidfVectorizer(max_features=5000) # Begrenzung auf die 5000 wichtigsten Wörter
+    # 1. TF-IDF auf den Text anwenden
+    tfidf = TfidfVectorizer(max_features=5000)
+    
+    # Text-Vektoren erzeugen (Sparse Matrizen)
+    X_train_text = tfidf.fit_transform(X_train['clean_review'])
+    X_test_text = tfidf.transform(X_test['clean_review'])
 
-    # 2. Fit & Transform auf Trainingsdaten
-    # Wir nutzen nur die 'clean_review' Spalte
-    X_train_tfidf = tfidf.fit_transform(X_train['clean_review'])
+    # 2. Die 'verified'-Spalte vorbereiten
+    # Wir müssen sie in ein Format bringen, das mit der Sparse-Matrix kompatibel ist
+    X_train_verified = sp.csr_matrix(X_train[['verified']].values)
+    X_test_verified = sp.csr_matrix(X_test[['verified']].values)
 
-    # 3. NUR Transform auf Testdaten (wichtig: kein Fit!)
-    X_test_tfidf = tfidf.transform(X_test['clean_review'])
+    # 3. Text-Vektoren und Verified-Status zusammenfügen (hstack)
+    X_train_final_model = sp.hstack((X_train_text, X_train_verified))
+    X_test_final_model = sp.hstack((X_test_text, X_test_verified))
 
-    # 4. Speichern für das Modell-Training
+    # 4. Speichern für das Modell
     st.session_state['tfidf_data'] = {
-        'X_train': X_train_tfidf,
-        'X_test': X_test_tfidf,
+        'X_train': X_train_final_model,
+        'X_test': X_test_final_model,
         'vectorizer': tfidf
     }
 
-    st.success(f"Vectorization complete! Matrix shape: {X_train_tfidf.shape}")
-    st.info("The text is now converted into numerical vectors and ready for the Classifier.")
+    st.success(f"Vectorization complete! Features combined: {X_train_final_model.shape[1]} (Text + Verified)")
+    st.info("Your model will now learn from both the review content AND the verification status.")
