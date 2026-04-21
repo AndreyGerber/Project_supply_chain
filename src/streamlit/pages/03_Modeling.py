@@ -342,6 +342,6 @@ if 'train_test_split' in st.session_state:
     cols_train = X_train_final_model.shape[1]
 
     st.success(f"✅ Vectorization complete!")
-    st.write(f"**Matrix Dimensions:** {rows_train} samples (rows) × {cols_train} features (columns)")
+    st.write(f"**Matrix Dimensions:** {rows_train} samples (rows, each rating of 2000) × {cols_train} features (columns, words + verified).")
     st.info("The features consist of 5000 text-terms (TF-IDF) + 1 verified-status column.")
 
