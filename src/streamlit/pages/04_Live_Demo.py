@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import scipy.sparse as sp
-
+from utils import preprocess_text_full
 st.title("🚀 Live Model Demo")
 st.write("Type a review below to see how the model classifies it!")
 
