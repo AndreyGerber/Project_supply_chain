@@ -5,15 +5,18 @@ from pathlib import Path
 import pandas as pd
 
 TRACKING_PATH = Path("models/runs.json")
-
-
+    
+    
 # ---------------- RUN ID ----------------
-def generate_run_id(model_name: str, params: dict, metrics: dict, feature_type: str, data_version: str) -> str:
+def generate_run_id(model_name: str, params: dict, metrics: dict, feature_type: str, sampling_strategy: str, class_distribution_before: dict, class_distribution_after: dict, data_version: str) -> str:
     raw = json.dumps({
         "model": model_name,
         "params": params,
         "metrics": metrics,
         "feature_type": feature_type,
+        "sampling_strategy": sampling_strategy,
+        "class_distribution_before": class_distribution_before,
+        "class_distribution_after": class_distribution_after,
         "data_version": data_version
     }, sort_keys=True, default=str)
 
@@ -66,16 +69,25 @@ def log_experiment(
     mode: str,
     use_tuning: bool,
     feature_type: str,
+    sampling_strategy: str,
+    class_distribution_before: dict,
+    class_distribution_after: dict,
     data_version: str = "v1"
 ):
     metrics_clean = clean_dict(metrics)
     params_clean = clean_dict(params)
+    class_distribution_before_clean = clean_dict(class_distribution_before)
+    class_distribution_after_clean = clean_dict(class_distribution_after)
+    sampling_strategy_clean = make_json_serializable(sampling_strategy)
 
     run_id = generate_run_id(
         model_name,
         params_clean,
         metrics_clean,
         feature_type,
+        sampling_strategy_clean,
+        class_distribution_before_clean,
+        class_distribution_after_clean,
         data_version
     )
 
@@ -92,7 +104,11 @@ def log_experiment(
         "metrics": metrics_clean,
         "params": params_clean,
         "mode": mode,
-        "use_tuning": use_tuning
+        "use_tuning": use_tuning,
+        "sampling_strategy": sampling_strategy,
+        "class_distribution_before": class_distribution_before,
+        "class_distribution_after": class_distribution_after,
+        "data_version": data_version
     }
 
     TRACKING_PATH.parent.mkdir(parents=True, exist_ok=True)

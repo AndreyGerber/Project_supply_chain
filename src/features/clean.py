@@ -24,10 +24,10 @@ os.makedirs(BASE_RAW, exist_ok=True)
 BASE_CLEAN = "../data/clean/"
 os.makedirs(BASE_CLEAN, exist_ok=True)
 
-df1 = pd.read_json(BASE_RAW +"trustpilot_reviews_production.json")
-df2 = pd.read_json(BASE_RAW +"trustpilot_reviews_production2.json")
+df = pd.read_json(BASE_RAW +"trustpilot_reviews_prodction.json")
+#df2 = pd.read_json(BASE_RAW +"trustpilot_reviews_production2.json")
 
-df = pd.concat([df1, df2], ignore_index=True)
+#df = pd.concat([df1, df2], ignore_index=True)
 
 
 #zerlegt in numerisches rating
@@ -234,7 +234,7 @@ def categorize_issues_weighted(text):
 df = df.dropna(subset=["review_text"])
 
 #korrektur des company eintrags
-df["company"] = df["company"].str.replace(r"-de$", "_de", regex=True)
+#df["company"] = df["company"].str.replace(r"-de$", "_de", regex=True)
 #df["company"] = df["company"].str.replace(r"-(?=[^_]*$)", "_", regex=True)
 
 #neue Spalte review_text_clean
@@ -247,7 +247,8 @@ df["review_text_clean"] = df["review_text"].apply(clean_text)
 df = df.drop_duplicates()
 
 # teilen der company Spalte in company und company_site
-df[['company', 'company_site']] = df['company'].apply(split_company)
+df.rename(columns={'domain': 'company_site'}, inplace=True)
+#df[['company', 'company_site']] = df['company'].apply(split_company)
 
 # neue spalte review_text_clean_advanced
 df["review_text_clean_advanced"] = df["review_text_clean"].apply(clean_text_advanced)
