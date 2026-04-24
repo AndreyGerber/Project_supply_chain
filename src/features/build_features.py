@@ -16,7 +16,7 @@ from src.features.store_feature import FeatureStore
 from src.utils.data_cleaning import clean_raw_data
 
 # ---------------- Paths ----------------
-PROCESSED_PATH = Path(__file__).resolve().parent.parent.parent / "data/processed/reviews_clean.csv"
+PROCESSED_PATH = Path(__file__).resolve().parent.parent.parent / "data/processed/reviews_processed.csv"
 FEATURE_PATH = Path(__file__).resolve().parent.parent.parent / "data/features"
 
 store = FeatureStore(FEATURE_PATH)

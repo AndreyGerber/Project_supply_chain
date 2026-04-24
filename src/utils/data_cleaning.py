@@ -9,6 +9,8 @@ def clean_raw_data(df: pd.DataFrame) -> pd.DataFrame:
     - Entfernt Duplikate
     - Entfernt leere Texte
     - Entfernt sehr kurze Texte
+    - Bereinigt Datumsangaben
+    - Bereinigt Verifiziert-Status
     - Entfernt ungültige Ratings
     """
 
@@ -37,10 +39,37 @@ def clean_raw_data(df: pd.DataFrame) -> pd.DataFrame:
     if "supplier_response" in df.columns:
         df["supplier_response"] = df["supplier_response"].fillna("")
 
+    # ---------------- Clean Date ----------------
+    if "date" in df.columns:
+        df =clean_date_column(df)
+        print(f"After date cleaning: {df['date'].isna().sum()} missing values")
+        
+
+    if "verified" in df.columns:
+        df["verified"] = df["verified"].fillna(0).astype(int)
+        df["verified"] = df["verified"].astype(bool)
+        print(f"After verified cleaning: {df['verified'].isna().sum()} missing values")
+
     # ---------------- Validate rating ----------------
     if "rating" in df.columns:
+        df["rating"] = pd.to_numeric(df["rating"], errors="coerce")
         df = df[df["rating"].notna()]
-        #df = df[df["rating"].between(1.0, 5.0)]
+        df = df[df["rating"].between(1, 5)]
         print(f"After rating cleaning: {df.shape}")
 
+    return df
+
+# ---------------- Clean Date ----------------
+def clean_date_column(df):
+    if pd.api.types.is_datetime64_any_dtype(df['date']):
+        return df  # schon sauber
+
+    parsed = pd.to_datetime(df['date'], errors='coerce', utc=True)
+
+    numeric = pd.to_numeric(df['date'], errors='coerce')
+    mask = parsed.isna() & numeric.notna()
+
+    parsed.loc[mask] = pd.to_datetime(numeric[mask], unit='ms', errors='coerce', utc=True)
+
+    df['date'] = parsed
     return df

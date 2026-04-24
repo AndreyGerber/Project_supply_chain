@@ -6,7 +6,8 @@ from typing import Tuple
 
 #Path anpassen
 RAW_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "raw" / "trustpilot_reviews_production.json"
-PROCESSED_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "reviews_clean.csv"
+PROCESSED_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "reviews_processed.csv"
+CLEAN_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "clean" / "reviews_clean.csv"
 
 def load_raw_data() -> pd.DataFrame:
     """
