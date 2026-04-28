@@ -121,3 +121,53 @@ st.dataframe(metrics_df.style.format({
     "Recall": "{:.2f}",
     "F1": "{:.2f}"
 }))
+
+st.subheader("📊 Klassen-F1 Vergleich über alle Experimente")
+
+def compute_metrics_df(df):
+    rows = []
+    
+    for _, row in df.iterrows():
+        cm = np.array(row["confusion_matrix"])
+        experiment = row["experiment"]
+        
+        for i in range(len(cm)):
+            tp = cm[i, i]
+            fp = cm[:, i].sum() - tp
+            fn = cm[i, :].sum() - tp
+            
+            precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+            recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+            
+            f1 = (
+                2 * precision * recall / (precision + recall)
+                if (precision + recall) > 0 else 0
+            )
+            
+            rows.append({
+                "Experiment": experiment,
+                "Klasse": i,
+                "Precision": precision,
+                "Recall": recall,
+                "F1": f1
+            })
+    
+    return pd.DataFrame(rows)
+
+all_metrics_df = compute_metrics_df(df)
+
+# Pivot für bessere Vergleichbarkeit
+pivot_f1 = all_metrics_df.pivot(
+    index="Klasse",
+    columns="Experiment",
+    values="F1"
+)
+
+st.dataframe(pivot_f1.style.format("{:.2f}"))
+
+# Optional: Heatmap
+st.subheader("🔥 F1 Heatmap (Klassen vs Experimente)")
+
+fig, ax = plt.subplots()
+sns.heatmap(pivot_f1, annot=True, fmt=".2f", cmap="viridis", ax=ax)
+st.pyplot(fig)
