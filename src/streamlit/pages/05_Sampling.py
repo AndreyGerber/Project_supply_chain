@@ -1,0 +1,123 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import ast
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+st.set_page_config(page_title="Sampling Experiments", layout="wide")
+
+st.title("📊 Sampling Strategy Comparison")
+
+# --- Daten laden ---
+@st.cache_data
+def load_data():
+    df = pd.read_csv("results.csv")
+    df["confusion_matrix"] = df["confusion_matrix"].apply(ast.literal_eval)
+    return df
+
+df = load_data()
+
+
+
+# --- Sidebar Auswahl ---
+experiment = st.sidebar.selectbox(
+    "Wähle ein Experiment",
+    df["experiment"].unique()
+)
+
+selected_row = df[df["experiment"] == experiment].iloc[0]
+
+# --- Metriken anzeigen ---
+st.subheader(f"📌 Ergebnisse: {experiment}")
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Accuracy", f"{selected_row['accuracy']:.3f}")
+col2.metric("Macro F1", f"{selected_row['macro_f1']:.3f}")
+col3.metric("RMSE", f"{selected_row['rmse']:.3f}")
+
+# --- Vergleichsplot ---
+st.subheader("📈 Vergleich aller Experimente")
+
+fig, ax = plt.subplots()
+df.set_index("experiment")[["accuracy", "macro_f1", "rmse"]].plot(kind="bar", ax=ax)
+plt.xticks(rotation=45)
+st.pyplot(fig)
+
+# --- Confusion Matrix ---
+st.subheader("🔍 Confusion Matrix")
+
+cm = np.array(selected_row["confusion_matrix"])
+
+fig_cm, ax_cm = plt.subplots()
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax_cm)
+ax_cm.set_xlabel("Predicted")
+ax_cm.set_ylabel("Actual")
+st.pyplot(fig_cm)
+
+# --- Bestes Experiment ---
+st.subheader("🏆 Bestes Experiment")
+
+best_acc = df.loc[df["accuracy"].idxmax()]
+best_f1 = df.loc[df["macro_f1"].idxmax()]
+
+st.write("**Beste Accuracy:**", best_acc["experiment"])
+st.write("**Bester Macro F1:**", best_f1["experiment"])
+
+# --- Interpretation ---
+st.subheader("🧠 Interpretation")
+
+st.markdown("""
+Model performance across different sampling strategies.
+Here are the key insights:
+
+-**Baseline shows strong performance on dominant classes.
+-**Undersampling and Weights significantly reduces accuracy → loss of information.
+-**Weights only is  a stable middle ground.
+-**SMOTE improves class balance but can introduce noise.
+""")
+
+def compute_class_metrics(cm):
+    cm = np.array(cm)
+    
+    precision = []
+    recall = []
+    
+    for i in range(len(cm)):
+        tp = cm[i, i]
+        fp = cm[:, i].sum() - tp
+        fn = cm[i, :].sum() - tp
+        
+        p = tp / (tp + fp) if (tp + fp) > 0 else 0
+        r = tp / (tp + fn) if (tp + fn) > 0 else 0
+        
+        precision.append(p)
+        recall.append(r)
+    
+    return precision, recall
+
+
+st.subheader("📊 Precision & Recall pro Klasse")
+
+prec, rec = compute_class_metrics(selected_row["confusion_matrix"])
+
+metrics_df = pd.DataFrame({
+    "Klasse": list(range(len(prec))),
+    "Precision": prec,
+    "Recall": rec
+})
+
+# F1-Score berechnen
+metrics_df["F1"] = 2 * (metrics_df["Precision"] * metrics_df["Recall"]) / (
+    metrics_df["Precision"] + metrics_df["Recall"]
+)
+
+# Optional: bei Division durch 0
+metrics_df["F1"] = metrics_df["F1"].fillna(0)
+
+# Anzeige
+st.dataframe(metrics_df.style.format({
+    "Precision": "{:.2f}",
+    "Recall": "{:.2f}",
+    "F1": "{:.2f}"
+}))
