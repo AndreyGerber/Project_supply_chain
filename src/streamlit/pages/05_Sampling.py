@@ -12,7 +12,7 @@ st.title("📊 Sampling Strategy Comparison")
 # --- Daten laden ---
 @st.cache_data
 def load_data():
-    df = pd.read_csv("results.csv")
+    df = pd.read_csv("reports/sampling_comparison.csv")
     df["confusion_matrix"] = df["confusion_matrix"].apply(ast.literal_eval)
     return df
 
