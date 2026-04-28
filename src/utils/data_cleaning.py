@@ -9,9 +9,9 @@ def clean_raw_data(df: pd.DataFrame) -> pd.DataFrame:
     - Entfernt Duplikate
     - Entfernt leere Texte
     - Entfernt sehr kurze Texte
-    - Bereinigt Datumsangaben
-    - Bereinigt Verifiziert-Status
-    - Entfernt ungültige Ratings
+    - Bereinigt Datumsangaben (zu datetime)
+    - Bereinigt Verifiziert-Status(zu bool)
+    - Entfernt ungültige Ratings (muss float 1-5)
     """
 
     df = df.copy()
