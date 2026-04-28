@@ -1,257 +1,80 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px 
-from pathlib import Path
 
-# 1. Configuration
-st.set_page_config(page_title="Autodoc Review Dashboard", layout="wide")
+# 1. Konfiguration der Seite
+st.set_page_config(
+    page_title="Introduction to Supply Chain Analytics",
+    page_icon="📊",
+    layout="wide"
+)
 
-# 2. Data Loading Function
-@st.cache_data
-def load_data():
-    file_path = Path("src/data/clean/reviews_clean.csv")
-    if not file_path.exists():
-        st.error(f"Data file not found at: {file_path.absolute()}")
-        return pd.DataFrame()
+# 2. Titel und Einleitung
+st.title("🤖 Supply Chain Analytics")
+st.subheader("From Data Scraping to Star Predictions Using Machine Learning")
 
-    df = pd.read_csv(file_path)
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    df = df.dropna(subset=['date'])
-    
-    if 'rating_svg' in df.columns:
-        df['rating'] = df['rating_svg'].str.extract('(\d+)').astype(float).fillna(0).astype(int)
-    
-    columns_to_drop = ['rating_numeric', 'rating_svg']
-    df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
-    return df
+st.markdown("""
+---
+### 📝 Project Overview
+This project focuses on analyzing customer comments to automatically predict the corresponding **star rating**. 
+This represents a classic **Natural Language Processing (NLP)** and **Classification** challenge.
 
-# Initialize Data
-df = load_data()
+<br>
 
-# Main Application Logic
-if not df.empty:
-    # 3. Sidebar Filtering
-    st.sidebar.header("Filter Options")
-    selected_rating = st.sidebar.multiselect(
-        "Select Rating", 
-        options=sorted(df['rating'].unique()), 
-        default=sorted(df['rating'].unique())
-    )
-    df_filtered = df[df['rating'].isin(selected_rating)]
+### 🎯 Project Objectives
+*   **Pattern Recognition:** Identify which words correlate most strongly with positive or negative reviews. Find the negative and positve review patterns. 
+*   **Automation:** Train a model to accurately detect the sentiment (stars) of any given text.
+*   **Interaction:** Real-time testing of the model using your-comments.
 
-    # 4. Main Header
-    st.title("📊 Autodoc Customer Insights Dashboard")
-    st.markdown("This dashboard provides a comprehensive analysis of customer feedback and supplier performance.")
-    st.markdown("---")
+<br>
 
-    # --- POSITION 1: RAW DATA PREVIEW ---
-    st.subheader("📄 Raw Data Preview")
-    st.info("Direct preview of the filtered dataset:")
-    st.dataframe(df_filtered.head(15), use_container_width=True)
-    
-        # --- NEU: COMPANY VALUE COUNTS (Direkt unter der Tabelle) ---
-    st.markdown("#### 🏢 Company Distribution")
-    if 'company' in df_filtered.columns:
-        company_counts = df_filtered['company'].value_counts().reset_index()
-        company_counts.columns = ['Company Name', 'Review Count']
-        
-        # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
-        c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
-        with c1:
-            st.dataframe(company_counts, use_container_width=True, hide_index=True)
-        with c2:
-            fig_comp = px.bar(company_counts, x='Review Count', y='Company Name', 
-                              orientation='h', height=250, title="Reviews per Company")
-            st.plotly_chart(fig_comp, use_container_width=True)
-     
-       # --- 📅 Analysis Period & Timeline ---
-    st.markdown("#### 📅 Analysis Period")
-    if not df_filtered.empty and 'date' in df_filtered.columns:
-        first_date = df_filtered['date'].min()
-        last_date = df_filtered['date'].max()
-        
-        st.success(f"This dataset covers reviews from **{first_date.strftime('%d.%m.%Y')}** to **{last_date.strftime('%d.%m.%Y')}**.")
+---
+### 🚀 Workflow & Navigation
+Use the **sidebar on the left** to navigate through the different phases of the project:
+""", unsafe_allow_html=True)
 
-        # 1. Die Zeitachse (Linie)
-        timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['Start', 'End'], 'y': [0, 0]})
-        fig_timeline = px.line(timeline_df, x='date', y='y', markers=True, text='label')
-        fig_timeline.update_traces(line_color='#2E7D32', marker=dict(size=12, symbol='diamond'), textposition='top center')
-        fig_timeline.update_layout(height=120, margin=dict(l=20, r=20, t=30, b=20), xaxis=dict(showgrid=False, title=""),
-                                   yaxis=dict(showgrid=False, showticklabels=False, title=""), plot_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
+# 3. Project Phases visualized as Columns
+col1, col2, col3, col4 = st.columns(4)
 
-        # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN ---
-        st.markdown("#### 📊 Review Volume by Year")
-        
-        # Daten vorbereiten (Jahre extrahieren und zählen)
-        df_filtered['Year'] = df_filtered['date'].dt.year
-        yearly_counts = df_filtered['Year'].value_counts().sort_index().reset_index()
-        yearly_counts.columns = ['Year', 'Number of Reviews']
+with col1:
+    st.info("**Phase 1**")
+    st.write("📊 **Data Exploration**")
+    st.caption("Upload raw data, generate initial statistics, and visualize the dataset distribution.")
 
-        # Plotly Bar Chart erstellen
-        fig_years = px.bar(
-            yearly_counts, 
-            x='Year', 
-            y='Number of Reviews',
-            text='Number of Reviews',
-            color='Number of Reviews',
-            color_continuous_scale='Greens'
-        )
+with col2:
+    st.info("**Phase 2**")
+    st.write("🧹 **Preprocessing**")
+    st.caption("Text cleaning, stopword removal, and analyzing correlations between features.")
 
-        fig_years.update_layout(
-            xaxis_type='category', 
-            plot_bgcolor='rgba(0,0,0,0)',
-            showlegend=False,
-            coloraxis_showscale=False
-        )
+with col3:
+    st.info("**Phase 3**")
+    st.write("⚙️ **Modeling**")
+    st.caption("Comparison of various ML algorithms regarding accuracy, performance, and training time.")
 
-        st.plotly_chart(fig_years, use_container_width=True)
-        # --- ENDE DES NEUEN ABSCHNITTS ---
+with col4:
+    st.info("**Phase 4**")
+    st.write("✨ **Live Demo**")
+    st.caption("Interactive Prediction: Enter your own comment and let the AI predict the rating!")
 
-    st.markdown("---")
-    
+st.markdown("---")
 
+st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
 
-
-
-
-
-    # --- POSITION 2: KPIs (Jetzt UNTER der Preview) ---
-    avg_rating = df_filtered['rating'].mean()
-    response_rate = df_filtered['supplier_response'].notna().mean() * 100
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Reviews", len(df_filtered))
-    col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0")
-    col3.metric("Supplier Response Rate", f"{response_rate:.1f}%")
-    st.markdown("---")
-
-    # 6. Analysis Tabs
-    tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis", "📍 Operations & Support"])
-
-    with tab1:
-        st.subheader("Customer Satisfaction Distribution")
-        color_map = {1: "#2E7D32", 2: "#311B92", 3: "#FBC02D", 4: "#81D4FA", 5: "#C62828"}
-        fig = px.histogram(
-            df_filtered,
-            x="rating",
-            color="rating",
-            title="Frequency of Ratings",
-            labels={'rating': 'Star Rating', 'count': 'Number of Reviews'},
-            nbins=5,
-            color_discrete_map=color_map
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    with tab2:
-        st.subheader("💬 Sentiment & Keyword Discovery")
-        st.info("Search through individual comments or use the quick-filters below to find specific topics.")
-        
-        # 1. Such-Bereich
-        st.write("**Quick-Filters (Common Topics):**")
-        predefined_keywords = ["All", "shipping", "quality", "price", "support", "delivery", "service"]
-        
-        selected_quick_filter = st.selectbox("Choose a topic:", predefined_keywords, key="sb_quick")
-        manual_search = st.text_input("...or type your own keyword:", "", key="ti_manual")
-
-        # Logik für die Suchanfrage
-        search_query = manual_search if manual_search else (None if selected_quick_filter == "All" else selected_quick_filter)
-
-        st.markdown("---")
-
-        # 2. Ergebnisse der Suche anzeigen
-        if search_query:
-            results = df_filtered[df_filtered['review_text'].str.contains(search_query, case=False, na=False)]
-            
-            if not results.empty:
-                st.success(f"Found {len(results)} reviews containing '{search_query}':")
-                st.dataframe(results[['rating', 'review_text', 'date']], use_container_width=True)
-            else:
-                st.warning(f"No reviews found containing '{search_query}'.")
-        else:
-            st.write("Showing latest reviews (All):")
-            st.dataframe(df_filtered[['rating', 'review_text', 'date']].head(15), use_container_width=True)
-
-        st.markdown("---")
-        
-        # 3. Keyword-Analyse
-        st.subheader("🔝 Top 10 Keywords (Overall Sentiment)")
-        
-        all_text = " ".join(df_filtered['review_text'].fillna("").astype(str)).lower()
-        # Sonderzeichen entfernen für sauberere Wörter
-        all_text = ''.join(e for e in all_text if e.isalnum() or e.isspace())
-        words = pd.Series(all_text.split())
-        
-        stop_words = [
-            'the', 'and', 'to', 'for', 'is', 'it', 'with', 'a', 'in', 'of', 'i', 'was', 'on', 'at', 'as', 'be',
-            'die', 'der', 'und', 'ist', 'das', 'für', 'ein', 'eine', 'mit', 'auf', 'zu', 'den', 'im', 'dem', 'es'
-        ]
-        
-        top_words = words[~words.isin(stop_words)].value_counts().head(10)
-        
-        if not top_words.empty:
-            fig_words = px.bar(
-                top_words, 
-                x=top_words.values, 
-                y=top_words.index, 
-                orientation='h', 
-                labels={'x': 'Frequency', 'y': 'Keyword'},
-                color=top_words.values,
-                color_continuous_scale='Blues'
-            )
-            
-            fig_words.update_layout(
-                showlegend=False, 
-                coloraxis_showscale=False,
-                yaxis={'categoryorder':'total ascending'},
-                plot_bgcolor='rgba(0,0,0,0)',
-                margin=dict(l=0, r=0, t=30, b=0)
-            )
-            
-            st.plotly_chart(fig_words, use_container_width=True)
-        else:
-            st.write("Not enough text data to generate keyword analysis.")
-
-
-    with tab3:
-        st.header("📍 Geographic & Support Performance")
-        col_a, col_b = st.columns(2)
-        with col_a:
-            top_loc = df_filtered['location'].value_counts().head(8)
-            fig_loc = px.pie(values=top_loc.values, names=top_loc.index, title="Top Regions", hole=0.4)
-            st.plotly_chart(fig_loc, use_container_width=True)
-        with col_b:
-            df_filtered['has_response'] = df_filtered['supplier_response'].notna()
-            resp_counts = df_filtered['has_response'].value_counts().rename({True: 'Responded', False: 'Pending'})
-            fig_resp = px.bar(x=resp_counts.index, y=resp_counts.values, title="Response Status", color=resp_counts.index)
-            st.plotly_chart(fig_resp, use_container_width=True)
-
-    # 7. Personalized Footer
-    st.markdown("---")
-    
-    # 1. Großer Dankeschön-Text (Zentriert & Doppelte Größe)
-    st.markdown("""
-        <div style="text-align: center; margin-bottom: 20px;">
-            <span style="font-weight: bold; color: #ff4b4b; font-size: 2.2em;">
-                Thank you for exploring the Autodoc Review Dashboard!
-            </span>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # 2. Zentrierter Ausblick-Satz
-    st.markdown("""
-        <div style="
-            text-align: center; 
-            padding: 15px; 
-            background-color: #e8f4f8; 
-            border-radius: 10px; 
-            color: #004085;
-            font-size: 1.1em;
-            border: 1px solid #b8daff;">
-            🚀 More detailed analysis will appear soon—with better visuals, emojis, and machine learning algorithms.
-        </div>
-    """, unsafe_allow_html=True)
-
-# Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
-else:
-    st.warning("Data could not be loaded. Please check the source file.")
+font_size = "20px"
+st.markdown(
+    f"""
+    <div style="
+        background-color: #d4edda; 
+        color: #155724; 
+        padding: 15px; 
+        border-radius: 5px; 
+        border: 1px solid #c3e6cb;
+        font-size: {font_size};
+        display: flex;
+        align-items: center;
+    ">
+        💡 <span style="margin-left: 10px;">
+            <b>Ready to Start:</b> then let's move to Data Exploration.
+        </span>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
