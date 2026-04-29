@@ -11,14 +11,14 @@ from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, mean_squ
 from xgboost import XGBRegressor
 from imblearn.over_sampling import SMOTE
 
-from src.data.load_data import load_raw_data
-from src.utils.data_cleaning import clean_raw_data
-from src.features.build_features import preprocess_dataframe, generate_embeddings
-from src.features.store_feature import FeatureStore
+
 from src.features.build_features import generate_tfidf, generate_embeddings
 from src.data.load_data import load_processed_data
 from src.utils.experiment_tracking import log_experiment
 
+from pathlib import Path
+
+REPORT_PATH = Path("reports/sampling_comparison_ETL.csv")
 
 # ================================
 # 🔒 REPRODUCIBILITY
@@ -206,10 +206,10 @@ def main():
     print("🚀 Loading Data...")
     
     df = load_processed_data()
-    df = df.dropna(subset=["review_text_clean", "rating"])
+    df = df.dropna(subset=["review_text_clean_light", "rating"])
 
     # Features laden (Embeddings)
-    X = generate_embeddings(df, version="S1", use_clean_text=False)
+    X = generate_embeddings(df, version="S2", use_clean_text=True)
 
     y = df["rating"].values
 
@@ -232,9 +232,10 @@ def main():
         results.append(metrics)
 
     df_results = pd.DataFrame(results)
-    df_results.to_csv("sampling_comparison.csv", index=False)
+    
+    df_results.to_csv(REPORT_PATH, index=False)
 
-    print("\n✅ Results saved to sampling_comparison.csv")
+    print(f"\n✅ Results saved to {REPORT_PATH}")
 
 
 if __name__ == "__main__":

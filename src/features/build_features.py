@@ -14,6 +14,7 @@ from src.utils.text_preprocessing import clean_text, add_structured_features
 from src.data.load_data import load_raw_data
 from src.features.store_feature import FeatureStore
 from src.utils.data_cleaning import clean_raw_data
+from src.utils.text_translation import ReviewTranslator
 
 # ---------------- Paths ----------------
 PROCESSED_PATH = Path(__file__).resolve().parent.parent.parent / "data/processed/reviews_processed.csv"
@@ -50,24 +51,28 @@ def generate_feature_hash(df: pd.DataFrame, version: str) -> str:
 
 # ---------------- PREPROCESS ----------------
 def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    translator = ReviewTranslator()
+    
     df = df.copy()
-    df["review_text_clean"] = df["review_text"].astype(str).apply(clean_text)
+    #df["review_text_clean"] = df["review_text"].astype(str).apply(clean_text)
     df["rating"] = df["rating"].astype(float)
-
+    df = translator.process_dataframe_for_translation(df)
+    df["review_text_clean_en"] = df["review_text_en"].apply(clean_text)
+    df["review_text_clean_light"] = df["review_text_en"].str.lower()
     df = add_structured_features(df)
 
     return df
 
 
 # ---------------- TF-IDF ----------------
-def generate_tfidf(df: pd.DataFrame, version="v1", max_features: int = 5000):
+def generate_tfidf(df: pd.DataFrame, version="v2", max_features: int = 5000):
     """
     Gibt UNFITTED Pipeline zurück (wichtig für sklearn Pipeline!)
     Caching nur für fitted Pipeline optional extern
     """
 
-    text_features = "review_text_clean"
-    structured_features = ["review_length", "verified", "has_response"]
+    text_features = "review_text_clean_en"
+    structured_features = ["review_length","sentiment", "verified", "has_negation",]
 
     tfidf = TfidfVectorizer(
         max_features=max_features,
@@ -85,7 +90,7 @@ def generate_tfidf(df: pd.DataFrame, version="v1", max_features: int = 5000):
 
 
 # ---------------- EMBEDDINGS ----------------
-def generate_embeddings(df: pd.DataFrame, version="v1", use_clean_text=True):
+def generate_embeddings(df: pd.DataFrame, version="v2", use_clean_text=True):
     """
     Multilingual Embeddings + strukturierte Features
     """
@@ -97,7 +102,7 @@ def generate_embeddings(df: pd.DataFrame, version="v1", use_clean_text=True):
     if cached is not None:
         return cached
 
-    text_col = "review_text_clean" if use_clean_text else "review_text"
+    text_col = "review_text_clean_light" if use_clean_text else "review_text"
     texts = df[text_col].astype(str).tolist()
 
     print(f"⚡ Generating embeddings ({len(texts)} samples)...")
@@ -107,7 +112,7 @@ def generate_embeddings(df: pd.DataFrame, version="v1", use_clean_text=True):
         show_progress_bar=True
     )
 
-    structured = df[["review_length", "verified", "has_response"]].values
+    structured = df[["review_length", "verified", "sentiment", "has_negation"]].values
 
     features = np.hstack([structured, text_embeddings])
 
