@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Sampling Experiments", layout="wide")
 
-st.title("📊 Sampling Strategy Comparison")
+st.title("📊 Sampling Strategy Comparison for new Features + Embedding")
 
 # --- Daten laden ---
 @st.cache_data
