@@ -1,173 +1,173 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import ast
-import seaborn as sns
 import matplotlib.pyplot as plt
+import ast
 
-st.set_page_config(page_title="Sampling Experiments", layout="wide")
+st.set_page_config(layout="wide")
 
-st.title("📊 Sampling Strategy Comparison")
+st.title("📊 Sampling Strategy Evaluation for Review Classification")
 
-# --- Daten laden ---
-@st.cache_data
-def load_data():
-    df = pd.read_csv("reports/sampling_comparison.csv")
-    df["confusion_matrix"] = df["confusion_matrix"].apply(ast.literal_eval)
-    return df
+# ---------- Helper Functions ----------
 
-df = load_data()
+def parse_confusion_matrix(cm_str):
+    return np.array(ast.literal_eval(cm_str))
 
 
-
-# --- Sidebar Auswahl ---
-experiment = st.sidebar.selectbox(
-    "Wähle ein Experiment",
-    df["experiment"].unique()
-)
-
-selected_row = df[df["experiment"] == experiment].iloc[0]
-
-# --- Metriken anzeigen ---
-st.subheader(f"📌 Ergebnisse: {experiment}")
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Accuracy", f"{selected_row['accuracy']:.3f}")
-col2.metric("Macro F1", f"{selected_row['macro_f1']:.3f}")
-col3.metric("RMSE", f"{selected_row['rmse']:.3f}")
-
-# --- Vergleichsplot ---
-st.subheader("📈 Vergleich aller Experimente")
-
-fig, ax = plt.subplots()
-df.set_index("experiment")[["accuracy", "macro_f1", "rmse"]].plot(kind="bar", ax=ax)
-plt.xticks(rotation=45)
-st.pyplot(fig)
-
-# --- Confusion Matrix ---
-st.subheader("🔍 Confusion Matrix")
-
-cm = np.array(selected_row["confusion_matrix"])
-
-fig_cm, ax_cm = plt.subplots()
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax_cm)
-ax_cm.set_xlabel("Predicted")
-ax_cm.set_ylabel("Actual")
-st.pyplot(fig_cm)
-
-# --- Bestes Experiment ---
-st.subheader("🏆 Bestes Experiment")
-
-best_acc = df.loc[df["accuracy"].idxmax()]
-best_f1 = df.loc[df["macro_f1"].idxmax()]
-
-st.write("**Beste Accuracy:**", best_acc["experiment"])
-st.write("**Bester Macro F1:**", best_f1["experiment"])
-
-# --- Interpretation ---
-st.subheader("🧠 Interpretation")
-
-st.markdown("""
-Model performance across different sampling strategies.
-Here are the key insights:
-
--**Baseline shows strong performance on dominant classes.
--**Undersampling and Weights significantly reduces accuracy → loss of information.
--**Weights only is  a stable middle ground.
--**SMOTE improves class balance but can introduce noise.
-""")
-
-def compute_class_metrics(cm):
-    cm = np.array(cm)
-    
+def compute_per_class_metrics(cm):
+    num_classes = cm.shape[0]
     precision = []
     recall = []
-    
-    for i in range(len(cm)):
+    f1 = []
+
+    for i in range(num_classes):
         tp = cm[i, i]
         fp = cm[:, i].sum() - tp
         fn = cm[i, :].sum() - tp
-        
+
         p = tp / (tp + fp) if (tp + fp) > 0 else 0
         r = tp / (tp + fn) if (tp + fn) > 0 else 0
-        
+        f = 2 * p * r / (p + r) if (p + r) > 0 else 0
+
         precision.append(p)
         recall.append(r)
-    
-    return precision, recall
+        f1.append(f)
+
+    return precision, recall, f1
 
 
-st.subheader("📊 Precision & Recall pro Klasse")
+def confusion_distance(cm):
+    distance = 0
+    total = 0
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            distance += abs(i - j) * cm[i, j]
+            total += cm[i, j]
+    return distance / total
 
-prec, rec = compute_class_metrics(selected_row["confusion_matrix"])
 
-metrics_df = pd.DataFrame({
-    "Klasse": list(range(len(prec))),
-    "Precision": prec,
-    "Recall": rec
-})
+def plot_bar(df, metric, title):
+    fig, ax = plt.subplots()
+    ax.bar(df['experiment'], df[metric])
+    ax.set_title(title)
+    ax.set_ylabel(metric)
+    ax.set_xticklabels(df['experiment'], rotation=45)
+    st.pyplot(fig)
 
-# F1-Score berechnen
-metrics_df["F1"] = 2 * (metrics_df["Precision"] * metrics_df["Recall"]) / (
-    metrics_df["Precision"] + metrics_df["Recall"]
-)
 
-# Optional: bei Division durch 0
-metrics_df["F1"] = metrics_df["F1"].fillna(0)
+def plot_per_class(metric_values, title):
+    fig, ax = plt.subplots()
+    classes = list(range(1, len(metric_values) + 1))
+    ax.bar(classes, metric_values)
+    ax.set_title(title)
+    ax.set_xlabel("Class")
+    ax.set_ylabel("Score")
+    st.pyplot(fig)
 
-# Anzeige
-st.dataframe(metrics_df.style.format({
-    "Precision": "{:.2f}",
-    "Recall": "{:.2f}",
-    "F1": "{:.2f}"
-}))
+# ---------- Load Data ----------
 
-st.subheader("📊 Klassen-F1 Vergleich über alle Experimente")
+file1 = "reports/sampling_comparison.csv"
+file2 = "reports/sampling_comparison_ETL.csv"
+file3 = "reports/sampling_comparison_TF-idf.csv"
 
-def compute_metrics_df(df):
-    rows = []
-    
-    for _, row in df.iterrows():
-        cm = np.array(row["confusion_matrix"])
-        experiment = row["experiment"]
-        
-        for i in range(len(cm)):
-            tp = cm[i, i]
-            fp = cm[:, i].sum() - tp
-            fn = cm[i, :].sum() - tp
-            
-            precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-            recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-            
-            f1 = (
-                2 * precision * recall / (precision + recall)
-                if (precision + recall) > 0 else 0
-            )
-            
-            rows.append({
-                "Experiment": experiment,
-                "Klasse": i,
-                "Precision": precision,
-                "Recall": recall,
-                "F1": f1
-            })
-    
-    return pd.DataFrame(rows)
+df1 = pd.read_csv(file1)
+df2 = pd.read_csv(file2)
+df3 = pd.read_csv(file3)
 
-all_metrics_df = compute_metrics_df(df)
+# ---------- Overview ----------
+st.header("Overview")
+st.write("This study evaluates sampling strategies and feature configurations for review rating prediction.")
 
-# Pivot für bessere Vergleichbarkeit
-pivot_f1 = all_metrics_df.pivot(
-    index="Klasse",
-    columns="Experiment",
-    values="F1"
-)
+# ---------- Global Metrics ----------
+st.header("Global Metrics Comparison")
 
-st.dataframe(pivot_f1.style.format("{:.2f}"))
+col1, col2, col3 = st.columns(3)
 
-# Optional: Heatmap
-st.subheader("🔥 F1 Heatmap (Klassen vs Experimente)")
+with col1:
+    st.subheader("Study 1")
+    plot_bar(df1, 'accuracy', "Accuracy")
+    plot_bar(df1, 'macro_f1', "Macro F1")
+    plot_bar(df1, 'rmse', "RMSE")
 
-fig, ax = plt.subplots()
-sns.heatmap(pivot_f1, annot=True, fmt=".2f", cmap="viridis", ax=ax)
-st.pyplot(fig)
+with col2:
+    st.subheader("Study 2")
+    plot_bar(df2, 'accuracy', "Accuracy")
+    plot_bar(df2, 'macro_f1', "Macro F1")
+    plot_bar(df2, 'rmse', "RMSE")
+
+with col3:
+    st.subheader("Study 3")
+    plot_bar(df3, 'accuracy', "Accuracy")
+    plot_bar(df3, 'macro_f1', "Macro F1")
+    plot_bar(df3, 'rmse', "RMSE")
+
+# ---------- Confusion Matrix Analysis ----------
+st.header("Confusion Matrix Analysis")
+
+selected_study = st.selectbox("Select Study", ["Study 1", "Study 2", "Study 3"])
+
+if selected_study == "Study 1":
+    df = df1
+elif selected_study == "Study 2":
+    df = df2
+else:
+    df = df3
+
+selected_exp = st.selectbox("Select Experiment", df['experiment'])
+row = df[df['experiment'] == selected_exp].iloc[0]
+cm = parse_confusion_matrix(row['confusion_matrix'])
+
+st.subheader("Confusion Matrix")
+st.write(cm)
+
+# ---------- Per-Class Metrics ----------
+st.header("Per-Class Metrics")
+
+precision, recall, f1 = compute_per_class_metrics(cm)
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    plot_per_class(precision, "Precision per Class")
+
+with col2:
+    plot_per_class(recall, "Recall per Class")
+
+with col3:
+    plot_per_class(f1, "F1 Score per Class")
+
+# ---------- Error Analysis ----------
+st.header("Error Analysis")
+
+# Confusion Distance
+cd = confusion_distance(cm)
+st.metric("Confusion Distance", round(cd, 3))
+
+# False Negatives (1-2 predicted as 4-5)
+fn_critical = cm[0:2, 3:5].sum()
+st.metric("Critical False Negatives (1-2 → 4-5)", int(fn_critical))
+
+# Boundary Errors (4 vs 5)
+boundary = cm[3, 4] + cm[4, 3]
+st.metric("Boundary Errors (4 ↔ 5)", int(boundary))
+
+# ---------- Key Insights ----------
+st.header("Key Insights")
+
+st.markdown("""
+- Embeddings outperform TF-IDF significantly
+- Extended features (sentiment, negation) improve performance
+- Class weights outperform sampling strategies
+- Major errors occur between 4 and 5 star ratings
+- Detecting critical reviews remains challenging
+""")
+
+# ---------- Recommendations ----------
+st.header("Recommendations")
+
+st.markdown("""
+- Use embeddings with extended features
+- Prefer class weights over sampling
+- Apply hyperparameter tuning
+- Focus on recall for low ratings (1–2)
+""")
