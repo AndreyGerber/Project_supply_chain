@@ -596,11 +596,34 @@ if not df.empty:
         </div>
             
         </div>""", unsafe_allow_html=True)
+
+
+
+        
     # --- DER FINALE SCHRITT AUF SEITE 1 ---
     if not df_filtered.empty:
-        # Wir übergeben das gefilterte Ergebnis an den Session State
-        st.session_state['data_ready'] = df_filtered.copy()
-        st.success(f"✅ Data ready for Preprocessing! ({len(df_filtered)} rows buffered)")
+        # 1. Liste der Spalten, die wir NICHT an Seite 2 übergeben wollen
+        cols_to_exclude = [
+            'domain', 'language', 'sentiment', 
+            'has_negation', 'year', 'has_response', 
+            'company_site', 'rating_svg' # Falls diese noch im DF sind
+        ]
+        
+        # 2. Wir erstellen die Kopie und löschen nur die Spalten, die auch wirklich existieren
+        df_for_phase2 = df_filtered.drop(columns=[c for c in cols_to_exclude if c in df_filtered.columns])
+        
+        # 3. SPEICHERN FÜR SEITE 2
+        # Seite 2 sucht genau nach diesem Key: 'data_ready'
+        st.session_state['data_ready'] = df_for_phase2.copy()
+
+        # 4. Optisches Feedback
+        st.success(f"✅ Data prepared for Preprocessing! Removed {len(cols_to_exclude)} unnecessary columns.")
+        st.write(f"Remaining columns for Phase 2: `{list(df_for_phase2.columns)}`")
+        
+        if st.button("🚀 Proceed to Preprocessing (Phase 2)"):
+            st.switch_page("pages/02_Preprocessing.py")
+    else:
+        st.error("Dataset is empty. Cannot proceed.")
 
 
 
