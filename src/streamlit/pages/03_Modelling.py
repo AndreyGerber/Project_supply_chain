@@ -179,14 +179,19 @@ balanced_frames = []
 # Define categories to ensure correct ordering
 category_order = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
 
-for group in train_df['target_group'].unique():
+for group in category_order:
+    # Kleiner Sicherheitscheck, falls eine Gruppe mal gar nicht im DF ist
+    if group not in train_df['target_group'].values:
+        continue
+        
     subset = train_df[train_df['target_group'] == group]
     
     if "5 ⭐" in group:
-        # A) UNDERSAMPLING: Reduce the 5-Star group to 2000
+        # A) UNDERSAMPLING
         subset_balanced = subset.sample(n=min(len(subset), target_count), random_state=42)
         st.write(f"**{group}**: Reduced from {len(subset)} to {len(subset_balanced)} (Undersampling).")
         
+         
     else:
         # B) OVERSAMPLING + AUGMENTATION for Mid & Low
         how_many_to_add = target_count - len(subset)
