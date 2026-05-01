@@ -127,7 +127,7 @@ if not df.empty:
     st.info("Direct preview of the filtered dataset:")
 
     # Spalten definieren, die NICHT angezeigt werden sollen
-    cols_to_exclude = ["review_text_clean_advanced", "review_text_clean", "issue_categories", "review_text_clean_light", "review_length", "sentiment", "has_negotiation"]
+    cols_to_exclude = ["review_text_clean_advanced", "review_text_clean", "issue_categories", "review_text_clean_light", "review_length", "sentiment", "has_negation"]
     
     # Wir zeigen nur die Spalten an, die nicht in der Ausschlussliste sind
     # .drop(columns=...) erzeugt eine Kopie ohne die genannten Spalten
