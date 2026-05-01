@@ -599,7 +599,7 @@ if not df.empty:
 
 
 
-        
+
     # --- DER FINALE SCHRITT AUF SEITE 1 ---
     if not df_filtered.empty:
         # 1. Liste der Spalten, die wir NICHT an Seite 2 übergeben wollen
@@ -617,8 +617,8 @@ if not df.empty:
         st.session_state['data_ready'] = df_for_phase2.copy()
 
         # 4. Optisches Feedback
-        st.success(f"✅ Data prepared for Preprocessing! Removed {len(cols_to_exclude)} unnecessary columns.")
-        st.write(f"Remaining columns for Phase 2: `{list(df_for_phase2.columns)}`")
+        st.success(f"✅ Data prepared for Preprocessing!")
+        
         
         if st.button("🚀 Proceed to Preprocessing (Phase 2)"):
             st.switch_page("pages/02_Preprocessing.py")
