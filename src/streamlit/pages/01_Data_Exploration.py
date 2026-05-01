@@ -596,6 +596,12 @@ if not df.empty:
         </div>
             
         </div>""", unsafe_allow_html=True)
+    # --- DER FINALE SCHRITT AUF SEITE 1 ---
+    if not df_filtered.empty:
+        # Wir übergeben das gefilterte Ergebnis an den Session State
+        st.session_state['data_ready'] = df_filtered.copy()
+        st.success(f"✅ Data ready for Preprocessing! ({len(df_filtered)} rows buffered)")
+
 
 
 # Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
