@@ -6,37 +6,38 @@ from pathlib import Path
 # 1. Configuration
 st.set_page_config(page_title="Auto parts store Review Dashboard", layout="wide")
 
-@st.cache_data
-def load_data():
-    file_path = Path("src/data/clean/reviews_clean.csv")
-    if not file_path.exists():
-        st.error(f"Data file not found at: {file_path.absolute()}")
-        return pd.DataFrame()
+st.set_page_config(page_title="Auto Parts Store - Exploration", layout="wide")
 
-    df = pd.read_csv(file_path)
-    # Nur Datum konvertieren, da das technisch notwendig für Plotly ist
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    df = df.dropna(subset=['date'])
+# Pfad zur prozessierten Datei
+file_path = Path("data/processed/reviews_processed.csv")
+
+@st.cache_data
+def load_data(path):
+    if not path.exists():
+        st.error(f"Data file not found at: {path.absolute()}")
+        return pd.DataFrame()
+    
+    df = pd.read_csv(path)
+    
+    # Datum konvertieren
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    
+    # SPALTEN-TAUSCH: Wir machen die englischen Texte zum Standard
+    if 'review_text_en' in df.columns:
+        df = df.drop(columns=['review_text'], errors='ignore')
+        df = df.rename(columns={'review_text_en': 'review_text'})
+    
+    if 'review_text_clean_en' in df.columns:
+        df = df.rename(columns={'review_text_clean_en': 'review_text_clean_advanced'})
+        
     return df
 
-# --- INITIALISIERUNG ---
-df_raw = load_data()
+# --- 2. INITIALISIERUNG ---
+df_raw = load_data(file_path)
 
-# WICHTIG: Speichere die ECHTEN ROHDATEN für die anderen Seiten
 if not df_raw.empty:
-    st.session_state['raw_data'] = df_raw.copy()
-
-# Erstelle eine Arbeitskopie für die aktuelle Seite
-df = df_raw.copy()
-
-# BEREINIGUNG NUR AUSFÜHREN, WENN DIE SPALTE NOCH EIN TEXT IST
-if 'rating_svg' in df.columns:
-    # Wir stellen sicher, dass es Text ist (.astype(str)), bevor wir .str nutzen
-    df['rating'] = df['rating_svg'].astype(str).str.extract('(\d+)').fillna(0).astype(int)
-
-# Spalten erst löschen, nachdem die Extraktion fertig ist
-columns_to_drop = ['rating_numeric', 'rating_svg']
-df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+    df = df_raw.copy()
 
 # Ab hier nutzt dein restlicher Code wieder "df" für die Grafiken
 

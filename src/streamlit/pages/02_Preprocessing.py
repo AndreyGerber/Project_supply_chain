@@ -9,6 +9,14 @@ import os
 import plotly.express as px
 from pathlib import Path
 
+
+
+
+
+
+
+
+
 # --- 3. DATEN AUS DEM SESSION STATE LADEN (Seite 2) ---
 # WICHTIG: Nutze den Key 'data_ready', da du ihn auf Seite 1 so benannt hast!
 if 'data_ready' in st.session_state:
