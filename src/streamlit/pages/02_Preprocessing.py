@@ -348,17 +348,12 @@ st.markdown("---")
 st.header("🕵️ Correlation Analysis")
 
 # Wir arbeiten NUR mit dem bereits bereinigten 'df' (df_final)
-if 'df' in locals() and not df.empty:
-    # Schritt A: Echte Kopie erstellen
-    df_processed = df.copy() 
-
-    # Schritt B: 'date' in Datetime umwandeln
-    df_processed['date'] = pd.to_datetime(df_processed['date'], errors='coerce')
-
-    # Schritt C: Neue Spalten hinzufügen
-    df_processed['year'] = df_processed['date'].dt.year
-    df_processed['month_name'] = df_processed['date'].dt.month_name()
-    df_processed['weekday'] = df_processed['date'].dt.day_name()
+if not df.empty:
+    # Wir fügen die Spalten direkt dem aktuellen 'df' hinzu
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    df['year'] = df['date'].dt.year
+    df['month_name'] = df['date'].dt.month_name()
+    df['weekday'] = df['date'].dt.day_name()
 
     # Saison-Logik
     def get_season(month):
