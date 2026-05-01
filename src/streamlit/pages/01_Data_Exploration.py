@@ -6,8 +6,6 @@ from pathlib import Path
 # 1. Configuration
 st.set_page_config(page_title="Auto parts store Review Dashboard", layout="wide")
 
-st.set_page_config(page_title="Auto Parts Store - Exploration", layout="wide")
-
 # Pfad zur prozessierten Datei
 file_path = Path("data/processed/reviews_processed.csv")
 
@@ -129,7 +127,7 @@ if not df.empty:
     st.info("Direct preview of the filtered dataset:")
 
     # Spalten definieren, die NICHT angezeigt werden sollen
-    cols_to_exclude = ["review_text_clean_advanced", "review_text_clean", "issue_categories"]
+    cols_to_exclude = ["review_text_clean_advanced", "review_text_clean", "issue_categories", "review_text_clean_light", "review_length", "sentiment", "has_negotiation"]
     
     # Wir zeigen nur die Spalten an, die nicht in der Ausschlussliste sind
     # .drop(columns=...) erzeugt eine Kopie ohne die genannten Spalten
