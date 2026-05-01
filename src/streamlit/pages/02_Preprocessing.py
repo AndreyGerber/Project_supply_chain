@@ -390,15 +390,8 @@ if 'df' in locals() and not df.empty:
     other_cols = [col for col in df_processed.columns if col not in time_cols]
     df_processed = df_processed[time_cols + other_cols]
 
-    # Schritt F: Ergebnis anzeigen (gefiltert)
-       
-        # Liste der Spalten, die nur im Hintergrund existieren, aber nicht gezeigt werden sollen
-        cols_to_hide = ["review_length", "review_text_clean_light", "review_text_clean_advanced"]
-        
-        # Wir zeigen nur die Spalten an, die NICHT in unserer "Hide"-Liste sind
-        df_preview = df_processed.drop(columns=[c for c in cols_to_hide if c in df_processed.columns], errors='ignore')
-        
-        st.dataframe(df_preview.head(15), use_container_width=True)
+    # Schritt F: Ergebnis anzeigen
+    st.dataframe(df_processed.head(15), use_container_width=True)
 
 else:
     st.error("⚠️ No cleaned data found! Please ensure the cleaning steps above are completed.")
