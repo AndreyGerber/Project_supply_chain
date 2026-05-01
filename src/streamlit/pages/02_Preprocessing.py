@@ -357,7 +357,7 @@ if 'df' in locals() and not df.empty:
 
     # Schritt C: Neue Spalten hinzufügen
     df_processed['year'] = df_processed['date'].dt.year
-    df_processed['month'] = df_processed['date'].dt.month()
+    df_processed['month_name'] = df_processed['date'].dt.month_name()
     df_processed['weekday'] = df_processed['date'].dt.day_name()
 
     # Saison-Logik
@@ -386,11 +386,12 @@ if 'df' in locals() and not df.empty:
     df_processed = df_processed.drop(columns=['date'])
 
     # Schritt E: Spalten sortieren
-    time_cols = ['year', 'month', 'weekday', 'season', 'day_period']
+    time_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']
     other_cols = [col for col in df_processed.columns if col not in time_cols]
     df_processed = df_processed[time_cols + other_cols]
 
     # Schritt F: Ergebnis anzeigen
+    
     st.write("### 🚀 Results (Cleaned Preview)")
     
     # Liste der Spalten, die nur im Hintergrund existieren, aber nicht gezeigt werden sollen
@@ -547,7 +548,7 @@ month_order = [
 ]
 
 # Kreuztabelle für Monate und Rating
-heatmap_month_abs = pd.crosstab(df_processed['rating'], df_processed['month'])
+heatmap_month_abs = pd.crosstab(df_processed['rating'], df_processed['month_name'])
 
 # Sicherstellen, dass alle Monate da sind und richtig sortiert werden
 for m in month_order:
@@ -699,17 +700,17 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 # 1. Spalte 'issue_categories' aus dem Arbeits-DF löschen
 if 'issue_categories' in df_processed.columns:
-    df_processed = df_processed.drop(columns=['year', 'month', 'weekday', 'season', 'day_period'])  # Wir entfernen die Zeit-Features, um die Übersicht zu behalten
+    df_processed = df_processed.drop(columns=['year', 'month_name', 'weekday', 'season', 'day_period'])  # Wir entfernen die Zeit-Features, um die Übersicht zu behalten
 
 # 2. Professionelle Info-Box (English)
 st.info("""
     💡 **Feature Selection Update:** 
-    Time features (year, month, weekday, season, day_period) will be removed from the dataset because they are not directly relevant for our current analysis of customer reviews.
+    Time features (year, month_name, weekday, season, day_period) will be removed from the dataset because they are not directly relevant for our current analysis of customer reviews.
     """)
 
 cleaned_cols = ['review_text']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
-dropped_cols = ['year', 'month', 'weekday', 'season', 'day_period']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 df_display = df_display.drop(columns=["date"])
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
@@ -825,7 +826,7 @@ df_display = df_display.drop(columns=['location'])   # zur Visualisierung der Ta
 
 cleaned_cols = ['review_text']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
-dropped_cols = ['year', 'month', 'weekday', 'season', 'day_period', 'location']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
 html_status = """<style>
@@ -975,7 +976,7 @@ df_display = df_display.drop(columns=['company']) # DF zur Visualisierung (ohne 
 
 cleaned_cols = ['review_text', 'verified']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
-dropped_cols = ['year', 'month', 'weekday', 'season', 'day_period', 'location', 'company']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location', 'company']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
 html_status = """<style>
@@ -1149,7 +1150,7 @@ df_display = df_display.drop(columns=['supplier_response'])  # in df_display wur
 
 cleaned_cols = ['review_text', 'verified']
 #aim_cols = ['rating']  # Spalte, die wir vorerst behalten, da sie unser Zielwert ist (auch wenn sie noch nicht bereinigt ist)
-dropped_cols = ['year', 'month', 'weekday', 'season', 'day_period', 'location', 'company', 'supplier_response']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
+dropped_cols = ['year', 'month_name', 'weekday', 'season', 'day_period', 'location', 'company', 'supplier_response']  # 'has_response' wird hier hinzugefügt, da es ein abgeleitetes Feature ist, das auf 'supplier_response' basiert
 
 # 2. Den HTML-String OHNE Einrückung am Zeilenanfang bauen
 html_status = """<style>
