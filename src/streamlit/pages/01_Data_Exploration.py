@@ -605,7 +605,7 @@ if not df.empty:
         # 1. Liste der Spalten, die wir NICHT an Seite 2 übergeben wollen
         cols_to_exclude = [
             'domain', 'language', 'sentiment', 
-            'has_negation', 'year', 'has_response', 
+            'has_negation', 'Year', 'has_response', 
             'company_site', 'rating_svg' # Falls diese noch im DF sind
         ]
         
