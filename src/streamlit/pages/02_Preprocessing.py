@@ -357,7 +357,7 @@ if 'df' in locals() and not df.empty:
 
     # Schritt C: Neue Spalten hinzufügen
     df_processed['year'] = df_processed['date'].dt.year
-    df_processed['month_name'] = df_processed['date'].dt.month_name()
+    df_processed['month'] = df_processed['date'].dt.month_name()
     df_processed['weekday'] = df_processed['date'].dt.day_name()
 
     # Saison-Logik
@@ -386,7 +386,7 @@ if 'df' in locals() and not df.empty:
     df_processed = df_processed.drop(columns=['date'])
 
     # Schritt E: Spalten sortieren
-    time_cols = ['year', 'month_name', 'weekday', 'season', 'day_period']
+    time_cols = ['year', 'month', 'weekday', 'season', 'day_period']
     other_cols = [col for col in df_processed.columns if col not in time_cols]
     df_processed = df_processed[time_cols + other_cols]
 
