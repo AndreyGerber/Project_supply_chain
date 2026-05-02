@@ -1,137 +1,141 @@
 import streamlit as st
 import pandas as pd
-
-df = pd.read_csv("data/experiments/full_study.csv")
-
-st.title("📊 Experiment Comparison")
-
-st.subheader("Mean Metrics")
-st.dataframe(df.groupby("experiment").mean())
-
-st.subheader("Accuracy")
-st.bar_chart(df.groupby("experiment")["accuracy"].mean())
-
-st.subheader("Macro F1")
-st.bar_chart(df.groupby("experiment")["f1_macro"].mean())
-
-st.subheader("MAE (ordinal)")
-st.bar_chart(df.groupby("experiment")["mae"].mean())
-
-st.subheader("Kappa (ordinal agreement)")
-st.bar_chart(df.groupby("experiment")["kappa"].mean())
-
-import streamlit as st
-import pandas as pd
-import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
 
-st.title("🔍 Confusion Matrix Analysis")
+st.set_page_config(layout="wide")
 
-df = pd.read_csv("data/experiments/predictions.csv")
+# =========================
+# LOAD DATA
+# =========================
+@st.cache_data
+def load_data():
+    df_res = pd.read_csv("data/experiments/full_study.csv")
+    df_pred = pd.read_csv("data/experiments/predictions.csv")
+    return df_res, df_pred
 
-experiments = df["experiment"].unique()
+df_res, df_pred = load_data()
 
-exp_a = st.selectbox("Select Experiment A", experiments, index=2)
-exp_b = st.selectbox("Select Experiment B", experiments, index=3)
+# Aggregate
+df_avg = df_res.groupby("experiment").mean().reset_index()
 
-df_a = df[df["experiment"] == exp_a]
-df_b = df[df["experiment"] == exp_b]
+# =========================
+# TITLE
+# =========================
+st.title("📊 Model Evolution: From Baseline to Hybrid Intelligence")
 
-labels = sorted(df["y_true"].unique())
+st.markdown("""
+This dashboard shows how the model improves step-by-step through systematic experimentation.
+Each experiment represents a targeted improvement in the ML pipeline.
+""")
 
-cm_a = confusion_matrix(df_a["y_true"], df_a["y_pred"], labels=labels)
-cm_b = confusion_matrix(df_b["y_true"], df_b["y_pred"], labels=labels)
+# =========================
+# 1. PERFORMANCE EVOLUTION
+# =========================
+st.header("📈 Performance Evolution")
 
-# =========================================
-# Plot helper
-# =========================================
-def plot_cm(cm, title):
-    fig, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt="d", ax=ax)
-    ax.set_title(title)
-    ax.set_xlabel("Predicted")
-    ax.set_ylabel("True")
-    st.pyplot(fig)
+fig, ax = plt.subplots()
 
-# =========================================
-# Show matrices
-# =========================================
-st.subheader(f"{exp_a} Confusion Matrix")
-plot_cm(cm_a, exp_a)
+for metric in ["accuracy", "f1_macro", "mae"]:
+    ax.plot(df_avg["experiment"], df_avg[metric], marker="o", label=metric)
 
-st.subheader(f"{exp_b} Confusion Matrix")
-plot_cm(cm_b, exp_b)
+ax.set_title("Model Improvement Across Experiments")
+ax.legend()
 
-# =========================================
-# Difference
-# =========================================
-diff = cm_b - cm_a
+st.pyplot(fig)
 
-st.subheader(f"Difference ({exp_b} - {exp_a})")
-plot_cm(diff, "Difference Matrix")
+st.markdown("""
+🔍 **Insight:**
+- Strong improvement from Exp1 → Exp3
+- Exp4 (Ordinal) fails dramatically → requires redesign
+""")
 
-# =========================================
-# Normalized Error Distance
-# =========================================
-def avg_distance(cm):
-    total = 0
-    count = 0
-    for i in range(len(cm)):
-        for j in range(len(cm)):
-            total += abs(i - j) * cm[i, j]
-            count += cm[i, j]
-    return total / count
+# =========================
+# 2. ERROR REDUCTION
+# =========================
+st.header("📉 Error Reduction (MAE)")
 
-dist_a = avg_distance(cm_a)
-dist_b = avg_distance(cm_b)
+fig, ax = plt.subplots()
+ax.plot(df_avg["experiment"], df_avg["mae"], marker="o")
 
-st.subheader("📏 Average Error Distance")
+ax.set_title("Mean Absolute Error Reduction")
 
-st.write(f"{exp_a}: {dist_a:.3f}")
-st.write(f"{exp_b}: {dist_b:.3f}")
+st.pyplot(fig)
 
-#================================
-# Comparison of Models
-# improvement_dashboard
-#========================================
-import streamlit as st
-import pandas as pd
+st.markdown("""
+📌 Lower MAE = better ordinal predictions  
+👉 Hybrid model significantly reduces error
+""")
 
-from src.analysis.improvement_analysis import (
-    compute_global_improvement,
-    compute_classwise_improvement,
-    compute_error_distance
+# =========================
+# 3. PER-CLASS ANALYSIS
+# =========================
+st.header("🎯 Per-Class Performance")
+
+exp = st.selectbox("Select Experiment", df_pred["experiment"].unique())
+
+df_exp = df_pred[df_pred["experiment"] == exp]
+
+from sklearn.metrics import classification_report
+
+report = classification_report(
+    df_exp["y_true"],
+    df_exp["y_pred"],
+    output_dict=True
 )
 
-st.title("🚀 Model Improvement Analysis")
+report_df = pd.DataFrame(report).transpose()
 
-df_results = pd.read_csv("data/experiments/full_study.csv")
-df_pred = pd.read_csv("data/experiments/predictions.csv")
+st.dataframe(report_df)
 
-# =========================================
-# GLOBAL IMPROVEMENT
-# =========================================
-st.header("📊 Global Improvement (Exp4 vs Exp3)")
+st.markdown("""
+🔍 **Insight:**
+- Lower ratings (1–3) are harder to predict
+- Model biased toward high ratings
+""")
 
-improvement = compute_global_improvement(df_results)
+# =========================
+# 4. CONFUSION MATRIX
+# =========================
+st.header("📊 Confusion Matrix")
 
-for metric, value in improvement.items():
-    st.metric(label=metric, value=f"{value:.4f}")
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
-# =========================================
-# CLASS-WISE
-# =========================================
-st.header("📈 Class-wise Improvement")
+cm = confusion_matrix(df_exp["y_true"], df_exp["y_pred"])
 
-df_class = compute_classwise_improvement(df_pred)
-st.dataframe(df_class)
+fig, ax = plt.subplots()
+sns.heatmap(cm, annot=True, fmt="d", ax=ax)
 
-# =========================================
-# ERROR DISTANCE
-# =========================================
-st.header("📏 Error Distance (Ordinal Quality)")
+st.pyplot(fig)
 
-dist = compute_error_distance(df_pred)
-st.bar_chart(dist)
+# =========================
+# 5. EXPERIMENT INSIGHTS
+# =========================
+st.header("🧠 Key Insights")
+
+st.markdown("""
+### 🚀 What worked
+- Hybrid features (Exp3) deliver best performance
+- GridSearch adds consistent improvement
+
+### ⚠️ What failed
+- Ordinal weighting collapsed performance
+- Likely over-penalizing class differences
+
+### 🎯 Business Impact
+- Improved detection of low ratings still needed
+- High recall for class 1–2 is critical
+""")
+
+# =========================
+# 6. NEXT STEPS
+# =========================
+st.header("🔬 Next Steps")
+
+st.markdown("""
+- Calibrated ordinal loss (not naive weights)
+- Class-balanced training
+- Stacking architecture
+- Threshold optimization for low ratings
+""")
+
