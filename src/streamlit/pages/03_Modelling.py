@@ -8,6 +8,9 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from _utils import preprocess_text_full
 
+import random
+
+
 
 
 # --- 1. HEADER & IMAGE ---
@@ -130,11 +133,6 @@ else:
 
 
 
-import pandas as pd
-import random
-import plotly.express as px
-import streamlit as st
-from sklearn.model_selection import train_test_split
 
 # --- 1. Helper Function for Text Augmentation ---
 def simple_augment(text):
@@ -162,6 +160,11 @@ X_train_raw, X_test_raw, y_train, y_test = train_test_split(
     stratify=y
 )
 
+
+
+
+
+
 # --- 3. Implementation of Resampling Strategy A ---
 st.divider()
 st.subheader("⚖️Step 2: Balancing Training Data (word switching augmentation)")
@@ -170,20 +173,25 @@ st.subheader("⚖️Step 2: Balancing Training Data (word switching augmentation
 train_df = X_train_raw.copy()
 train_df['target_group'] = y_train
 
-target_count = 2000
+target_count = 3500
 balanced_frames = []
 
 # Define categories to ensure correct ordering
 category_order = ["Low (1-2 ⭐)", "Mid (3-4 ⭐)", "High (5 ⭐)"]
 
-for group in train_df['target_group'].unique():
+for group in category_order:
+    # Kleiner Sicherheitscheck, falls eine Gruppe mal gar nicht im DF ist
+    if group not in train_df['target_group'].values:
+        continue
+        
     subset = train_df[train_df['target_group'] == group]
     
     if "5 ⭐" in group:
-        # A) UNDERSAMPLING: Reduce the 5-Star group to 2000
+        # A) UNDERSAMPLING
         subset_balanced = subset.sample(n=min(len(subset), target_count), random_state=42)
         st.write(f"**{group}**: Reduced from {len(subset)} to {len(subset_balanced)} (Undersampling).")
         
+         
     else:
         # B) OVERSAMPLING + AUGMENTATION for Mid & Low
         how_many_to_add = target_count - len(subset)
@@ -329,7 +337,7 @@ st.subheader("🔢 Step 4: Vectorization & Feature Combination")
 
 if 'train_test_split' in st.session_state:
     # 1. TF-IDF auf den Text anwenden
-    tfidf = TfidfVectorizer(max_features=5000)
+    tfidf = TfidfVectorizer(max_features=5000) # Begrenzung auf die Top 5000 Wörter
     
     # Text-Vektoren erzeugen (Sparse Matrizen)
     X_train_text = tfidf.fit_transform(X_train['clean_review'])
@@ -365,8 +373,7 @@ if 'train_test_split' in st.session_state:
 
 
 
-import streamlit as st
-import pandas as pd
+
 import time
 import plotly.figure_factory as ff
 from sklearn.ensemble import GradientBoostingClassifier
@@ -394,7 +401,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
     # --- BUTTON 1: BASIS MODELL ---
     if st.button("🚀 Run Base Model Training"):
-        with st.spinner("Training Gradient Boosting Model..."):
+        with st.spinner("It will take a moment... you can grab a coffee ☕"):
             start_time = time.time()
             model_base = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
             model_base.fit(X_train, y_train)
@@ -425,22 +432,23 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
         with col_code2:
             st.caption("Optimized Model (Tuned)")
-            st.code("model = GradientBoostingClassifier(\n    n_estimators=150,\n    learning_rate=0.1,\n    max_depth=5,\n    subsample=0.8,\n    random_state=42\n)", language="python")
+            st.code("model = GradientBoostingClassifier(\n    n_estimators=500,\n    learning_rate=0.1,\n    max_depth=5,\n    subsample=0.8,\n    random_state=42\n)", language="python")
 
         st.divider()
         st.subheader("🤖 Step 5 (Second Try): Optimized Model")
         
         # --- BUTTON 2: OPTIMIERTES MODELL ---
         if st.button("🚀 Run Optimized Training"):
-            with st.spinner("Training Optimized Model..."):
+            with st.spinner("It will take a moment... you can grab one more coffee ☕"):
                 start_time = time.time()
-                model_opt = GradientBoostingClassifier(n_estimators=150, learning_rate=0.1, max_depth=5, subsample=0.8, random_state=42)
+                model_opt = GradientBoostingClassifier(n_estimators=500, learning_rate=0.1, max_depth=5, subsample=0.8, random_state=42)
                 model_opt.fit(X_train, y_train)
                 
                 st.session_state['y_pred_opt'] = model_opt.predict(X_test)
                 st.session_state['duration_opt'] = time.time() - start_time
                 st.session_state['optimized_model_done'] = True
                 st.session_state['final_model'] = model_opt
+                st.balloons() # Ein kleiner feierlicher Abschluss für dein fertiges Projekt!
 
         # Anzeige Optimierte Ergebnisse
         if st.session_state.get('optimized_model_done'):
@@ -456,6 +464,9 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
             st.write("### Classification Report (Optimized)")
             report_opt = classification_report(y_test, y_pred_opt, output_dict=True)
             st.dataframe(pd.DataFrame(report_opt).transpose())
+            
+           
+
 
 else:
     st.error("❌ No vectorized data found. Please complete the previous steps.")
@@ -517,7 +528,6 @@ st.info("""
 *   **N-Grams:** Using word pairs (Bi-grams) like 'not good' instead of single words. This captures the true meaning of negated sentiments much better.
 """)
 
-st.balloons() # Ein kleiner feierlicher Abschluss für dein fertiges Projekt!
 
 # Punkt 5: Deep Learning Integration
 st.markdown("### 5. Transition to Deep Learning Frameworks")

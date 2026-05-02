@@ -6,37 +6,36 @@ from pathlib import Path
 # 1. Configuration
 st.set_page_config(page_title="Auto parts store Review Dashboard", layout="wide")
 
-@st.cache_data
-def load_data():
-    file_path = Path("src/data/clean/reviews_clean.csv")
-    if not file_path.exists():
-        st.error(f"Data file not found at: {file_path.absolute()}")
-        return pd.DataFrame()
+# Pfad zur prozessierten Datei
+file_path = Path("data/processed/reviews_processed.csv")
 
-    df = pd.read_csv(file_path)
-    # Nur Datum konvertieren, da das technisch notwendig für Plotly ist
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    df = df.dropna(subset=['date'])
+@st.cache_data
+def load_data(path):
+    if not path.exists():
+        st.error(f"Data file not found at: {path.absolute()}")
+        return pd.DataFrame()
+    
+    df = pd.read_csv(path)
+    
+    # Datum konvertieren
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    
+    # SPALTEN-TAUSCH: Wir machen die englischen Texte zum Standard
+    if 'review_text_en' in df.columns:
+        df = df.drop(columns=['review_text'], errors='ignore')
+        df = df.rename(columns={'review_text_en': 'review_text'})
+    
+    if 'review_text_clean_en' in df.columns:
+        df = df.rename(columns={'review_text_clean_en': 'review_text_clean_advanced'})
+        
     return df
 
-# --- INITIALISIERUNG ---
-df_raw = load_data()
+# --- 2. INITIALISIERUNG ---
+df_raw = load_data(file_path)
 
-# WICHTIG: Speichere die ECHTEN ROHDATEN für die anderen Seiten
 if not df_raw.empty:
-    st.session_state['raw_data'] = df_raw.copy()
-
-# Erstelle eine Arbeitskopie für die aktuelle Seite
-df = df_raw.copy()
-
-# BEREINIGUNG NUR AUSFÜHREN, WENN DIE SPALTE NOCH EIN TEXT IST
-if 'rating_svg' in df.columns:
-    # Wir stellen sicher, dass es Text ist (.astype(str)), bevor wir .str nutzen
-    df['rating'] = df['rating_svg'].astype(str).str.extract('(\d+)').fillna(0).astype(int)
-
-# Spalten erst löschen, nachdem die Extraktion fertig ist
-columns_to_drop = ['rating_numeric', 'rating_svg']
-df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+    df = df_raw.copy()
 
 # Ab hier nutzt dein restlicher Code wieder "df" für die Grafiken
 
@@ -128,7 +127,7 @@ if not df.empty:
     st.info("Direct preview of the filtered dataset:")
 
     # Spalten definieren, die NICHT angezeigt werden sollen
-    cols_to_exclude = ["review_text_clean_advanced", "review_text_clean", "issue_categories"]
+    cols_to_exclude = ["review_text_clean_advanced", "review_text_clean", "issue_categories", "review_text_clean_light", "review_length", "sentiment", "has_negation"]
     
     # Wir zeigen nur die Spalten an, die nicht in der Ausschlussliste sind
     # .drop(columns=...) erzeugt eine Kopie ohne die genannten Spalten
@@ -597,6 +596,35 @@ if not df.empty:
         </div>
             
         </div>""", unsafe_allow_html=True)
+
+
+
+
+    # --- DER FINALE SCHRITT AUF SEITE 1 ---
+    if not df_filtered.empty:
+        # 1. Liste der Spalten, die wir NICHT an Seite 2 übergeben wollen
+        cols_to_exclude = [
+            'domain', 'language', 'sentiment', 
+            'has_negation', 'Year', 'has_response', 
+            'company_site', 'rating_svg' # Falls diese noch im DF sind
+        ]
+        
+        # 2. Wir erstellen die Kopie und löschen nur die Spalten, die auch wirklich existieren
+        df_for_phase2 = df_filtered.drop(columns=[c for c in cols_to_exclude if c in df_filtered.columns])
+        
+        # 3. SPEICHERN FÜR SEITE 2
+        # Seite 2 sucht genau nach diesem Key: 'data_ready'
+        st.session_state['data_ready'] = df_for_phase2.copy()
+
+        # 4. Optisches Feedback
+        st.success(f"✅ Data prepared for Preprocessing!")
+        
+        
+        if st.button("🚀 Proceed to Preprocessing (Phase 2)"):
+            st.switch_page("pages/02_Preprocessing.py")
+    else:
+        st.error("Dataset is empty. Cannot proceed.")
+
 
 
 # Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
