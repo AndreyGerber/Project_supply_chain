@@ -66,12 +66,13 @@ def log_experiment(
     model_name: str,
     metrics: dict,
     params: dict,
-    mode: str,
-    use_tuning: bool,
-    feature_type: str,
-    sampling_strategy: str,
-    class_distribution_before: dict,
-    class_distribution_after: dict,
+    mode: str ="unknown",
+    use_tuning: bool =False,
+    feature_type: str= "unknown",
+    sampling_strategy: str =None,
+    class_distribution_before: dict ={},
+    class_distribution_after: dict ={},
+    experiment_variant= "unknown",
     data_version: str = "v1"
 ):
     metrics_clean = clean_dict(metrics)
@@ -88,6 +89,7 @@ def log_experiment(
         sampling_strategy_clean,
         class_distribution_before_clean,
         class_distribution_after_clean,
+        experiment_variant,
         data_version
     )
 
@@ -108,6 +110,7 @@ def log_experiment(
         "sampling_strategy": sampling_strategy,
         "class_distribution_before": class_distribution_before,
         "class_distribution_after": class_distribution_after,
+        "experiment_variant": experiment_variant,
         "data_version": data_version
     }
 

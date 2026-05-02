@@ -88,11 +88,32 @@ def generate_tfidf(df: pd.DataFrame, version="v2", max_features: int = 5000):
 
     return preprocessor, df
 
+#------------------Tf-IDF in Pipeline (nur text)----------------
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MaxAbsScaler
 
-# ---------------- EMBEDDINGS ----------------
-def generate_embeddings(df: pd.DataFrame, version="v2", use_clean_text=True):
+def get_tfidf_pipeline(max_features: int = 5000):
     """
-    Multilingual Embeddings + strukturierte Features
+    TF-IDF Pipeline (nur Text, kein struct!)
+    """
+
+    tfidf = TfidfVectorizer(
+        max_features=max_features,
+        ngram_range=(1, 2)
+    )
+
+    pipeline = Pipeline([
+        ("tfidf", tfidf),
+        ("scaler", MaxAbsScaler())
+    ])
+
+    return pipeline
+
+#---------------- Embeddings Pipeline (nur text) ----------------
+
+def generate_embeddings(df: pd.DataFrame, version="v4"):
+    """
+    Nur Embeddings – KEINE strukturierten Features!
     """
 
     feature_hash = generate_feature_hash(df, version)
@@ -102,23 +123,75 @@ def generate_embeddings(df: pd.DataFrame, version="v2", use_clean_text=True):
     if cached is not None:
         return cached
 
-    text_col = "review_text_clean_light" if use_clean_text else "review_text"
-    texts = df[text_col].astype(str).tolist()
+    texts = df["review_text_clean_light"].astype(str).tolist()
 
-    print(f"⚡ Generating embeddings ({len(texts)} samples)...")
-
-    text_embeddings = EMBEDDING_MODEL.encode(
-        texts,
-        show_progress_bar=True
+    embeddings = np.array(
+        EMBEDDING_MODEL.encode(texts, show_progress_bar=True),
+        dtype=np.float32
     )
 
-    structured = df[["review_length", "verified", "sentiment", "has_negation"]].values
+    store.save_embeddings(cache_name, embeddings)
 
-    features = np.hstack([structured, text_embeddings])
+    return embeddings
 
-    store.save_embeddings(cache_name, features)
+from sklearn.decomposition import PCA
 
-    return features
+def reduce_embeddings(X, n_components=100):
+    pca = PCA(n_components=n_components, random_state=SEED)
+    return pca.fit_transform(X)
+
+#---------nur Strukturierte Features----------------
+def get_structured_features(df: pd.DataFrame, scale=True):
+    """
+    Nur strukturierte Features
+    """
+
+    struct_cols = ["review_length", "verified", "sentiment", "has_negation"]
+    X = df[struct_cols].values.astype(np.float32)
+
+    if scale:
+        scaler = StandardScaler()
+        X = scaler.fit_transform(X)
+
+    return X
+
+
+
+#-----------Hybride Features (TF-IDF + Embeddings + Structured)----------------
+from scipy.sparse import hstack as sparse_hstack
+from scipy.sparse import csr_matrix
+
+def build_hybrid_features(df: pd.DataFrame, use_pca=False):
+    """
+    Kombiniert TF-IDF + Embeddings + Structured Features
+    """
+
+    # ---------------- TF-IDF ----------------
+    tfidf_pipeline = get_tfidf_pipeline()
+    X_tfidf = tfidf_pipeline.fit_transform(df["review_text_clean_en"])
+
+    # ---------------- Embeddings ----------------
+    X_emb = generate_embeddings(df,)
+
+    if use_pca:
+        X_emb = reduce_embeddings(X_emb, n_components=100)
+
+    # ---------------- Structured ----------------
+    X_struct = get_structured_features(df)
+
+    # ---------------- Sparse Handling ----------------
+    X_emb_sparse = csr_matrix(X_emb)
+    X_struct_sparse = csr_matrix(X_struct)
+
+    # ---------------- Combine ----------------
+    X_final = sparse_hstack([
+        X_tfidf,
+        X_emb_sparse,
+        X_struct_sparse
+    ])
+
+    return X_final, tfidf_pipeline
+
 
 
 # ---------------- SAVE ----------------
