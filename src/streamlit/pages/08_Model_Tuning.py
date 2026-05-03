@@ -33,12 +33,23 @@ Each experiment represents a targeted improvement in the ML pipeline.
 # =========================
 st.header("📈 Performance Evolution")
 
+df_plot = df_avg.copy()
+
+baseline = df_plot.iloc[0]
+
+for col in ["accuracy", "f1_macro", "mae"]:
+    if col == "mae":
+        df_plot[col] = (baseline[col] - df_plot[col]) / baseline[col] * 100
+    else:
+        df_plot[col] = (df_plot[col] - baseline[col]) / baseline[col] * 100
+
 fig, ax = plt.subplots()
 
 for metric in ["accuracy", "f1_macro", "mae"]:
-    ax.plot(df_avg["experiment"], df_avg[metric], marker="o", label=metric)
+    ax.plot(df_plot["experiment"], df_plot[metric], marker="o", label=metric)
 
-ax.set_title("Model Improvement Across Experiments")
+ax.set_title("Relative Improvement (%) vs Baseline (Exp1)")
+ax.set_ylabel("Improvement (%)")
 ax.legend()
 
 st.pyplot(fig)
@@ -46,7 +57,6 @@ st.pyplot(fig)
 st.markdown("""
 🔍 **Insight:**
 - Strong improvement from Exp1 → Exp3
-- Exp4 (Ordinal) fails dramatically → requires redesign
 """)
 
 # =========================
