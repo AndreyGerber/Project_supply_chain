@@ -239,7 +239,7 @@ st.header("Advanced Error Analysis")
 
 # Critical FN (1–2 → 4–5)
 emb_fn_critical = cm_emb[0:2, 3:5].sum()
-st.metric("Embeddings - Critical False Negatives (1-2 → 4-5)", int(fn_critical))
+st.metric("Embeddings - Critical False Negatives (1-2 → 4-5)", int(emb_fn_critical))
 
 tfidf_fn_critical = cm_tfidf[0:2, 3:5].sum()
 st.metric("TF-IDF - Critical False Negatives (1-2 → 4-5)", int(tfidf_fn_critical))
