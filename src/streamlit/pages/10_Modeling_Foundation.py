@@ -1,17 +1,18 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Modeling Foundation", layout="wide")
 
 # -----------------------------
-# Session State for Navigation
+# Session State
 # -----------------------------
 if "study" not in st.session_state:
     st.session_state.study = "Study 1: Binary Classification"
 
 # -----------------------------
-# Header / Framing
+# Header
 # -----------------------------
 st.title("📊 Modeling Foundation")
 st.markdown("**We start simple to understand the models — then move to reality.**")
@@ -30,7 +31,7 @@ with col1:
 with col2:
     if st.button("➡️ However: Move to Real-World Problem"):
         st.session_state.study = "Study 2: Multi-Class Classification"
-        st.experimental_rerun()
+        st.rerun()
 
 # -----------------------------
 # STUDY 1
@@ -38,37 +39,44 @@ with col2:
 if st.session_state.study == "Study 1: Binary Classification":
     st.header("🔹 Study 1: Simplified Binary Task")
 
-    st.markdown(
-        """
-        **Goal:** Understand model behavior in a simplified setting.
-        
-        Binary classification: **Rating 5 vs. Not 5**.
-        
-        This isolates the effect of **feature representation** and **model choice** without fine-grained ambiguity.
-        """
-    )
+    st.markdown("""
+    **Goal:** Understand model behavior in a simplified setting.
+    
+    Binary classification: **Rating 5 vs. Not 5**.
+    """)
 
     data = pd.DataFrame({
         "Model": ["XGBoost", "Random Forest", "XGBoost", "Random Forest"],
-        "Feature Type": ["Embeddings", "Embeddings", "TF-IDF", "TF-IDF"],
+        "Feature": ["Embeddings", "Embeddings", "TF-IDF", "TF-IDF"],
         "Accuracy": [0.972393, 0.959739, 0.947469, 0.854678],
-        "F1 Score": [0.972319, 0.959351, 0.946993, 0.831086]
+        "F1": [0.972319, 0.959351, 0.946993, 0.831086]
     })
 
-    st.subheader("📈 Results")
-    st.dataframe(data, use_container_width=True)
+    with st.expander("📋 Show Raw Results"):
+        st.dataframe(data, use_container_width=True)
 
-    st.subheader("📊 Comparison (Accuracy & F1)")
-    pivot = data.pivot(index="Feature Type", columns="Model", values="F1 Score")
-    st.bar_chart(pivot)
+    st.subheader("📊 Model Comparison")
 
-    st.subheader("🧠 Key Insight")
-    st.info(
-        "All models perform strongly in the simplified setting. "
-        "Embeddings consistently outperform TF-IDF, but overall the task appears easy."
-    )
+    # Bar plot grouped
+    fig, ax = plt.subplots()
 
-    st.markdown("💬 *Interpretation:* The task does not yet expose the real difficulty of the problem.")
+    x = np.arange(len(data["Feature"].unique()))
+    width = 0.35
+
+    emb = data[data["Feature"] == "Embeddings"]
+    tfidf = data[data["Feature"] == "TF-IDF"]
+
+    ax.bar(x - width/2, emb["F1"], width, label="XGBoost (Embeddings)")
+    ax.bar(x + width/2, tfidf["F1"], width, label="XGBoost (TF-IDF)")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(["Embeddings", "TF-IDF"])
+    ax.set_ylabel("F1 Score")
+    ax.legend()
+
+    st.pyplot(fig)
+
+    st.info("All models perform strongly. Differences are small in this simplified setup.")
 
 # -----------------------------
 # STUDY 2
@@ -76,30 +84,40 @@ if st.session_state.study == "Study 1: Binary Classification":
 else:
     st.header("🔹 Study 2: Full Multi-Class Task")
 
-    st.markdown(
-        """
-        **Goal:** Evaluate model performance under real-world conditions.
-        
-        5-class classification: **Ratings from 1 to 5**.
-        
-        This introduces **semantic complexity** and **class ambiguity**.
-        """
-    )
+    st.markdown("""
+    **Goal:** Evaluate performance under real-world conditions.
+    
+    Ratings from **1 to 5**.
+    """)
 
     results = pd.DataFrame({
-        "Feature Type": ["Embeddings", "TF-IDF"],
+        "Feature": ["Embeddings", "TF-IDF"],
         "Accuracy": [0.862933, 0.730725],
         "Macro F1": [0.684148, 0.468757],
         "RMSE": [0.480141, 0.708767]
     })
 
-    st.subheader("📉 Results")
-    st.dataframe(results, use_container_width=True)
+    with st.expander("📋 Show Raw Results"):
+        st.dataframe(results, use_container_width=True)
 
-    st.subheader("📊 Performance Drop Visualization")
-    st.bar_chart(results.set_index("Feature Type")[["Accuracy", "Macro F1"]])
+    st.subheader("📊 Performance Comparison")
 
-    st.subheader("📊 Confusion Matrix (Embeddings)")
+    fig2, ax2 = plt.subplots()
+
+    x = np.arange(len(results))
+    width = 0.25
+
+    ax2.bar(x - width, results["Accuracy"], width, label="Accuracy")
+    ax2.bar(x, results["Macro F1"], width, label="Macro F1")
+    ax2.bar(x + width, results["RMSE"], width, label="RMSE")
+
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(results["Feature"])
+    ax2.legend()
+
+    st.pyplot(fig2)
+
+    # Confusion Matrices
     cm_emb = np.array([
         [337, 85, 29, 4, 0],
         [6, 53, 11, 5, 0],
@@ -107,9 +125,7 @@ else:
         [2, 4, 20, 142, 47],
         [1, 1, 28, 101, 1642]
     ])
-    st.write(cm_emb)
 
-    st.subheader("📊 Confusion Matrix (TF-IDF)")
     cm_tfidf = np.array([
         [222, 161, 51, 20, 1],
         [6, 36, 23, 8, 2],
@@ -117,16 +133,24 @@ else:
         [0, 10, 17, 87, 101],
         [0, 6, 48, 208, 1511]
     ])
-    st.write(cm_tfidf)
 
-    st.subheader("🧠 Key Insight")
-    st.warning(
-        "Performance drops significantly in the multi-class setting. "
-        "The main challenge lies in distinguishing between similar rating levels, "
-        "not extreme cases."
-    )
+    col1, col2 = st.columns(2)
 
-    st.markdown("💬 *Interpretation:* The models do not fail at understanding sentiment — they fail at distinguishing its intensity.")
+    with col1:
+        st.subheader("Embeddings")
+        fig3, ax3 = plt.subplots()
+        cax = ax3.imshow(cm_emb)
+        fig3.colorbar(cax)
+        st.pyplot(fig3)
+
+    with col2:
+        st.subheader("TF-IDF")
+        fig4, ax4 = plt.subplots()
+        cax = ax4.imshow(cm_tfidf)
+        fig4.colorbar(cax)
+        st.pyplot(fig4)
+
+    st.warning("Performance drops significantly. The challenge lies in fine-grained distinctions.")
 
 st.markdown("---")
-st.caption("Use the dropdown or the 'However' button to guide the narrative during your presentation.")
+st.caption("Use dropdown or 'However' button to guide the narrative.")
