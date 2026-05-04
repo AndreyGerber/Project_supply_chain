@@ -9,6 +9,72 @@ st.set_page_config(layout="wide")
 
 st.title("🧠 Feature Representation vs Sampling")
 
+# ---------- Helper Functions ----------
+
+def parse_confusion_matrix(cm_str):
+    return np.array(ast.literal_eval(cm_str))
+
+
+def compute_per_class_metrics(cm):
+    num_classes = cm.shape[0]
+    precision, recall, f1 = [], [], []
+
+    for i in range(num_classes):
+        tp = cm[i, i]
+        fp = cm[:, i].sum() - tp
+        fn = cm[i, :].sum() - tp
+
+        p = tp / (tp + fp) if (tp + fp) > 0 else 0
+        r = tp / (tp + fn) if (tp + fn) > 0 else 0
+        f = 2 * p * r / (p + r) if (p + r) > 0 else 0
+
+        precision.append(p)
+        recall.append(r)
+        f1.append(f)
+
+    return precision, recall, f1
+
+
+def confusion_distance(cm):
+    distance = 0
+    total = 0
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            distance += abs(i - j) * cm[i, j]
+            total += cm[i, j]
+    return distance / total
+
+
+def plot_bar(df, metric, title):
+    fig, ax = plt.subplots()
+    ax.bar(df['experiment'], df[metric])
+    ax.set_title(title)
+    ax.set_ylabel(metric)
+    ax.set_xticks(range(len(df['experiment'])))
+    ax.set_xticklabels(df['experiment'], rotation=45)
+    st.pyplot(fig)
+
+
+def plot_per_class(metric_values, title):
+    fig, ax = plt.subplots()
+    classes = [1, 2, 3, 4, 5]
+    ax.bar(classes, metric_values)
+    ax.set_title(title)
+    ax.set_xlabel("Class")
+    ax.set_ylabel("Score")
+    ax.set_xticks(classes)
+    st.pyplot(fig)
+
+
+def plot_confusion_matrix(cm):
+    fig, ax = plt.subplots()
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax,
+                xticklabels=[1,2,3,4,5], yticklabels=[1,2,3,4,5])
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("True")
+    ax.set_title("Confusion Matrix")
+    st.pyplot(fig)
+
 # =====================================
 # Load Data
 # =====================================
@@ -116,8 +182,6 @@ st.markdown("""
 > This indicates that TF-IDF produces more severe misclassifications
 """)
 
-
-
 # =====================================
 # 3. Confusion Matrix Comparison
 # =====================================
@@ -169,6 +233,49 @@ err_tfidf = compute_error_distance(cm_tfidf)
 
 st.metric("Avg Error Distance (Embeddings)", f"{err_emb:.3f}")
 st.metric("Avg Error Distance (TF-IDF)", f"{err_tfidf:.3f}")
+
+# ---------- Advanced Error Analysis ----------
+st.header("Advanced Error Analysis")
+
+# Critical FN (1–2 → 4–5)
+emb_fn_critical = cm_emb[0:2, 3:5].sum()
+st.metric("Embeddings - Critical False Negatives (1-2 → 4-5)", int(fn_critical))
+
+tfidf_fn_critical = cm_tfidf[0:2, 3:5].sum()
+st.metric("TF-IDF - Critical False Negatives (1-2 → 4-5)", int(tfidf_fn_critical))
+
+
+# Boundary Errors (4 vs 5)
+boundary_emb = cm_emb[3, 4] + cm_emb[4, 3]
+st.metric("Embeddings - Boundary Errors (4 ↔ 5)", int(boundary))
+
+boundary_tfidf = cm_tfidf[3, 4] + cm_tfidf[4, 3]
+st.metric("TF-IDF - Boundary Errors (4 ↔ 5)", int(boundary))
+
+# Top Errors
+st.subheader("Top Errors (Largest Deviations)")
+errors_emb = []
+errors_tfidf = []
+for i in range(5):
+    for j in range(5):
+        if i != j:
+            errors_emb.append(((i+1, j+1), abs(i-j), cm_emb[i,j]))
+            errors_tfidf.append(((i+1, j+1), abs(i-j), cm_tfidf[i,j]))
+
+errors_sorted_emb = sorted(errors_emb, key=lambda x: (x[1], x[2]), reverse=True)
+errors_sorted_tfidf = sorted(errors_tfidf, key=lambda x: (x[1], x[2]), reverse=True)
+
+
+top_errors_emb = errors_sorted_emb[:5]
+top_errors_tfidf = errors_sorted_tfidf[:5]
+
+for (true, pred), dist, count in top_errors_emb:
+    st.write(f"True {true} → Pred {pred} | Distance: {dist} | Count: {count}")
+
+st.subheader("Top Errors TF-IDF (Largest Deviations)")
+for (true, pred), dist, count in top_errors_tfidf:
+    st.write(f"True {true} → Pred {pred} | Distance: {dist} | Count: {count}")
+
 
 st.markdown("""
 ### 🧠 Key Insight
