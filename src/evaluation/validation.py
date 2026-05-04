@@ -14,10 +14,14 @@ def cross_validate_model(pipeline, X, y):
     print(f"Mean F1 Score: {scores.mean():.4f}")
 
 
+
 def check_class_balance(y):
     """
     Prüft Klassenverteilung
     """
+    if not isinstance(y, pd.Series):
+        y = pd.Series(y)
+
     print("\nClass Distribution:")
     print(y.value_counts(normalize=True))
 
