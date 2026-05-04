@@ -76,6 +76,8 @@ st.markdown("""
 # =====================================
 # 2. Performance Comparison TF-IDF vs Embeddings
 # =====================================
+df_emb = df_emb_ext[df_emb_ext["experiment"] == "baseline"]
+df_tfidf = df_tfidf[df_tfidf["experiment"] == "baseline"]
 
 st.header("📊 Performance: TF-IDF vs Embeddings")
 
