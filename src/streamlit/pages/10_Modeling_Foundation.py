@@ -66,8 +66,8 @@ if st.session_state.study == "Study 1: Binary Classification":
     emb = data[data["Feature"] == "Embeddings"]
     tfidf = data[data["Feature"] == "TF-IDF"]
 
-    ax.bar(x - width/2, emb["F1"], width, label="XGBoost (Embeddings)")
-    ax.bar(x + width/2, tfidf["F1"], width, label="XGBoost (TF-IDF)")
+    ax.bar(x - width/2, emb["F1"], width, label="XGBoost")
+    ax.bar(x + width/2, tfidf["F1"], width, label="Random Forest")
 
     ax.set_xticks(x)
     ax.set_xticklabels(["Embeddings", "TF-IDF"])
