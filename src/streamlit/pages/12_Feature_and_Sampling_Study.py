@@ -17,8 +17,43 @@ df_emb_basic = pd.read_csv("reports/sampling_comparison.csv")
 df_emb_ext = pd.read_csv("reports/sampling_comparison_ETL.csv")
 df_tfidf = pd.read_csv("reports/sampling_comparison_TF-idf.csv")
 
-# Filter relevant experiments
-selected = ["baseline", "undersample+weights", "weights_only"]
+# ---------------------------overview---------------------------
+studies = {
+    "Study 1 (Embeddings + basic features)": df_emb_basic,
+    "Study 2 (Embeddings + extended features)": df_emb_ext,
+    "Study 3 (TF-IDF + extended features)": df_tfidf
+}
+
+# ---------- Overview ----------
+st.header("Overview")
+st.markdown("""
+This study evaluates sampling strategies and feature configurations for review rating prediction.
+
+Focus:
+- Improve class balance
+- Detect critical reviews (1–2 stars)
+""")
+
+# ---------- Global Comparison ----------
+st.header("Global Metrics Comparison Across Studies")
+
+combined = []
+for name, df in studies.items():
+    temp = df.copy()
+    temp['study'] = name
+    combined.append(temp)
+combined_df = pd.concat(combined)
+
+for metric in ['accuracy', 'macro_f1', 'rmse']:
+    fig, ax = plt.subplots()
+    for study in combined_df['study'].unique():
+        subset = combined_df[combined_df['study'] == study]
+        ax.plot(subset['experiment'], subset[metric], marker='o', label=study)
+
+    ax.set_title(metric.upper())
+    ax.set_xticklabels(subset['experiment'], rotation=45)
+    ax.legend()
+    st.pyplot(fig)
 
 df_emb = df_emb_ext[df_emb_ext["experiment"].isin(selected)]
 df_tfidf = df_tfidf[df_tfidf["experiment"].isin(selected)]
