@@ -24,6 +24,7 @@ studies = {
     "Study 3 (TF-IDF + extended features)": df_tfidf
 }
 
+
 # ---------- Overview ----------
 st.header("Overview")
 st.markdown("""
@@ -55,8 +56,6 @@ for metric in ['accuracy', 'macro_f1', 'rmse']:
     ax.legend()
     st.pyplot(fig)
 
-df_emb = df_emb_ext[df_emb_ext["experiment"].isin(selected)]
-df_tfidf = df_tfidf[df_tfidf["experiment"].isin(selected)]
 
 # =====================================
 # 1. Sampling Impact
