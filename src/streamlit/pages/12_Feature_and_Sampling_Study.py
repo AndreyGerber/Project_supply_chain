@@ -59,7 +59,23 @@ df_emb = df_emb_ext[df_emb_ext["experiment"].isin(selected)]
 df_tfidf = df_tfidf[df_tfidf["experiment"].isin(selected)]
 
 # =====================================
-# 1. Performance Comparison
+# 1. Sampling Impact
+# =====================================
+st.markdown("""
+### ⚖️ Impact of Sampling Strategies
+
+- Baseline consistently performs best  
+- Undersampling significantly degrades performance   
+- Class weights are more effective than sampling
+- Still Strong bias toward predicting class 5
+- The mid-range classes remain difficult to learn
+- Most errors are small (±1), but critical errors still exist            
+
+> Sampling does not solve the core problem
+""")
+
+# =====================================
+# 2. Performance Comparison TF-IDF vs Embeddings
 # =====================================
 
 st.header("📊 Performance: TF-IDF vs Embeddings")
@@ -99,31 +115,7 @@ st.markdown("""
 > This indicates that TF-IDF produces more severe misclassifications
 """)
 
-# =====================================
-# 2. Sampling Impact
-# =====================================
 
-st.header("⚖️ Impact of Sampling Strategies")
-
-fig, ax = plt.subplots()
-
-for df, label in [(df_emb, "Embeddings"), (df_tfidf, "TF-IDF")]:
-    ax.plot(df["experiment"], df["macro_f1"], marker='o', label=label)
-
-ax.set_title("Sampling Impact on Macro F1")
-ax.legend()
-
-st.pyplot(fig)
-
-st.markdown("""
-### 🧠 Insight
-
-- Baseline consistently performs best  
-- Undersampling significantly degrades performance  
-- Weighting provides only marginal improvements  
-
-> Sampling does not solve the core problem
-""")
 
 # =====================================
 # 3. Confusion Matrix Comparison
