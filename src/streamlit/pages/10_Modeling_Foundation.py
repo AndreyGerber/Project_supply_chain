@@ -1,166 +1,132 @@
 import streamlit as st
-import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Modeling Foundation", layout="wide")
 
-st.title("🧠 From False Confidence to Real Problem Understanding")
+# -----------------------------
+# Session State for Navigation
+# -----------------------------
+if "study" not in st.session_state:
+    st.session_state.study = "Study 1: Binary Classification"
 
-# =====================================
-# 1. Binary vs Multiclass Comparison
-# =====================================
+# -----------------------------
+# Header / Framing
+# -----------------------------
+st.title("📊 Modeling Foundation")
+st.markdown("**We start simple to understand the models — then move to reality.**")
+st.markdown("---")
 
-st.header("📊 Phase 1 vs Phase 2 – Performance Reality Check")
+# Controls
+col1, col2 = st.columns([3, 1])
+with col1:
+    study = st.selectbox(
+        "Select Study",
+        ("Study 1: Binary Classification", "Study 2: Multi-Class Classification"),
+        index=0 if st.session_state.study == "Study 1: Binary Classification" else 1
+    )
+    st.session_state.study = study
 
-labels = ["Binary (early)", "TF-IDF Baseline", "Embedding Baseline"]
-f1_scores = [0.972, 0.469, 0.684]
+with col2:
+    if st.button("➡️ However: Move to Real-World Problem"):
+        st.session_state.study = "Study 2: Multi-Class Classification"
+        st.experimental_rerun()
 
-fig, ax = plt.subplots()
-ax.bar(labels, f1_scores)
-ax.set_ylabel("Macro F1")
-ax.set_title("Performance Comparison")
+# -----------------------------
+# STUDY 1
+# -----------------------------
+if st.session_state.study == "Study 1: Binary Classification":
+    st.header("🔹 Study 1: Simplified Binary Task")
 
-st.pyplot(fig)
+    st.markdown(
+        """
+        **Goal:** Understand model behavior in a simplified setting.
+        
+        Binary classification: **Rating 5 vs. Not 5**.
+        
+        This isolates the effect of **feature representation** and **model choice** without fine-grained ambiguity.
+        """
+    )
 
-st.markdown("""
-### 🧠 Interpretation
+    data = pd.DataFrame({
+        "Model": ["XGBoost", "Random Forest", "XGBoost", "Random Forest"],
+        "Feature Type": ["Embeddings", "Embeddings", "TF-IDF", "TF-IDF"],
+        "Accuracy": [0.972393, 0.959739, 0.947469, 0.854678],
+        "F1 Score": [0.972319, 0.959351, 0.946993, 0.831086]
+    })
 
-- The binary setup shows extremely high performance  
-- Moving to multiclass drastically reduces performance  
-- Even strong embeddings cannot fully recover performance  
+    st.subheader("📈 Results")
+    st.dataframe(data, use_container_width=True)
 
-> High performance in early experiments masked the true complexity of the problem
-""")
+    st.subheader("📊 Comparison (Accuracy & F1)")
+    pivot = data.pivot(index="Feature Type", columns="Model", values="F1 Score")
+    st.bar_chart(pivot)
 
-# =====================================
-# 2. Data Leakage Highlight
-# =====================================
+    st.subheader("🧠 Key Insight")
+    st.info(
+        "All models perform strongly in the simplified setting. "
+        "Embeddings consistently outperform TF-IDF, but overall the task appears easy."
+    )
 
-st.header("⚠️ Critical Finding – Data Leakage")
+    st.markdown("💬 *Interpretation:* The task does not yet expose the real difficulty of the problem.")
 
-st.markdown("""
-In the initial binary setup, embeddings were computed on the full dataset, introducing data leakage.
+# -----------------------------
+# STUDY 2
+# -----------------------------
+else:
+    st.header("🔹 Study 2: Full Multi-Class Task")
 
-### Impact:
-- Artificially inflated performance
-- Reduced generalization reliability
+    st.markdown(
+        """
+        **Goal:** Evaluate model performance under real-world conditions.
+        
+        5-class classification: **Ratings from 1 to 5**.
+        
+        This introduces **semantic complexity** and **class ambiguity**.
+        """
+    )
 
-> This explains part of the overly optimistic results in early experiments
-""")
+    results = pd.DataFrame({
+        "Feature Type": ["Embeddings", "TF-IDF"],
+        "Accuracy": [0.862933, 0.730725],
+        "Macro F1": [0.684148, 0.468757],
+        "RMSE": [0.480141, 0.708767]
+    })
 
-# =====================================
-# 3. Class Distribution
-# =====================================
+    st.subheader("📉 Results")
+    st.dataframe(results, use_container_width=True)
 
-st.header("⚖️ Real Class Distribution")
+    st.subheader("📊 Performance Drop Visualization")
+    st.bar_chart(results.set_index("Feature Type")[["Accuracy", "Macro F1"]])
 
-classes = ["1⭐", "2⭐", "3⭐", "4⭐", "5⭐"]
-distribution = [17.45, 2.87, 3.43, 8.23, 68.01]
+    st.subheader("📊 Confusion Matrix (Embeddings)")
+    cm_emb = np.array([
+        [337, 85, 29, 4, 0],
+        [6, 53, 11, 5, 0],
+        [3, 16, 55, 13, 2],
+        [2, 4, 20, 142, 47],
+        [1, 1, 28, 101, 1642]
+    ])
+    st.write(cm_emb)
 
-fig, ax = plt.subplots()
-ax.bar(classes, distribution)
-ax.set_ylabel("Percentage")
-ax.set_title("Class Imbalance")
+    st.subheader("📊 Confusion Matrix (TF-IDF)")
+    cm_tfidf = np.array([
+        [222, 161, 51, 20, 1],
+        [6, 36, 23, 8, 2],
+        [2, 20, 37, 27, 3],
+        [0, 10, 17, 87, 101],
+        [0, 6, 48, 208, 1511]
+    ])
+    st.write(cm_tfidf)
 
-st.pyplot(fig)
+    st.subheader("🧠 Key Insight")
+    st.warning(
+        "Performance drops significantly in the multi-class setting. "
+        "The main challenge lies in distinguishing between similar rating levels, "
+        "not extreme cases."
+    )
 
-st.markdown("""
-### 🧠 Insight
+    st.markdown("💬 *Interpretation:* The models do not fail at understanding sentiment — they fail at distinguishing its intensity.")
 
-- Strong dominance of 5-star reviews (~68%)  
-- Very limited representation of mid-range classes  
-
-> The problem is highly imbalanced and structurally difficult
-""")
-
-# =====================================
-# 4. Confusion Matrix – TF-IDF
-# =====================================
-
-st.header("🔍 Error Analysis – TF-IDF Baseline")
-
-cm_tfidf = np.array([
-    [222, 161, 51, 20, 1],
-    [6, 36, 23, 8, 2],
-    [2, 20, 37, 27, 3],
-    [0, 10, 17, 87, 101],
-    [0, 6, 48, 208, 1511]
-])
-
-fig, ax = plt.subplots()
-im = ax.imshow(cm_tfidf)
-
-ax.set_xticks(range(5))
-ax.set_yticks(range(5))
-ax.set_xticklabels(["1", "2", "3", "4", "5"])
-ax.set_yticklabels(["1", "2", "3", "4", "5"])
-
-plt.colorbar(im)
-
-st.pyplot(fig)
-
-st.markdown("""
-### 🧠 Insight
-
-- Strong confusion between neighboring classes  
-- Significant misclassification toward dominant class (5⭐)  
-
-> The model struggles especially with mid-range ratings
-""")
-
-# =====================================
-# 5. Confusion Matrix – Embeddings
-# =====================================
-
-st.header("🔍 Error Analysis – Embedding Baseline")
-
-cm_emb = np.array([
-    [337, 85, 29, 4, 0],
-    [6, 53, 11, 5, 0],
-    [3, 16, 55, 13, 2],
-    [2, 4, 20, 142, 47],
-    [1, 1, 28, 101, 1642]
-])
-
-fig, ax = plt.subplots()
-im = ax.imshow(cm_emb)
-
-ax.set_xticks(range(5))
-ax.set_yticks(range(5))
-ax.set_xticklabels(["1", "2", "3", "4", "5"])
-ax.set_yticklabels(["1", "2", "3", "4", "5"])
-
-plt.colorbar(im)
-
-st.pyplot(fig)
-
-st.markdown("""
-### 🧠 Insight
-
-- Fewer extreme misclassifications compared to TF-IDF  
-- Still significant overlap in mid-range classes  
-
-> Semantic understanding improves stability but does not solve class ambiguity
-""")
-
-# =====================================
-# 6. Key Takeaways
-# =====================================
-
-st.header("🏁 Key Takeaways")
-
-st.markdown("""
-### What we learned
-
-- Early results were overly optimistic due to:
-  - Simplified problem formulation
-  - Data leakage
-
-- Real-world setup reveals:
-  - Strong class imbalance  
-  - High semantic overlap between classes  
-
-### Core Insight
-
-> The main challenge is not classification itself, but understanding nuanced differences between rating levels.
-""")
+st.markdown("---")
+st.caption("Use the dropdown or the 'However' button to guide the narrative during your presentation.")
