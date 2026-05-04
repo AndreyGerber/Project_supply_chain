@@ -247,10 +247,10 @@ st.metric("TF-IDF - Critical False Negatives (1-2 → 4-5)", int(tfidf_fn_critic
 
 # Boundary Errors (4 vs 5)
 boundary_emb = cm_emb[3, 4] + cm_emb[4, 3]
-st.metric("Embeddings - Boundary Errors (4 ↔ 5)", int(boundary))
+st.metric("Embeddings - Boundary Errors (4 ↔ 5)", int(boundary_emb))
 
 boundary_tfidf = cm_tfidf[3, 4] + cm_tfidf[4, 3]
-st.metric("TF-IDF - Boundary Errors (4 ↔ 5)", int(boundary))
+st.metric("TF-IDF - Boundary Errors (4 ↔ 5)", int(boundary_tfidf))
 
 # Top Errors
 st.subheader("Top Errors (Largest Deviations)")
