@@ -16,7 +16,7 @@ st.title("📊 Feature Engineering")
 # =========================
 st.subheader("Raw Data")
 
-file_path = Path("src/data/raw/trustpilot_reviews_production.json")
+file_path = Path("data/raw/trustpilot_reviews_production.json")
 
 with open(file_path, "r", encoding="utf-8") as f:
     data = json.load(f)
@@ -32,7 +32,7 @@ review_text, rating_svg, date, location, supplier_response, verified, company
 # =========================
 # 🔹 CLEAN DATA
 # =========================
-df = pd.read_csv("src/data/clean/reviews_processed.csv")
+df = pd.read_csv("data/processed/reviews_processed.csv")
 
 # =========================
 # 🔹 EXTERNAL FEATURES
