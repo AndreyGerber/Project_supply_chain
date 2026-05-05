@@ -27,17 +27,19 @@ emb_version = bundle["embedding_version"]
 # =========================================
 def preprocess(text: str) -> pd.DataFrame:
 
-    df = pd.DataFrame({"review_text": [text]})
+    df = pd.DataFrame({
+        "review_text": [text],
+        "supplier_response": [None],   
+        "verified": [0]                
+    })
 
     df["review_text_clean_en"] = df["review_text"].apply(clean_text)
-    df["review_text_clean_light"] = df["review_text"]
+    df["review_text_clean_light"] = df["review_text"].str.lower()
     df["review_text_en"] = df["review_text"]
-    df["verified"] = 0  # Placeholder, da wir diese Info im UI nicht haben
 
     df = add_structured_features(df)
 
     return df
-
 
 # =========================================
 # PREDICT (UI USE)
