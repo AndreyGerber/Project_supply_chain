@@ -30,6 +30,7 @@ def preprocess(text: str) -> pd.DataFrame:
     df = pd.DataFrame({"review_text": [text]})
 
     df["review_text_clean_en"] = df["review_text"].apply(clean_text)
+    df["review_text_clean_light"] = df["review_text"]
     df["review_text_en"] = df["review_text"]
     df["verified"] = False  # Placeholder, da wir diese Info im UI nicht haben
 
