@@ -71,11 +71,10 @@ if not df.empty:
             color: #004085;
             font-size: 1.1em;
             border: 1px solid #b8daff;">
-            🚀 The objective of this part is to extract meaningful information from customer comments. The main areas of work include:
+            🚀 The objective of this part is to gain a first insight into the statistics of the data.
         </div>
 
-            We analyze the raw dataset of the **Auto Parts Stores**. 
-            We will try to understand the distribution of star ratings and get a first look at the customer comments.
+            
         <div style=" 
             text-align: left; 
             padding: 15px; 
@@ -84,11 +83,8 @@ if not df.empty:
             color: #004085;
             font-size: 1.1em;
             border: 1px solid #b8daff;">
-            Our focus lies on German companies in the “Auto Parts Store” category on Trustpilot. 
-            The dataset was scraped from Trustpilot.<br><br>
-            To collect customer feedback data, an automated web scraping pipeline was developed.
-            Due to dynamically loaded content, a browser-based approach using Selenium was implemented to ensure reliable extraction of all relevant elements, including hidden or asynchronously loaded data.<br>
-            <br>
+             
+            
         <style>
             /* Schwarze Punkte */
             li::marker {
