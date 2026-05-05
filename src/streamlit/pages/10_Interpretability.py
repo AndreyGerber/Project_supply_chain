@@ -84,7 +84,7 @@ if st.button("Explain"):
 # =========================================
 # LOAD RESULTS
 # =========================================
-RESULT_PATH = Path("analysis_results/feature_importance.csv")
+RESULT_PATH = Path("reports/feature_importance.csv")
 
 if RESULT_PATH.exists():
 
