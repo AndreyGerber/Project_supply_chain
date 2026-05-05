@@ -32,7 +32,7 @@ review_text, rating_svg, date, location, supplier_response, verified, company
 # =========================
 # 🔹 CLEAN DATA
 # =========================
-df = pd.read_csv("data/processed/reviews_processed.csv")
+#df = pd.read_csv("data/processed/reviews_processed.csv")
 
 # =========================
 # 🔹 EXTERNAL FEATURES
@@ -56,7 +56,7 @@ st.title("📅 Feature Selection: Date Features")
 # =========================
 # LOAD DATA
 # =========================
-df = pd.read_csv("src/data/clean/reviews_processed.csv")
+df = pd.read_csv("data/clean/reviews_processed.csv")
 
 # =========================
 # DATE CLEANING
