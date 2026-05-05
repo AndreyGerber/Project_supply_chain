@@ -41,6 +41,7 @@ def preprocess(text: str) -> pd.DataFrame:
     # Safety Check 
     if "verified" not in df.columns:
         df["verified"] = 0
+    df["verified"] = df["verified"].fillna(0).astype(int)
 
     df = add_structured_features(df)
 
