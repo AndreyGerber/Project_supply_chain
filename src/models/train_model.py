@@ -10,7 +10,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 
-from sklearn.ensemble import RandomForestClassifier
+#from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 
 from scipy.sparse import hstack, csr_matrix
@@ -19,7 +19,7 @@ from src.features.build_features import (
     get_tfidf_pipeline,
     generate_embeddings,
     get_structured_features,
-    generate_tfidf
+    #generate_tfidf
 )
 
 from src.data.load_data import load_processed_data
@@ -158,6 +158,9 @@ def train_model(
             csr_matrix(X_test_emb),
             csr_matrix(X_test_struct)
         ])
+        print(X_train_tfidf.shape)
+        print(X_train_emb.shape)
+        print(X_train_struct.shape)
 
         model, param_grid = get_model_and_params("xgb_hybrid", num_classes)
         use_pipeline = False
@@ -180,23 +183,23 @@ def train_model(
             verbose=1
         )
 
-        sample_weight = create_ordinal_weights(y_train)
+        #sample_weight = create_ordinal_weights(y_train)
 
         grid.fit(
             X_train,
             y_train,
-            sample_weight=sample_weight
+            #sample_weight=sample_weight
         )
         best_model = grid.best_estimator_
         best_params = grid.best_params_
 
     else:
-        sample_weight = create_ordinal_weights(y_train)
+        #sample_weight = create_ordinal_weights(y_train)
 
         grid.fit(
             X_train,
             y_train,
-            sample_weight=sample_weight
+            #sample_weight=sample_weight
         )
         best_model = model
         best_params = model.get_params()
@@ -234,6 +237,7 @@ def train_model(
     # =========================================
     # 📦 TRACKING
     # =========================================
+
 
     log_experiment(
     model_name=model_type,
