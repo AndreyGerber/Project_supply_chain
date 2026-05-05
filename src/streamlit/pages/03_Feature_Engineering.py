@@ -16,7 +16,7 @@ st.title("📊 Feature Engineering")
 # =========================
 st.subheader("Raw Data")
 
-file_path = Path("data/raw/trustpilot_reviews_production.json")
+file_path = Path("src/data/raw/trustpilot_reviews_production.json")
 
 with open(file_path, "r", encoding="utf-8") as f:
     data = json.load(f)
@@ -417,6 +417,21 @@ We identified several strong features for predicting customer ratings:
 - English text filtering  
 - TF-IDF (planned)  
 - Embeddings (planned)  
+   
+    Bereinigt einen Text:
+    - Entfernt HTML-Tags
+    - Lowercase
+    - Entfernt Emojis und Sonderzeichen
+    - Entfernt Zahlen
+    - Lemmatization
+    - Entfernt Stopwords 
+      aber behält Negationen wie "not", "no", "never" für sentiment analysis!
+    
+    EMBEDDING_MODEL = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+            
+    tfidf_dim=5000,
+    emb_dim=384,
+    struct_dim=4
 
 These features show strong correlation with the target variable and will be used in the modeling phase.
 """)
