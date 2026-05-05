@@ -29,13 +29,18 @@ def preprocess(text: str) -> pd.DataFrame:
 
     df = pd.DataFrame({
         "review_text": [text],
-        "supplier_response": [None],   
-        "verified": [0]                
+        "supplier_response": [None],
+        "verified": [0]
     })
 
+    # alles vor Feature Engineering setzen
+    df["review_text_en"] = df["review_text"]
     df["review_text_clean_en"] = df["review_text"].apply(clean_text)
     df["review_text_clean_light"] = df["review_text"].str.lower()
-    df["review_text_en"] = df["review_text"]
+
+    # Safety Check 
+    if "verified" not in df.columns:
+        df["verified"] = 0
 
     df = add_structured_features(df)
 
