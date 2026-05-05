@@ -1,19 +1,14 @@
 import streamlit as st
-from src.models.predict_model import predict, load_model, preprocess_input
+from src.service.run_model import predict_rating
 
-from scipy.sparse import hstack, csr_matrix
-from src.features.build_features import generate_embeddings, get_structured_features
+st.title("📊 Demo")
 
-
-st.title("📊 Demo: Predict Review Rating")
-
-text = st.text_area("Enter a review:", height=150)
+text = st.text_area("Enter review")
 
 if st.button("Predict"):
 
-    if text.strip() == "":
-        st.warning("Please enter text.")
-    else:
-        pred =predict([text])
-        
-        st.success(f"⭐ Predicted Rating: {pred}")
+    result = predict_rating(text)
+
+    st.success(f"⭐ Rating: {result['prediction']}")
+
+    st.bar_chart(result["probabilities"])
