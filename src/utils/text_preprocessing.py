@@ -18,9 +18,7 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')  # wichtig für mehrsprachige Lemmatization
 
 # Stopwords für mehrere Sprachen kombinieren
-STOPWORDS = set(stopwords.words('english')) \
-    | set(stopwords.words('german')) 
-
+STOPWORDS = set(stopwords.words('english')) 
 LEMMATIZER = WordNetLemmatizer()
 
 #Sentiment Analyse(sehr starkes neues feature sentiment!!!)
