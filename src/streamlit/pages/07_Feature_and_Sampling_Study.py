@@ -110,7 +110,7 @@ st.header("Global Metrics Comparison Across Studies")
 metrics = ['accuracy', 'macro_f1', 'rmse']
 titles = ['Accuracy', 'Macro F1', 'RMSE']
 
-cols = st.columns(4)  # 3 plots + 1 legend
+cols = st.columns(3)  # 3 plots nebeneinander
 
 all_handles = []
 all_labels = []
@@ -154,9 +154,22 @@ for idx, (metric, title) in enumerate(zip(metrics, titles)):
 
 # Separate legend (JETZT korrekt!)
 st.markdown("Legend")
-fig_leg, ax_leg = plt.subplots()
-ax_leg.legend(all_handles, all_labels, loc='center', ncol=3)
+fig_leg, ax_leg = plt.subplots(figsize=(6, 1.2))
+
+ax_leg.legend(
+    all_handles,
+    all_labels,
+    loc='center',
+    ncol=3,
+    fontsize=8,
+    frameon=False,
+    handlelength=1,
+    handletextpad=0.4,
+    labelspacing=0.3
+)
+
 ax_leg.axis('off')
+
 st.pyplot(fig_leg)
 
 
