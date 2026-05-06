@@ -81,6 +81,8 @@ def add_structured_features(df: pd.DataFrame) -> pd.DataFrame:
     #eventuell nur auf die englischen reviews anwenden, 
     # da vaderSentiment hauptsächlich für englisch optimiert ist.
     df["has_negation"] = df["review_text_en"].str.contains("not|no|never", case=False)
+    if "verified" not in df.columns:
+        df["verified"] = 0
     df["verified"] = df["verified"].astype(int)
 
     return df

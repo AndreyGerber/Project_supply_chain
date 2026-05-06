@@ -116,32 +116,3 @@ def get_tfidf_words(model_input, n=15):
         "word": [feature_names[i] for i in idx],
         "score": vec[idx]
     })
-
-
-
-# =========================================
-# PREDICT SERVICE
-# =========================================
-def predict_rating(text: str):
-
-    df = preprocess(text)
-
-    X_tfidf = tfidf_pipeline.transform(df["review_text_clean_en"])
-    X_emb = generate_embeddings(df, version=emb_version)
-    X_struct = get_structured_features(df)
-
-    X = hstack([
-        X_tfidf,
-        csr_matrix(X_emb),
-        csr_matrix(X_struct)
-    ])
-
-    pred_encoded = model.predict(X)[0]
-    proba = model.predict_proba(X)[0]
-
-    pred = label_encoder.inverse_transform([pred_encoded])[0]
-
-    return {
-        "prediction": int(pred),
-        "probabilities": proba.tolist()
-    }
