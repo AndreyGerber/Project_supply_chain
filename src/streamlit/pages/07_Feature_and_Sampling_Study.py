@@ -153,24 +153,14 @@ for idx, (metric, title) in enumerate(zip(metrics, titles)):
         st.pyplot(fig)
 
 # Separate legend (JETZT korrekt!)
-st.markdown("Legend")
-fig_leg, ax_leg = plt.subplots(figsize=(6, 1.2))
+st.markdown("""
+Legend
 
-ax_leg.legend(
-    all_handles,
-    all_labels,
-    loc='center',
-    ncol=3,
-    fontsize=8,
-    frameon=False,
-    handlelength=1,
-    handletextpad=0.4,
-    labelspacing=0.3
-)
-
-ax_leg.axis('off')
-
-st.pyplot(fig_leg)
+<span style="color:#1f77b4;">●</span> Embeddings + basic features &nbsp;&nbsp;
+<span style="color:#ff7f0e;">●</span> Embeddings + extended features &nbsp;&nbsp;
+<span style="color:#2ca02c;">●</span> TF-IDF + extended features &nbsp;&nbsp;
+<span style="color:#d62728;">— —</span> Best
+""", unsafe_allow_html=True)
 
 
 # =====================================
