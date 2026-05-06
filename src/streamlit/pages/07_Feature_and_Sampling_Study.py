@@ -153,12 +153,11 @@ for idx, (metric, title) in enumerate(zip(metrics, titles)):
         st.pyplot(fig)
 
 # Separate legend (JETZT korrekt!)
-with cols[3]:
-    st.markdown("Legend")
-    fig_leg, ax_leg = plt.subplots()
-    ax_leg.legend(all_handles, all_labels, loc='center')
-    ax_leg.axis('off')
-    st.pyplot(fig_leg)
+st.markdown("Legend")
+fig_leg, ax_leg = plt.subplots()
+ax_leg.legend(all_handles, all_labels, loc='center', ncol=3)
+ax_leg.axis('off')
+st.pyplot(fig_leg)
 
 
 # =====================================
