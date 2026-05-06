@@ -7,7 +7,7 @@ import ast
 
 st.set_page_config(layout="wide")
 
-st.title("🧠 Feature Representation vs Sampling")
+st.title("Feature Representation vs Sampling")
 
 # ---------- Helper Functions ----------
 
@@ -85,9 +85,9 @@ df_tfidf = pd.read_csv("reports/sampling_comparison_TF-idf.csv")
 
 # ---------------------------overview---------------------------
 studies = {
-    "Study 1 (Embeddings + basic features)": df_emb_basic,
-    "Study 2 (Embeddings + extended features)": df_emb_ext,
-    "Study 3 (TF-IDF + extended features)": df_tfidf
+    "Embeddings + basic features": df_emb_basic,
+    "Embeddings + extended features": df_emb_ext,
+    "TF-IDF + extended features": df_tfidf
 }
 
 
@@ -95,10 +95,6 @@ studies = {
 st.header("Overview")
 st.markdown("""
 This study evaluates sampling strategies and feature configurations for review rating prediction.
-
-Focus:
-- Improve class balance
-- Detect critical reviews (1–2 stars)
 """)
 
 combined = []
@@ -116,8 +112,8 @@ titles = ['Accuracy', 'Macro F1', 'RMSE']
 
 cols = st.columns(4)  # 3 plots + 1 legend
 
-handles = None
-labels = None
+all_handles = []
+all_labels = []
 
 for idx, (metric, title) in enumerate(zip(metrics, titles)):
     fig, ax = plt.subplots()
@@ -125,20 +121,30 @@ for idx, (metric, title) in enumerate(zip(metrics, titles)):
     for study in combined_df['study'].unique():
         subset = combined_df[combined_df['study'] == study]
 
-        line, = ax.plot(
+        ax.plot(
             subset['experiment'],
             subset[metric],
             marker='o',
             label=study
         )
 
-        # Save legend once
-        if handles is None:
-            handles, labels = ax.get_legend_handles_labels()
+    # Handles EINMAL pro Plot holen
+    handles, labels = ax.get_legend_handles_labels()
+
+    for h, l in zip(handles, labels):
+        if l not in all_labels:
+            all_handles.append(h)
+            all_labels.append(l)
 
     # Best line
     best_value = combined_df[metric].max() if metric != "rmse" else combined_df[metric].min()
     ax.axhline(best_value, linestyle='--', color='red', label='Best')
+
+    # Best auch in Legend aufnehmen
+    if "Best" not in all_labels:
+        from matplotlib.lines import Line2D
+        all_handles.append(Line2D([0], [0], color='red', linestyle='--'))
+        all_labels.append("Best")
 
     ax.set_title(title)
     ax.tick_params(axis='x', rotation=45)
@@ -146,11 +152,11 @@ for idx, (metric, title) in enumerate(zip(metrics, titles)):
     with cols[idx]:
         st.pyplot(fig)
 
-# Separate legend
+# Separate legend (JETZT korrekt!)
 with cols[3]:
-    st.markdown("### Legend")
+    st.markdown("Legend")
     fig_leg, ax_leg = plt.subplots()
-    ax_leg.legend(handles, labels, loc='center')
+    ax_leg.legend(all_handles, all_labels, loc='center')
     ax_leg.axis('off')
     st.pyplot(fig_leg)
 
