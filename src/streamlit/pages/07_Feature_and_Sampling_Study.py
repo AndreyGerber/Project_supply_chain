@@ -101,9 +101,6 @@ Focus:
 - Detect critical reviews (1–2 stars)
 """)
 
-# ---------- Global Comparison ----------
-st.header("Global Metrics Comparison Across Studies")
-
 combined = []
 for name, df in studies.items():
     temp = df.copy()
@@ -111,16 +108,51 @@ for name, df in studies.items():
     combined.append(temp)
 combined_df = pd.concat(combined)
 
-for metric in ['accuracy', 'macro_f1', 'rmse']:
+# ---------- Global Comparison ----------
+st.header("Global Metrics Comparison Across Studies")
+
+metrics = ['accuracy', 'macro_f1', 'rmse']
+titles = ['Accuracy', 'Macro F1', 'RMSE']
+
+cols = st.columns(4)  # 3 plots + 1 legend
+
+handles = None
+labels = None
+
+for idx, (metric, title) in enumerate(zip(metrics, titles)):
     fig, ax = plt.subplots()
+
     for study in combined_df['study'].unique():
         subset = combined_df[combined_df['study'] == study]
-        ax.plot(subset['experiment'], subset[metric], marker='o', label=study)
 
-    ax.set_title(metric.upper())
-    ax.set_xticklabels(subset['experiment'], rotation=45)
-    ax.legend()
-    st.pyplot(fig)
+        line, = ax.plot(
+            subset['experiment'],
+            subset[metric],
+            marker='o',
+            label=study
+        )
+
+        # Save legend once
+        if handles is None:
+            handles, labels = ax.get_legend_handles_labels()
+
+    # Best line
+    best_value = combined_df[metric].max() if metric != "rmse" else combined_df[metric].min()
+    ax.axhline(best_value, linestyle='--', color='red', label='Best')
+
+    ax.set_title(title)
+    ax.tick_params(axis='x', rotation=45)
+
+    with cols[idx]:
+        st.pyplot(fig)
+
+# Separate legend
+with cols[3]:
+    st.markdown("### Legend")
+    fig_leg, ax_leg = plt.subplots()
+    ax_leg.legend(handles, labels, loc='center')
+    ax_leg.axis('off')
+    st.pyplot(fig_leg)
 
 
 # =====================================
@@ -216,8 +248,6 @@ with col2:
 # 4. Error Distance Analysis
 # =====================================
 
-st.header("📏 Error Distance Analysis")
-
 def compute_error_distance(cm):
     total_error = 0
     total_samples = cm.sum()
@@ -228,32 +258,30 @@ def compute_error_distance(cm):
 
     return total_error / total_samples
 
+st.header("📏 Error Analysis")
+
+# --- Metrics berechnen ---
 err_emb = compute_error_distance(cm_emb)
 err_tfidf = compute_error_distance(cm_tfidf)
 
-st.metric("Avg Error Distance (Embeddings)", f"{err_emb:.3f}")
-st.metric("Avg Error Distance (TF-IDF)", f"{err_tfidf:.3f}")
-
-# ---------- Advanced Error Analysis ----------
-st.header("Advanced Error Analysis")
-
-# Critical FN (1–2 → 4–5)
 emb_fn_critical = cm_emb[0:2, 3:5].sum()
-st.metric("Embeddings - Critical False Negatives (1-2 → 4-5)", int(emb_fn_critical))
-
 tfidf_fn_critical = cm_tfidf[0:2, 3:5].sum()
-st.metric("TF-IDF - Critical False Negatives (1-2 → 4-5)", int(tfidf_fn_critical))
 
-
-# Boundary Errors (4 vs 5)
 boundary_emb = cm_emb[3, 4] + cm_emb[4, 3]
-st.metric("Embeddings - Boundary Errors (4 ↔ 5)", int(boundary_emb))
-
 boundary_tfidf = cm_tfidf[3, 4] + cm_tfidf[4, 3]
-st.metric("TF-IDF - Boundary Errors (4 ↔ 5)", int(boundary_tfidf))
+
+# --- Tabelle 1 ---
+error_table = pd.DataFrame({
+    "Error Distance": [err_emb, err_tfidf],
+    "Critical False Negatives": [emb_fn_critical, tfidf_fn_critical],
+    "Boundary Errors": [boundary_emb, boundary_tfidf]
+}, index=["Embeddings", "TF-IDF"])
+
+st.subheader("Error Summary")
+st.dataframe(error_table)
 
 # Top Errors
-st.subheader("Top Errors (Largest Deviations)")
+#Top Errors (Largest Deviations)
 errors_emb = []
 errors_tfidf = []
 for i in range(5):
@@ -269,12 +297,31 @@ errors_sorted_tfidf = sorted(errors_tfidf, key=lambda x: (x[1], x[2]), reverse=T
 top_errors_emb = errors_sorted_emb[:5]
 top_errors_tfidf = errors_sorted_tfidf[:5]
 
-for (true, pred), dist, count in top_errors_emb:
-    st.write(f"True {true} → Pred {pred} | Distance: {dist} | Count: {count}")
+st.subheader("Top Errors")
 
-st.subheader("Top Errors TF-IDF (Largest Deviations)")
-for (true, pred), dist, count in top_errors_tfidf:
-    st.write(f"True {true} → Pred {pred} | Distance: {dist} | Count: {count}")
+def build_error_df(errors):
+    return pd.DataFrame([
+        {
+            "True": t,
+            "Pred": p,
+            "Distance": d,
+            "Count": c
+        }
+        for (t, p), d, c in errors
+    ])
+
+df_top_emb = build_error_df(top_errors_emb)
+df_top_tfidf = build_error_df(top_errors_tfidf)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("### Embeddings")
+    st.dataframe(df_top_emb, use_container_width=True)
+
+with col2:
+    st.markdown("### TF-IDF")
+    st.dataframe(df_top_tfidf, use_container_width=True)
 
 
 st.markdown("""
@@ -282,10 +329,6 @@ st.markdown("""
 
 - TF-IDF produces significantly larger prediction errors  
 - Embeddings tend to make *nearby mistakes*  
-
-Examples:
-- TF-IDF: 1⭐ → 5⭐ (extreme error)  
-- Embeddings: 3⭐ → 4⭐ (boundary error)  
 
 > Embeddings better capture semantic relationships between classes
 """)
@@ -301,12 +344,11 @@ st.markdown("""
 
 - Sampling strategies do not significantly improve performance  
 - Feature representation is the dominant factor  
-- TF-IDF and embeddings capture fundamentally different signals  
+- TF-IDF and embeddings capture different signals  
 
 ### Interpretation
 
-- TF-IDF:
-  - Strong class separation  
+- TF-IDF: 
   - Weak semantic understanding  
   - Leads to extreme errors  
 
