@@ -6,6 +6,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import numpy as np
+from scipy.stats import chi2_contingency
+import statsmodels.formula.api as smf
 
 # PAGE CONFIG
 st.set_page_config(layout="wide")
@@ -16,9 +19,12 @@ st.title("📊 Feature Engineering")
 # =========================
 st.subheader("Raw Data")
 
-file_path = Path("data/raw/trustpilot_reviews_production.json")
 
-with open(file_path, "r", encoding="utf-8") as f:
+BASE_DIR = Path(__file__).resolve().parents[3]
+
+RAW_PATH = BASE_DIR / "data/raw/trustpilot_reviews_production.json"
+
+with open(RAW_PATH, "r", encoding="utf-8") as f:
     data = json.load(f)
 
 df_raw = pd.DataFrame(data)
@@ -40,23 +46,18 @@ review_text, rating_svg, date, location, supplier_response, verified, company
 st.subheader("First Part: External Features Analysis")
 
 
-import numpy as np
-from scipy.stats import chi2_contingency
-
-import streamlit as st
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-from scipy.stats import chi2_contingency
-import statsmodels.formula.api as smf
-
 st.title("📅 Feature Selection: Date Features")
 
 # =========================
 # LOAD DATA
 # =========================
-df = pd.read_csv("data/clean/reviews_processed.csv")
+
+
+CLEAN_PATH = BASE_DIR / "data/processed/reviews_processed.csv"
+
+
+df = pd.read_csv(CLEAN_PATH)
+
 
 # =========================
 # DATE CLEANING
