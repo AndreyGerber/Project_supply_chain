@@ -14,6 +14,4 @@ if st.button("Predict"):
 
     result = predict_rating(text)
 
-    st.success(f"⭐ Rating: {result['prediction']}")
-
-    st.bar_chart(result["probabilities"])
+    st.success(f"⭐ Rating: {result}")

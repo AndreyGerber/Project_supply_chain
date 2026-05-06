@@ -21,6 +21,21 @@ nltk.download('omw-1.4')  # wichtig für mehrsprachige Lemmatization
 STOPWORDS = set(stopwords.words('english')) 
 LEMMATIZER = WordNetLemmatizer()
 
+#sicherstellen, dass alle Spalten da sind, damit die Funktionen nicht crashen
+def ensure_schema(df):
+
+    defaults = {
+        "verified": 0,
+        "supplier_response": None,
+        "review_text_en": df.get("review_text", "")
+    }
+
+    for col, val in defaults.items():
+        if col not in df.columns:
+            df[col] = val
+
+    return df
+
 #Sentiment Analyse(sehr starkes neues feature sentiment!!!)
 analyzer = SentimentIntensityAnalyzer()
 def get_sentiment(text):
@@ -76,6 +91,7 @@ def add_structured_features(df: pd.DataFrame) -> pd.DataFrame:
     - verified (bereits boolean)
     """
     df = df.copy()
+    df = ensure_schema(df)
     df["review_length"] = df["review_text"].astype(str).apply(lambda x: len(x.split()))
     df["sentiment"] = df["review_text"].apply(get_sentiment)
     #eventuell nur auf die englischen reviews anwenden, 

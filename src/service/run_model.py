@@ -27,16 +27,25 @@ emb_version = bundle["embedding_version"]
 # =========================================
 def preprocess(text: str) -> pd.DataFrame:
 
-    df = pd.DataFrame({"review_text": [text]})
+    df = pd.DataFrame({
+        "review_text": [text],
+        "supplier_response": [None],
+        "verified": [0]
+    })
 
-    df["review_text_clean_en"] = df["review_text"].apply(clean_text)
+    # alles vor Feature Engineering setzen
     df["review_text_en"] = df["review_text"]
-    df["verified"] = False  # Placeholder, da wir diese Info im UI nicht haben
+    df["review_text_clean_en"] = df["review_text"].apply(clean_text)
+    df["review_text_clean_light"] = df["review_text"].str.lower()
+
+    # Safety Check 
+    if "verified" not in df.columns:
+        df["verified"] = 0
+    df["verified"] = df["verified"].fillna(0).astype(int)
 
     df = add_structured_features(df)
 
     return df
-
 
 # =========================================
 # PREDICT (UI USE)
@@ -107,32 +116,3 @@ def get_tfidf_words(model_input, n=15):
         "word": [feature_names[i] for i in idx],
         "score": vec[idx]
     })
-
-
-
-# =========================================
-# PREDICT SERVICE
-# =========================================
-def predict_rating(text: str):
-
-    df = preprocess(text)
-
-    X_tfidf = tfidf_pipeline.transform(df["review_text_clean_en"])
-    X_emb = generate_embeddings(df, version=emb_version)
-    X_struct = get_structured_features(df)
-
-    X = hstack([
-        X_tfidf,
-        csr_matrix(X_emb),
-        csr_matrix(X_struct)
-    ])
-
-    pred_encoded = model.predict(X)[0]
-    proba = model.predict_proba(X)[0]
-
-    pred = label_encoder.inverse_transform([pred_encoded])[0]
-
-    return {
-        "prediction": int(pred),
-        "probabilities": proba.tolist()
-    }
