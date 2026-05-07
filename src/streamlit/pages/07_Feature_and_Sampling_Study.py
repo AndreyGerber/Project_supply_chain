@@ -154,8 +154,6 @@ for idx, (metric, title) in enumerate(zip(metrics, titles)):
 
 # Separate legend (JETZT korrekt!)
 st.markdown("""
-Legend
-
 <span style="color:#1f77b4;">●</span> Embeddings + basic features &nbsp;&nbsp;
 <span style="color:#ff7f0e;">●</span> Embeddings + extended features &nbsp;&nbsp;
 <span style="color:#2ca02c;">●</span> TF-IDF + extended features &nbsp;&nbsp;
@@ -163,70 +161,44 @@ Legend
 """, unsafe_allow_html=True)
 
 
-# =====================================
-# 1. Sampling Impact
-# =====================================
-st.markdown("""
-### ⚖️ Impact of Sampling Strategies
-
-- Baseline consistently performs best  
-- Undersampling significantly degrades performance   
-- Class weights are more effective than sampling
-- Still Strong bias toward predicting class 5
-- The mid-range classes remain difficult to learn
-- Most errors are small (±1), but critical errors still exist            
-
-> Sampling does not solve the core problem
-""")
-
-# =====================================
-# 2. Performance Comparison TF-IDF vs Embeddings
-# =====================================
-df_emb = df_emb_ext[df_emb_ext["experiment"] == "baseline"]
-df_tfidf = df_tfidf[df_tfidf["experiment"] == "baseline"]
-
-st.header("📊 Performance: TF-IDF vs Embeddings")
-
-perf_df = pd.DataFrame({
-    "Feature": ["Embeddings", "TF-IDF"],
-    "Macro F1": [
-        df_emb[df_emb["experiment"] == "baseline"]["macro_f1"].values[0],
-        df_tfidf[df_tfidf["experiment"] == "baseline"]["macro_f1"].values[0]
-    ],
-    "RMSE": [
-        df_emb[df_emb["experiment"] == "baseline"]["rmse"].values[0],
-        df_tfidf[df_tfidf["experiment"] == "baseline"]["rmse"].values[0]
-    ]
-})
-
 col1, col2 = st.columns(2)
 
 with col1:
-    fig, ax = plt.subplots()
-    ax.bar(perf_df["Feature"], perf_df["Macro F1"])
-    ax.set_title("Macro F1 Comparison")
-    st.pyplot(fig)
+    st.markdown("""
+    ### Impact of Sampling Strategies
+
+    - Baseline consistently performs best  
+    - Undersampling significantly degrades performance   
+    - Class weights are more effective than sampling
+            
+    - Still strong bias toward predicting class 5  
+    - Mid-range classes remain difficult to learn  
+    - Most errors are small (±1), but critical errors still exist            
+
+    > Sampling does not solve the core problem
+    """)
 
 with col2:
-    fig, ax = plt.subplots()
-    ax.bar(perf_df["Feature"], perf_df["RMSE"])
-    ax.set_title("RMSE Comparison")
-    st.pyplot(fig)
+    st.markdown("""
+    ### Feature Impact
 
-st.markdown("""
-### 🧠 Key Insight
+    - **Structural features**
+        - consistently improve performance  
+        - stabilize predictions  
 
-- Embeddings significantly outperform TF-IDF in Macro F1  
-- TF-IDF shows much higher RMSE  
+    - **Embeddings outperform TF-IDF** across all metrics  
 
-> This indicates that TF-IDF produces more severe misclassifications
-""")
+    - **TF-IDF shows higher RMSE**
+        - indicating more severe misclassifications  
+
+    > Feature representation is the dominant factor, not sampling strategy
+    """)
 
 # =====================================
-# 3. Confusion Matrix Comparison
+# Confusion Matrix Comparison
 # =====================================
 
-st.header("🔍 Confusion Matrix Comparison (Baseline)")
+st.header("🔍 Confusion Matrix Comparison")
 
 def plot_cm(cm, title):
     fig, ax = plt.subplots()
@@ -253,7 +225,7 @@ with col2:
     st.pyplot(plot_cm(cm_tfidf, "TF-IDF"))
 
 # =====================================
-# 4. Error Distance Analysis
+# Error  Analysis
 # =====================================
 
 def compute_error_distance(cm):
@@ -342,7 +314,7 @@ st.markdown("""
 """)
 
 # =====================================
-# 5. Final Insight
+# Final Insight
 # =====================================
 
 st.header("🏁 Key Conclusions")
@@ -351,10 +323,7 @@ st.markdown("""
 ### Core Findings
 
 - Sampling strategies do not significantly improve performance  
-- Feature representation is the dominant factor  
-- TF-IDF and embeddings capture different signals  
-
-### Interpretation
+- Feature representation is the dominant factor    
 
 - TF-IDF: 
   - Weak semantic understanding  
@@ -365,9 +334,15 @@ st.markdown("""
   - More stable predictions  
   - Smaller error distances  
 
-### Final Insight
+### Conclusion
 
 > The main challenge is not imbalance, but semantic ambiguity between classes.
 
-This insight directly motivated the development of hybrid models in the next phase.
+### Open Questions: 
+            
+Could TF-IDF and embeddings capture fundamentally different signals?
+Could they be complementary rather than one being strictly better?
+Could this help us with the semantic ambiguity between classes?
+
+> This Questions motivated the development of hybrid models in the next phase.
 """)

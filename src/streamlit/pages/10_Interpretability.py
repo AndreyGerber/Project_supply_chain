@@ -10,9 +10,9 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 
 from src.service.run_model import (
-    predict,
     explain_local,
-    get_tfidf_words
+    get_tfidf_words,
+    predict_explain
 )
 
 from pathlib import Path
@@ -26,7 +26,7 @@ if st.button("Explain"):
     # =========================================
     # MODEL OUTPUT
     # =========================================
-    result = predict(text)
+    result = predict_explain(text)
 
     proba = result["probabilities"]
     pred = result["prediction"]
