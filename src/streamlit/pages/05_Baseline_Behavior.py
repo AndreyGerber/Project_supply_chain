@@ -1,277 +1,468 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score, f1_score
+import plotly.express as px
+import plotly.graph_objects as go
+from sklearn.metrics import (
+    precision_recall_fscore_support,
+    accuracy_score,
+    f1_score,
+    mean_squared_error
+)
 
+# =========================================================
+# PAGE CONFIG
+# =========================================================
 
-st.set_page_config(page_title="Modeling Foundation", layout="wide")
+st.set_page_config(
+    page_title="Modeling Foundation",
+    layout="wide"
+)
 
-# -----------------------------
-# Session State for Navigation
-# -----------------------------
+# =========================================================
+# SESSION STATE
+# =========================================================
+
 if "study" not in st.session_state:
     st.session_state.study = "Binary Classification"
 
-# -----------------------------
-# Header / Framing
-# -----------------------------
+# =========================================================
+# HEADER
+# =========================================================
+
 st.title("📊 Modeling Foundation")
-st.markdown("**We start simple to understand the models — then move to reality.**")
+
+st.markdown(
+    """
+    **We start with a controlled setup to isolate representation quality — then move to the real-world problem.**
+    """
+)
+
 st.markdown("---")
 
-# Controls
-col1, col2 = st.columns([3, 1])
+# =========================================================
+# NAVIGATION
+# =========================================================
+
+col1, col2 = st.columns([4, 1])
+
 with col1:
     study = st.selectbox(
         "Select Study",
-        ("Binary Classification", "Multi-Class Classification"),
+        (
+            "Binary Classification",
+            "Multi-Class Classification"
+        ),
         index=0 if st.session_state.study == "Binary Classification" else 1
     )
+
     st.session_state.study = study
 
 with col2:
+    st.write("")
+    st.write("")
+
     if st.button("➡️ Move to Real-World Problem"):
         st.session_state.study = "Multi-Class Classification"
         st.experimental_rerun()
 
-# -----------------------------
-# STUDY 1
-# -----------------------------
+# =========================================================
+# STUDY 1 — BINARY
+# =========================================================
+
 if st.session_state.study == "Binary Classification":
-    st.header("Simplified Binary Task")
+
+    st.header("1️⃣ Simplified Binary Task")
 
     st.markdown(
         """
-        **Goal:** Understand model behavior in a simplified setting.
+        ### Goal
         
-        Binary classification: **Rating 5 vs. Not 5**.
+        The binary setup serves as a **controlled experiment** to isolate the effect of:
         
-        This isolates the effect of **feature representation** and **model choice** without fine-grained ambiguity.
+        - feature representation
+        - model architecture
+        
+        before introducing **ordinal ambiguity** and semantic overlap between neighboring classes.
+        
+        Binary classification:
+        
+        **Rating 5 vs. Not 5**
         """
     )
 
-    data = pd.DataFrame({
-        "Model": ["XGBoost", "Random Forest", "XGBoost", "Random Forest"],
-        "Feature Type": ["Embeddings", "Embeddings", "TF-IDF", "TF-IDF"],
-        "Accuracy": [0.972393, 0.959739, 0.947469, 0.854678],
-        "F1 Score": [0.972319, 0.959351, 0.946993, 0.831086]
+    # -----------------------------------------------------
+    # DATA
+    # -----------------------------------------------------
+
+    binary_data = pd.DataFrame({
+        "Model": [
+            "XGBoost",
+            "Random Forest",
+            "XGBoost",
+            "Random Forest"
+        ],
+        "Feature Type": [
+            "Embeddings",
+            "Embeddings",
+            "TF-IDF",
+            "TF-IDF"
+        ],
+        "Accuracy": [
+            0.972393,
+            0.959739,
+            0.947469,
+            0.854678
+        ],
+        "F1 Score": [
+            0.972319,
+            0.959351,
+            0.946993,
+            0.831086
+        ]
     })
 
-    st.subheader("📈 Results")
-    st.dataframe(data, use_container_width=True)
+    # -----------------------------------------------------
+    # RESULTS TABLE
+    # -----------------------------------------------------
 
-    st.subheader("📊 Comparison (Accuracy & F1)")
-    pivot = data.pivot(index="Feature Type", columns="Model", values="F1 Score")
-    st.bar_chart(pivot)
+    st.subheader("📋 Results Overview")
 
-    st.subheader("Insight")
+    st.dataframe(
+        binary_data,
+        use_container_width=True
+    )
+
+    # -----------------------------------------------------
+    # PLOT
+    # -----------------------------------------------------
+
+    st.subheader("📈 Binary Classification Performance")
+
+    fig_binary = px.bar(
+        binary_data,
+        x="Feature Type",
+        y="F1 Score",
+        color="Model",
+        barmode="group",
+        text="F1 Score",
+        height=500
+    )
+
+    fig_binary.update_traces(
+        texttemplate='%{text:.3f}',
+        textposition='outside'
+    )
+
+    fig_binary.update_layout(
+        yaxis_range=[0, 1],
+        yaxis_title="F1 Score",
+        xaxis_title="Feature Representation",
+        legend_title="Model"
+    )
+
+    st.plotly_chart(fig_binary, use_container_width=True)
+
+    # -----------------------------------------------------
+    # INSIGHT
+    # -----------------------------------------------------
+
     st.info(
-        "All models perform strongly in the simplified setting. "
-        "Embeddings consistently outperform TF-IDF, but overall the task appears easy."
+        """
+        **Insight**
+        
+        All models perform strongly in the simplified setting.
+        
+        Embeddings consistently outperform TF-IDF, but the task itself remains relatively easy due to the absence of fine-grained semantic distinctions.
+        
+        The experiment therefore acts as a baseline to understand representation quality before introducing ordinal complexity.
+        """
     )
 
-    st.markdown("💬 *Interpretation:* The task does not yet expose the real difficulty of the problem.")
+# =========================================================
+# STUDY 2 — MULTI CLASS
+# =========================================================
 
-# -----------------------------
-# STUDY 2
-# -----------------------------
 else:
-    st.header("Full Multi-Class Task")
+
+    st.header("2️⃣ Full Multi-Class Task")
 
     st.markdown(
         """
-        **Goal:** Evaluate XG Boost model performance under real-world conditions.
+        ### Goal
         
-        5-class classification: **Ratings from 1 to 5**.
+        Evaluate model performance under realistic conditions.
         
-        This introduces **semantic complexity** and **class ambiguity**.
+        5-class classification:
+        
+        **Ratings from 1 to 5**
+        
+        This introduces:
+        
+        - semantic overlap between neighboring ratings
+        - ordinal ambiguity
+        - class imbalance
         """
     )
 
-    results = pd.DataFrame({
-        "Feature Type": ["Embeddings", "TF-IDF"],
-        "Accuracy": [0.862933, 0.730725],
-        "Macro F1": [0.684148, 0.468757],
-        "RMSE": [0.480141, 0.708767]
-    })
+    # =====================================================
+    # CONFUSION MATRICES
+    # =====================================================
 
-    st.subheader("📉 Results")
-    st.dataframe(results, use_container_width=True)
+    cm_emb = np.array([
+        [337, 85, 29, 4, 0],
+        [6, 53, 11, 5, 0],
+        [3, 16, 55, 13, 2],
+        [2, 4, 20, 142, 47],
+        [1, 1, 28, 101, 1642]
+    ])
 
-    st.subheader("📊 Performance Drop Visualization")
-    st.bar_chart(results.set_index("Feature Type")[["Accuracy", "Macro F1"]])
+    cm_tfidf = np.array([
+        [222, 161, 51, 20, 1],
+        [6, 36, 23, 8, 2],
+        [2, 20, 37, 27, 3],
+        [0, 10, 17, 87, 101],
+        [0, 6, 48, 208, 1511]
+    ])
 
+    # =====================================================
+    # METRICS
+    # =====================================================
 
-# =========================
-# Daten
-# =========================
+    def metrics_from_cm(cm):
 
-cm_emb = np.array([
-    [337, 85, 29, 4, 0],
-    [6, 53, 11, 5, 0],
-    [3, 16, 55, 13, 2],
-    [2, 4, 20, 142, 47],
-    [1, 1, 28, 101, 1642]
-])
+        y_true = []
+        y_pred = []
 
-cm_tfidf = np.array([
-    [222, 161, 51, 20, 1],
-    [6, 36, 23, 8, 2],
-    [2, 20, 37, 27, 3],
-    [0, 10, 17, 87, 101],
-    [0, 6, 48, 208, 1511]
-])
+        for true_class in range(cm.shape[0]):
+            for pred_class in range(cm.shape[1]):
 
-# =========================
-# Helper Function
-# =========================
+                count = cm[true_class, pred_class]
 
-def metrics_from_cm(cm):
+                y_true.extend([true_class] * count)
+                y_pred.extend([pred_class] * count)
 
-    y_true = []
-    y_pred = []
+        accuracy = accuracy_score(y_true, y_pred)
 
-    for true_class in range(cm.shape[0]):
-        for pred_class in range(cm.shape[1]):
-            count = cm[true_class, pred_class]
-
-            y_true.extend([true_class] * count)
-            y_pred.extend([pred_class] * count)
-
-    # Metrics
-    accuracy = accuracy_score(y_true, y_pred)
-
-    precision, recall, f1, support = precision_recall_fscore_support(
-        y_true,
-        y_pred,
-        average=None
-    )
-
-    macro_f1 = f1_score(y_true, y_pred, average='macro')
-    weighted_f1 = f1_score(y_true, y_pred, average='weighted')
-
-    return {
-        "accuracy": accuracy,
-        "macro_f1": macro_f1,
-        "weighted_f1": weighted_f1,
-        "f1_per_class": f1
-    }
-
-# =========================
-# Compute Metrics
-# =========================
-
-metrics_emb = metrics_from_cm(cm_emb)
-metrics_tfidf = metrics_from_cm(cm_tfidf)
-
-# =========================
-# Plot Function
-# =========================
-
-def create_plot(metrics, title):
-
-    classes = [f"Klasse {i}" for i in range(len(metrics["f1_per_class"]))]
-
-    fig, ax = plt.subplots(figsize=(8,5))
-
-    bars = ax.bar(classes, metrics["f1_per_class"])
-
-    ax.set_ylim(0, 1)
-    ax.set_ylabel("F1-Score")
-    ax.set_title(title)
-
-    # Global metrics as horizontal lines
-    ax.axhline(
-        metrics["accuracy"],
-        linestyle="--",
-        label=f'Accuracy: {metrics["accuracy"]:.3f}'
-    )
-
-    ax.axhline(
-        metrics["macro_f1"],
-        linestyle="-.",
-        label=f'Macro-F1: {metrics["macro_f1"]:.3f}'
-    )
-
-    ax.axhline(
-        metrics["weighted_f1"],
-        linestyle=":",
-        label=f'Weighted-F1: {metrics["weighted_f1"]:.3f}'
-    )
-
-    ax.legend()
-
-    # Add value labels
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width()/2,
-            height + 0.01,
-            f"{height:.2f}",
-            ha='center'
+        precision, recall, f1, support = precision_recall_fscore_support(
+            y_true,
+            y_pred,
+            average=None
         )
 
-    return fig
+        macro_f1 = f1_score(
+            y_true,
+            y_pred,
+            average="macro"
+        )
 
-# =========================
-# Streamlit Layout
-# =========================
+        weighted_f1 = f1_score(
+            y_true,
+            y_pred,
+            average="weighted"
+        )
 
-st.title("Vergleich: Embeddings vs TF-IDF")
+        rmse = np.sqrt(mean_squared_error(y_true, y_pred))
 
-col1, col2 = st.columns(2)
+        return {
+            "accuracy": accuracy,
+            "macro_f1": macro_f1,
+            "weighted_f1": weighted_f1,
+            "rmse": rmse,
+            "f1_per_class": f1
+        }
 
-with col1:
-    st.subheader("Embeddings")
-    fig1 = create_plot(metrics_emb, "F1-Scores pro Klasse")
-    st.pyplot(fig1)
+    metrics_emb = metrics_from_cm(cm_emb)
+    metrics_tfidf = metrics_from_cm(cm_tfidf)
 
-with col2:
-    st.subheader("TF-IDF")
-    fig2 = create_plot(metrics_tfidf, "F1-Scores pro Klasse")
-    st.pyplot(fig2)
+    # =====================================================
+    # KPI CARDS
+    # =====================================================
 
-    # -----------------------------
-    # Confusion Matrix Comparison
-    # -----------------------------
+    st.subheader("📋 Overall Performance")
 
-    st.header("🔍 Confusion Matrix Comparison (Baseline)")
+    kpi1, kpi2, kpi3, kpi4, kpi5, kpi6 = st.columns(6)
 
-    def plot_cm(cm, title):
-        fig, ax = plt.subplots()
-        im = ax.imshow(cm, cmap="Blues")
+    with kpi1:
+        st.metric(
+            "Emb Accuracy",
+            f"{metrics_emb['accuracy']:.3f}"
+        )
 
-        # Annotate cells (like seaborn style)
-        for i in range(cm.shape[0]):
-            for j in range(cm.shape[1]):
-                ax.text(j, i, f"{cm[i, j]}", ha="center", va="center", fontsize=9)
+    with kpi2:
+        st.metric(
+            "Emb Macro-F1",
+            f"{metrics_emb['macro_f1']:.3f}"
+        )
 
-        ax.set_title(title)
-        ax.set_xlabel("Predicted")
-        ax.set_ylabel("True")
-        ax.set_xticks(range(cm.shape[1]))
-        ax.set_yticks(range(cm.shape[0]))
+    with kpi3:
+        st.metric(
+            "Emb RMSE",
+            f"{metrics_emb['rmse']:.3f}"
+        )
 
-        ax.set_xticklabels([1,2,3,4,5])
-        ax.set_yticklabels([1,2,3,4,5])
+    with kpi4:
+        st.metric(
+            "TF-IDF Accuracy",
+            f"{metrics_tfidf['accuracy']:.3f}"
+        )
 
-        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-        return fig
+    with kpi5:
+        st.metric(
+            "TF-IDF Macro-F1",
+            f"{metrics_tfidf['macro_f1']:.3f}"
+        )
+
+    with kpi6:
+        st.metric(
+            "TF-IDF RMSE",
+            f"{metrics_tfidf['rmse']:.3f}"
+        )
+
+    st.markdown("---")
+
+    # =====================================================
+    # F1 COMPARISON
+    # =====================================================
+
+    st.subheader("📊 F1-Score per Class")
+
+    f1_df = pd.DataFrame({
+        "Class": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+        ],
+        "Embeddings": metrics_emb["f1_per_class"],
+        "TF-IDF": metrics_tfidf["f1_per_class"]
+    })
+
+    f1_melted = f1_df.melt(
+        id_vars="Class",
+        var_name="Representation",
+        value_name="F1 Score"
+    )
+
+    fig_f1 = px.bar(
+        f1_melted,
+        x="Class",
+        y="F1 Score",
+        color="Representation",
+        barmode="group",
+        text="F1 Score",
+        height=500
+    )
+
+    fig_f1.update_traces(
+        texttemplate='%{text:.2f}',
+        textposition='outside'
+    )
+
+    fig_f1.update_layout(
+        yaxis_range=[0, 1],
+        xaxis_title="Rating Class",
+        yaxis_title="F1 Score",
+        legend_title="Representation"
+    )
+
+    st.plotly_chart(fig_f1, use_container_width=True)
+
+    # =====================================================
+    # NORMALIZED CONFUSION MATRICES
+    # =====================================================
+
+    st.subheader("🔍 Normalized Confusion Matrices")
+
+    def normalize_cm(cm):
+        return cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
+
+    norm_emb = normalize_cm(cm_emb)
+    norm_tfidf = normalize_cm(cm_tfidf)
 
     col1, col2 = st.columns(2)
 
     with col1:
-        st.pyplot(plot_cm(cm_emb, "Embeddings"))
+
+        fig_emb = px.imshow(
+            norm_emb,
+            text_auto=".2f",
+            color_continuous_scale="Blues",
+            labels=dict(
+                x="Predicted",
+                y="True",
+                color="Ratio"
+            ),
+            x=["1", "2", "3", "4", "5"],
+            y=["1", "2", "3", "4", "5"],
+            title="Embeddings"
+        )
+
+        st.plotly_chart(
+            fig_emb,
+            use_container_width=True
+        )
 
     with col2:
-        st.pyplot(plot_cm(cm_tfidf, "TF-IDF"))
 
-    st.subheader("Insight")
-    st.warning(
-        "Performance drops significantly in the multi-class setting. "
-        "The main challenge lies in distinguishing between similar rating levels, "
-        "not extreme cases."
+        fig_tfidf = px.imshow(
+            norm_tfidf,
+            text_auto=".2f",
+            color_continuous_scale="Blues",
+            labels=dict(
+                x="Predicted",
+                y="True",
+                color="Ratio"
+            ),
+            x=["1", "2", "3", "4", "5"],
+            y=["1", "2", "3", "4", "5"],
+            title="TF-IDF"
+        )
+
+        st.plotly_chart(
+            fig_tfidf,
+            use_container_width=True
+        )
+
+    # =====================================================
+    # INTERPRETATION
+    # =====================================================
+
+    st.info(
+        """
+        ### Insight
+        
+        Performance drops substantially in the multi-class setting.
+        
+        The main challenge is not detecting sentiment polarity itself, but distinguishing between neighboring sentiment intensities.
+        
+        The confusion matrices show that:
+        
+        - extreme ratings are classified reliably
+        - middle classes exhibit strong semantic overlap
+        - TF-IDF struggles particularly with neighboring classes
+        
+        Embeddings achieve consistently higher F1-scores across nearly all classes, indicating a better semantic representation.
+        
+        ---
+        
+        ### Why Macro-F1?
+        
+        The dataset is strongly imbalanced, with class 5 dominating the distribution.
+        
+        Accuracy alone would therefore overestimate performance.
+        
+        Macro-F1 evaluates all classes equally and provides a more reliable assessment of model robustness across minority classes.
+        
+        ---
+        
+        ### Why RMSE?
+        
+        Ratings are ordinal by nature.
+        
+        Misclassifying a 5-star review as 4 is less severe than predicting 1.
+        
+        RMSE captures this ordinal distance between predicted and true ratings, which standard classification metrics cannot express directly.
+        """
     )
-
-    st.markdown("💬 *Interpretation:* The models do not fail at understanding sentiment — they fail at distinguishing its intensity.")
