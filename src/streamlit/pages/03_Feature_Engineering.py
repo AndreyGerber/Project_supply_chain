@@ -35,18 +35,137 @@ The scraped raw data consists of eight columns:
 review_text, rating_svg, date, location, supplier_response, verified, company
 """)
 
-# =========================
-# 🔹 CLEAN DATA
-# =========================
-#df = pd.read_csv("data/processed/reviews_processed.csv")
+st.subheader("Statistical Tests")
 
-# =========================
-# 🔹 EXTERNAL FEATURES
-# =========================
-st.subheader("First Part: External Features Analysis")
+st.markdown("#### Correlation : Numerical variables")
+
+st.write("Correlation gives a value between -1 and +1 and has direction")
+
+df_table1 = pd.DataFrame({
+    "Correlation value": ["0.00-0.10", "0.10-0.30", "0.30-0.50", "0.50-0.70", "0.70-1.00"],
+    "Relationship": ["none","weak", "moderate","strong","very strong"]
+})
+
+st.table(df_table1)
+
+st.write("For Feature Engineering: relevance in praxis")
+
+df_table2 = pd.DataFrame({
+    "Correlation value": ["<0.10", "0.10-0.30", "0.30-0.50", "0.50-1.00"],
+    "Recommendation of usage": ["ignore", "maybe useful", "good feature", "strong feature"]
+})
+
+st.table(df_table2)
+
+st.markdown("#### Chi2 + Cramers V: Categorical variables")
+
+st.write("Chi2 test: If p-value <0.05 --> significant relationship")
+st.write("Cramers V: Measures how strong the relationship is")
+
+df_table3 = pd.DataFrame({
+    "Cramers V": ["0.00-0.10", "0.10-0.30", "0.30-0.50", "0.50-1.00"],
+    "Strength of relationship": ["very weak", "weak to moderate", "moderate to strong", "strong"]
+})
+
+st.table(df_table3)
+
+st.write("Recommendation of usage: Useful feature if p < 0.05 and Cramers V > 0.2 , Strong feature if p < 0.05 and Cramers V > 0.5")
 
 
-st.title("📅 Feature Selection: Date Features")
+
+
+
+st.markdown("### TF-IDF, Embeddings, Sentiment and review_text_en: Text Features")
+
+st.markdown("""
+#### TF-IDF
+- tfidf_dim = 5000
+- Measures how important a word is in a review
+- High score = frequent in one review, rare in all reviews
+- Fast and simple, but does not understand meaning or context""")
+
+
+with st.expander("TF-IDF", expanded=False):
+    st.markdown("""
+    #### TF-IDF
+    - Not every word has the same importance
+    - A word gets a high TF-IDF value if:
+    - it is frequent in the actual review
+    - it is seldom in the whole dataset of reviews
+    - Disadvantages:
+    - does not understand meaning
+    - no ordering of words
+    - often creates a large sparse matrix
+    - TF-IDF only understands words""")
+                
+st.markdown("""
+#### Embeddings
+- EMBEDDING_MODEL = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2") with emb_dim = 384
+- Convert text into numeric vectors with semantic meaning
+- Capture context, similarity, and relationships between words
+- More accurate and multilingual, but computationally expensive
+""")
+with st.expander("Embeddings",expanded=False):
+    st.markdown("""
+    #### Embeddings
+    - Numeric vectors that represent the meaning of texts
+    - Embeddings understand:
+    - meaning
+    - context
+    - similarity
+    - Text gets embedded in a meaning space:
+    - similar words are near each other
+    - different words are far apart
+    - We use Sentence Transformers with 384 dimensions
+    - Advantages:
+    - much better semantics
+    - more robust
+    - multilingual
+    - better performance
+    - Disadvantages:
+    - output is harder to interpret
+    - requires more computational power
+    """)
+
+st.markdown("""
+#### Sentiment Analysis
+- Detects emotional tone in text
+- Classifies reviews as positive, negative, or neutral
+- Useful for understanding customer opinions, but struggles with sarcasm and complex context
+""")
+
+
+with st.expander("Sentiment",expanded=False):
+    st.markdown("""
+    #### Sentiment Analysis
+    - Detects the emotional tone of a text
+    - Determines whether a review is:
+    - positive
+    - negative
+    - neutral
+    - Helps to understand customer opinions and satisfaction
+    - Can identify patterns in feedback and trends in reviews
+    - Often used together with TF-IDF or embeddings for better predictions
+
+    - Advantages:
+    - easy to interpret
+    - useful for customer feedback analysis
+    - adds emotional context to text data
+
+    - Disadvantages:
+    - may misunderstand sarcasm or irony
+    - sensitive to context and wording
+    - performance depends on the quality of the model
+    """)
+
+
+
+
+
+st.subheader("External Feature Analysis")
+
+
+
 
 # =========================
 # LOAD DATA
@@ -62,12 +181,12 @@ df = pd.read_csv(CLEAN_PATH)
 # =========================
 # DATE CLEANING
 # =========================
-st.subheader("Date Preprocessing")
+
 
 df["date"] = pd.to_datetime(df["date"], errors="coerce")
 df = df.dropna(subset=["date"]).reset_index(drop=True)
 
-st.write("Cleaned dataset shape:", df.shape)
+#st.write("Cleaned dataset shape:", df.shape)
 
 # =========================
 # FEATURE EXTRACTION
@@ -100,133 +219,134 @@ st.info("➡️ Interpretation: statistically significant but weak relationship 
 # =========================
 # YEAR TREND
 # =========================
-st.subheader("📈 Rating Trend over Time")
+with st.expander("📊 Time-based Feature Analysis", expanded=False):
+    st.subheader("📈 Rating Trend over Time")
 
-fig, ax = plt.subplots()
-df.groupby("year")["rating"].mean().plot(ax=ax)
-ax.set_ylabel("Average Rating")
-st.pyplot(fig)
+    fig, ax = plt.subplots()
+    df.groupby("year")["rating"].mean().plot(ax=ax)
+    ax.set_ylabel("Average Rating")
+    st.pyplot(fig)
 
 # =========================
 # YEAR TRANSFORMATION
 # =========================
-df["year"] = df["year"] - df["year"].min()
+    df["year"] = df["year"] - df["year"].min()
 
 # =========================
 # REVIEW AGE
 # =========================
-st.subheader("⏳ Review Age Feature")
+    st.subheader("⏳ Review Age Feature")
 
-df["review_age_days"] = (df["date"].max() - df["date"]).dt.days
+    df["review_age_days"] = (df["date"].max() - df["date"]).dt.days
 
-fig, ax = plt.subplots()
-sns.histplot(df["review_age_days"], bins=50, ax=ax)
-st.pyplot(fig)
+    fig, ax = plt.subplots()
+    sns.histplot(df["review_age_days"], bins=50, ax=ax)
+    st.pyplot(fig)
 
-fig, ax = plt.subplots()
-sns.boxplot(x="rating", y="review_age_days", data=df, ax=ax)
-st.pyplot(fig)
+    fig, ax = plt.subplots()
+    sns.boxplot(x="rating", y="review_age_days", data=df, ax=ax)
+    st.pyplot(fig)
 
 # =========================
 # AGE BUCKET
 # =========================
-df["age_bucket"] = pd.cut(
-    df["review_age_days"],
-    bins=[0, 30, 180, 365, 10000],
-    labels=["0-30d", "1-6m", "6-12m", "1y+"]
-)
+    df["age_bucket"] = pd.cut(
+        df["review_age_days"],
+        bins=[0, 30, 180, 365, 10000],
+        labels=["0-30d", "1-6m", "6-12m", "1y+"]
+    )
 
-st.subheader("📦 Age Bucket Analysis")
+    st.subheader("📦 Age Bucket Analysis")
 
-ct_age = pd.crosstab(df["age_bucket"], df["rating"], normalize="index")
-st.dataframe(ct_age)
+    ct_age = pd.crosstab(df["age_bucket"], df["rating"], normalize="index")
+    st.dataframe(ct_age)
 
-ct = pd.crosstab(df["age_bucket"], df["rating"])
-chi2, p, _, _ = chi2_contingency(ct)
-
-n = ct.values.sum()
-V = np.sqrt(chi2 / (n * (min(ct.shape) - 1)))
-
-st.write(f"Chi²: {chi2:.2f} | p-value: {p:.5f} | Cramér’s V: {V:.2f}")
-
-# =========================
-# TIME TREND MODEL
-# =========================
-st.subheader("📉 Time Trend (Regression)")
-
-df["number_of_months"] = (
-    (df["date"].dt.year - df["date"].dt.year.min()) * 12
-    + df["date"].dt.month
-)
-
-model = smf.ols("rating ~ number_of_months", data=df).fit()
-
-st.text(model.summary())
-
-st.info("➡️ Weak but significant negative trend over time")
-
-# =========================
-# MONTH ANALYSIS
-# =========================
-st.subheader("📅 Month Analysis")
-
-df["month_cat"] = df["month"].astype("category")
-
-ct_month = pd.crosstab(df["month_cat"], df["rating"], normalize="index")
-st.dataframe(ct_month)
-
-chi2, p, _, _ = chi2_contingency(pd.crosstab(df["month_cat"], df["rating"]))
-
-n = df.shape[0]
-V = np.sqrt(chi2 / (n * (min(12, 5) - 1)))
-
-st.write(f"Cramér’s V: {V:.2f}")
-
-st.success("✔ Months show meaningful variation → useful feature")
-
-# =========================
-# SEASON FEATURE
-# =========================
-st.subheader("🌦 Season Feature")
-
-def get_season(m):
-    if m in [12,1,2]:
-        return "winter"
-    elif m in [3,4,5]:
-        return "spring"
-    elif m in [6,7,8]:
-        return "summer"
-    else:
-        return "autumn"
-
-df["season"] = df["month"].apply(get_season)
-
-ct = pd.crosstab(df["season"], df["rating"])
-chi2, p, _, _ = chi2_contingency(ct)
-
-n = ct.values.sum()
-V = np.sqrt(chi2 / (n * (min(ct.shape) - 1)))
-
-st.write(f"Chi²: {chi2:.2f} | p-value: {p:.5f} | Cramér’s V: {V:.2f}")
-
-# =========================
-# SPECIAL FLAGS
-# =========================
-st.subheader("🎯 Special Time Features")
-
-df["is_year_end"] = df["month"].isin([11,12]).astype(int)
-df["is_march"] = (df["month"] == 3).astype(int)
-
-for feature in ["is_year_end", "is_march"]:
-    st.markdown(f"### {feature}")
-
-    ct = pd.crosstab(df[feature], df["rating"])
+    ct = pd.crosstab(df["age_bucket"], df["rating"])
     chi2, p, _, _ = chi2_contingency(ct)
 
     n = ct.values.sum()
     V = np.sqrt(chi2 / (n * (min(ct.shape) - 1)))
 
     st.write(f"Chi²: {chi2:.2f} | p-value: {p:.5f} | Cramér’s V: {V:.2f}")
+
+# =========================
+# TIME TREND MODEL
+# =========================
+    st.subheader("📉 Time Trend (Regression)")
+
+    df["number_of_months"] = (
+        (df["date"].dt.year - df["date"].dt.year.min()) * 12
+        + df["date"].dt.month
+    )
+
+    model = smf.ols("rating ~ number_of_months", data=df).fit()
+
+    st.text(model.summary())
+
+    st.info("➡️ Weak but significant negative trend over time")
+
+# =========================
+# MONTH ANALYSIS
+# =========================
+    st.subheader("📅 Month Analysis")
+
+    df["month_cat"] = df["month"].astype("category")
+
+    ct_month = pd.crosstab(df["month_cat"], df["rating"], normalize="index")
+    st.dataframe(ct_month)
+
+    chi2, p, _, _ = chi2_contingency(pd.crosstab(df["month_cat"], df["rating"]))
+
+    n = df.shape[0]
+    V = np.sqrt(chi2 / (n * (min(12, 5) - 1)))
+
+    st.write(f"Cramér’s V: {V:.2f}")
+
+    st.success("✔ Months show meaningful variation → useful feature")
+
+# =========================
+# SEASON FEATURE
+# =========================
+    st.subheader("🌦 Season Feature")
+
+    def get_season(m):
+        if m in [12,1,2]:
+            return "winter"
+        elif m in [3,4,5]:
+            return "spring"
+        elif m in [6,7,8]:
+            return "summer"
+        else:
+            return "autumn"
+
+    df["season"] = df["month"].apply(get_season)
+
+    ct = pd.crosstab(df["season"], df["rating"])
+    chi2, p, _, _ = chi2_contingency(ct)
+
+    n = ct.values.sum()
+    V = np.sqrt(chi2 / (n * (min(ct.shape) - 1)))
+
+    st.write(f"Chi²: {chi2:.2f} | p-value: {p:.5f} | Cramér’s V: {V:.2f}")
+
+# =========================
+# SPECIAL FLAGS
+# =========================
+    st.subheader("🎯 Special Time Features")
+
+    df["is_year_end"] = df["month"].isin([11,12]).astype(int)
+    df["is_march"] = (df["month"] == 3).astype(int)
+
+    for feature in ["is_year_end", "is_march"]:
+        st.markdown(f"### {feature}")
+
+        ct = pd.crosstab(df[feature], df["rating"])
+        chi2, p, _, _ = chi2_contingency(ct)
+
+        n = ct.values.sum()
+        V = np.sqrt(chi2 / (n * (min(ct.shape) - 1)))
+
+        st.write(f"Chi²: {chi2:.2f} | p-value: {p:.5f} | Cramér’s V: {V:.2f}")
 
 
 import numpy as np
@@ -254,10 +374,19 @@ Moderate negative correlation (~ -0.44):
 # =========================
 st.markdown("### Visualization")
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(4, 2.5))
+
 sns.boxplot(x="rating", y="review_length", data=df, ax=ax)
-ax.set_title("Review Length vs Rating")
-st.pyplot(fig)
+
+ax.set_title("review length vs rating", fontsize=10)
+
+st.pyplot(fig, use_container_width=False)
+
+
+#fig, ax = plt.subplots(figsize=(5,3))
+#sns.boxplot(x="rating", y="review_length", data=df, ax=ax)
+#ax.set_title("Review Length vs Rating")
+#st.pyplot(fig)
 
 # =========================
 # 🔹 LOG TRANSFORMATION
@@ -266,10 +395,21 @@ st.markdown("### Log Transformation")
 
 df["review_length_log"] = np.log1p(df["review_length"])
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(4, 2.5))
+
 sns.boxplot(x="rating", y="review_length_log", data=df, ax=ax)
-ax.set_title("Log Review Length vs Rating")
-st.pyplot(fig)
+
+ax.set_title("Log Review Length vs Rating", fontsize=10)
+ax.tick_params(labelsize=8)
+
+st.pyplot(fig, use_container_width=False)
+
+
+
+#fig, ax = plt.subplots(figsize=(5,3))
+#sns.boxplot(x="rating", y="review_length_log", data=df, ax=ax)
+#ax.set_title("Log Review Length vs Rating")
+#st.pyplot(fig)
 
 # =========================
 # 🔹 REGRESSION
@@ -355,7 +495,7 @@ Summary: Only the feature **verified** shows a strong correlation with the ratin
 # =========================
 # 🔹 TEXT FEATURES
 # =========================
-st.subheader("Second Part: Analysis of review_text")
+st.subheader("Analysis of review_text")
 
 # =========================
 # 🔹 SENTIMENT
@@ -377,9 +517,19 @@ st.dataframe(df[["review_text", "rating", "sentiment"]].head(20))
 st.write("Correlation between rating and sentiment:")
 st.write(df[["rating", "sentiment"]].corr())
 
-fig1, ax1 = plt.subplots()
+fig1, ax1 = plt.subplots(figsize=(4, 2.5))
+
 sns.boxplot(x="rating", y="sentiment", data=df, ax=ax1)
-st.pyplot(fig1)
+
+ax1.set_title("Sentiment vs Rating", fontsize=10)
+ax1.tick_params(labelsize=8)
+
+st.pyplot(fig1, use_container_width=False)
+
+
+#fig1, ax1 = plt.subplots()
+#sns.boxplot(x="rating", y="sentiment", data=df, ax=ax1)
+#st.pyplot(fig1)
 
 st.info("""
 Sentiment score ranges from:
@@ -408,31 +558,26 @@ st.success("✔ Negation is also a strong feature (~ -0.57 correlation)")
 # =========================
 # 🔹 FINAL SUMMARY
 # =========================
-st.subheader("Summary")
+st.subheader("Choice of features")
 
-st.markdown("""
-We identified several strong features for predicting customer ratings:
+df_table4 = pd.DataFrame({
+    "feature": ["sentiment", "has_negation", "review_length", "verified"],
+    "correlation": ["+0.65", "-0.57", "-0.44", ""],
+    "Cramers V": ["", "", "", "+0.28"],
+    "feature strength": ["strong", "strong", "moderate", "moderate"]
+})
 
-- Sentiment score  
-- Presence of negation  
-- English text filtering  
-- TF-IDF (planned)  
-- Embeddings (planned)  
-   
-    Bereinigt einen Text:
-    - Entfernt HTML-Tags
-    - Lowercase
-    - Entfernt Emojis und Sonderzeichen
-    - Entfernt Zahlen
-    - Lemmatization
-    - Entfernt Stopwords 
-      aber behält Negationen wie "not", "no", "never" für sentiment analysis!
+st.table(df_table4)
+
+
+df_table5 = pd.DataFrame({
+    "feature": ["embedding", "tf-idf", "review_text_en"],
+    "task": ["meaning", "words", "helps sentiment, has_negation, Tf-idf"],
     
-    EMBEDDING_MODEL = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-            
-    tfidf_dim=5000,
-    emb_dim=384,
-    struct_dim=4
+})
 
-These features show strong correlation with the target variable and will be used in the modeling phase.
-""")
+st.table(df_table5)
+
+
+
+
