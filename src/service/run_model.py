@@ -8,7 +8,7 @@ from src.features.build_features import (
     get_structured_features
 )
 from src.utils.text_preprocessing import clean_text, add_structured_features
-
+from src.models.predict_model import predict
 MODEL_PATH = "models/model.joblib"
 
 # =========================================
@@ -50,7 +50,7 @@ def preprocess(text: str) -> pd.DataFrame:
 # =========================================
 # PREDICT (UI USE)
 # =========================================
-def predict(text: str):
+def predict_explain(text: str):
 
     df = preprocess(text)
 
@@ -116,3 +116,9 @@ def get_tfidf_words(model_input, n=15):
         "word": [feature_names[i] for i in idx],
         "score": vec[idx]
     })
+
+def predict_rating(text: str):
+    
+    result = predict([text])
+
+    return int(result)

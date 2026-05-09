@@ -173,7 +173,7 @@ st.subheader("⚖️Step 2: Balancing Training Data (word switching augmentation
 train_df = X_train_raw.copy()
 train_df['target_group'] = y_train
 
-target_count = 3500
+target_count = 2000
 balanced_frames = []
 
 # Define categories to ensure correct ordering
@@ -432,7 +432,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
 
         with col_code2:
             st.caption("Optimized Model (Tuned)")
-            st.code("model = GradientBoostingClassifier(\n    n_estimators=500,\n    learning_rate=0.1,\n    max_depth=5,\n    subsample=0.8,\n    random_state=42\n)", language="python")
+            st.code("model = GradientBoostingClassifier(\n    n_estimators=300,\n    learning_rate=0.1,\n    max_depth=5,\n    subsample=0.8,\n    random_state=42\n)", language="python")
 
         st.divider()
         st.subheader("🤖 Step 5 (Second Try): Optimized Model")
@@ -441,7 +441,7 @@ if 'tfidf_data' in st.session_state and 'train_test_split' in st.session_state:
         if st.button("🚀 Run Optimized Training"):
             with st.spinner("It will take a moment... you can grab one more coffee ☕"):
                 start_time = time.time()
-                model_opt = GradientBoostingClassifier(n_estimators=500, learning_rate=0.1, max_depth=5, subsample=0.8, random_state=42)
+                model_opt = GradientBoostingClassifier(n_estimators=300, learning_rate=0.1, max_depth=5, subsample=0.8, random_state=42)
                 model_opt.fit(X_train, y_train)
                 
                 st.session_state['y_pred_opt'] = model_opt.predict(X_test)
