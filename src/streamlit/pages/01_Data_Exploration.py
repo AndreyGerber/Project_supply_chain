@@ -1,628 +1,204 @@
-import streamlit as st
 import pandas as pd
-import plotly.express as px 
-from pathlib import Path
+import plotly.express as px
+import streamlit as st
 
-# 1. Configuration
+from _utils import load_processed
+
 st.set_page_config(page_title="Auto parts store Review Dashboard", layout="wide")
 
-# Pfad zur prozessierten Datei
-file_path = Path("data/processed/reviews_processed.csv")
-
-@st.cache_data
-def load_data(path):
-    if not path.exists():
-        st.error(f"Data file not found at: {path.absolute()}")
-        return pd.DataFrame()
-    
-    df = pd.read_csv(path)
-    
-    # Datum konvertieren
-    if 'date' in df.columns:
-        df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    
-    # SPALTEN-TAUSCH: Wir machen die englischen Texte zum Standard
-    if 'review_text_en' in df.columns:
-        df = df.drop(columns=['review_text'], errors='ignore')
-        df = df.rename(columns={'review_text_en': 'review_text'})
-    
-    if 'review_text_clean_en' in df.columns:
-        df = df.rename(columns={'review_text_clean_en': 'review_text_clean_advanced'})
-        
-    return df
-
-# --- 2. INITIALISIERUNG ---
-df_raw = load_data(file_path)
-
-if not df_raw.empty:
-    df = df_raw.copy()
-
-# Ab hier nutzt dein restlicher Code wieder "df" für die Grafiken
-
-
-
-
-
-# Main Application Logic
-if not df.empty:
-    # 3. Sidebar Filtering
-    st.sidebar.header("Filter Options")
-    selected_rating = st.sidebar.multiselect(
-        "Select Rating", 
-        options=sorted(df['rating'].unique()), 
-        default=sorted(df['rating'].unique())
-    )
-    df_filtered = df[df['rating'].isin(selected_rating)]
-
-    # 4. Main Header
-    st.title("📊 Phase 1: Data Exploration")
-
-    # Fügt eine Leerzeile ein
-    st.markdown("<br>", unsafe_allow_html=True)
-    # Für einen wirklich großen Abstand zwischen der Tabelle und den nächsten Abschnitten
-    st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
-
-    st.markdown("""
-        <div style="
-            text-align: left; 
-            padding: 15px; 
-            background-color: #e8f4f8; 
-            border-radius: 10px; 
-            color: #004085;
-            font-size: 1.1em;
-            border: 1px solid #b8daff;">
-            🚀 The objective of this part is to gain a first insight into the statistics of the data.
-        </div>
-
-            
-        <div style=" 
-            text-align: left; 
-            padding: 15px; 
-            background-color: #e8f4f8; 
-            border-radius: 10px; 
-            color: #004085;
-            font-size: 1.1em;
-            border: 1px solid #b8daff;">
-             
-            
-        <style>
-            /* Schwarze Punkte */
-            li::marker {
-                color: black;
-                font-size: 1.2em;
-            }
-            
-            /* NUR die Liste einrücken */
-            .eingerueckte-liste {
-                margin-left: 20px; /* Hier schiebst du nur die Punkte nach rechts */
-                margin-top: 10px;
-                line-height: 1.4; /* Optional: Erhöht den Zeilenabstand für bessere Lesbarkeit */
-            }
-        </style>
-
-        <div style="font-size: 18px; line-height: 1.6;">
-            The scraper iterates across multiple companies and pages, extracting the following attributes for each review:
-            <ul class="eingerueckte-liste">
-                <li><b style="color: #1E88E5;">review_text:</b> customer comment</li>
-                <li><b style="color: #1E88E5;">rating_svg:</b> star rating</li>
-                <li><b style="color: #1E88E5;">date:</b> timestamp of the review</li>
-                <li><b style="color: #1E88E5;">location:</b> customer country</li>
-                <li><b style="color: #1E88E5;">supplier_response:</b> company reply</li>
-                <li><b style="color: #1E88E5;">verified:</b> review verification status</li>
-                <li><b style="color: #1E88E5;">company:</b> retailer identifier</li>
-            </ul>
-        </div>
-            <br>
-            The initial analytics are presented below — enjoy exploring!
-        </div>""", unsafe_allow_html=True)
-    st.markdown("---")
-
-
-    # --- POSITION 1: RAW DATA PREVIEW ---
-    st.subheader("📄 Raw Data Preview")
-    st.info("Direct preview of the filtered dataset:")
-
-    # Spalten definieren, die NICHT angezeigt werden sollen
-    cols_to_exclude = ["review_text_clean_advanced", "review_text_clean", "issue_categories", "review_text_clean_light", "review_length", "sentiment", "has_negation"]
-    
-    # Wir zeigen nur die Spalten an, die nicht in der Ausschlussliste sind
-    # .drop(columns=...) erzeugt eine Kopie ohne die genannten Spalten
-    st.dataframe(
-        df_filtered.drop(columns=cols_to_exclude, errors='ignore').head(76), 
-        use_container_width=True,
-        height=450 
-    )
-    
-    # Fügt eine Leerzeile ein
-    st.markdown("<br>", unsafe_allow_html=True)
-    # Für einen wirklich großen Abstand zwischen der Tabelle und den nächsten Abschnitten
-    st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
-
-
-    # COMPANY VALUE COUNTS (table and chart) ---
-    with st.container(border=True):
-        st.markdown("#### 🏢 Company Distribution")
-        if 'company' in df_filtered.columns:
-            company_counts = df_filtered['company'].value_counts().reset_index()
-            company_counts.columns = ['Company Name', 'Review Count']
-            
-            # 500px bieten genug Platz für 12 Zeilen + Header + Padding
-            ui_height = 650 
-
-            # Darstellung als Tabelle oder kleiner Bar Chart für bessere Übersicht
-            c1, c2 = st.columns([1, 2]) # Tabelle links, Mini-Chart rechts
-            with c1:
-                # Wir zeigen alle Zeilen an
-                st.dataframe(
-                    company_counts, 
-                    use_container_width=True, 
-                    hide_index=True,
-                    height=ui_height ) # <--- Das hat im Screenshot gefehlt     
-            with c2:
-                # 'height=380' entspricht in etwa der Höhe von 10 Tabellenzeilen + Header
-                fig_comp = px.bar(company_counts, # alle Firmen anzeigen
-                x='Review Count', 
-                y='Company Name', 
-                orientation='h', 
-                height=ui_height, # <--- Dieser Wert ist entscheidend für die Angleichung
-                title="Comments per Company"
-                )
-            
-                # Design-Anpassung für saubere Kanten
-                fig_comp.update_layout(
-                margin=dict(l=0, r=0, t=40, b=0), # Ränder minimieren
-                yaxis={'categoryorder':'total ascending'} # Größte Balken oben
-                )
-            
-                st.plotly_chart(fig_comp, use_container_width=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-
-
-
-    # Rating vs Verified (table and chart)
-    with st.container(border=True):
-        st.markdown("#### 📊 Rating vs Verified")
-
-        # Ein Violin-Plot mit 'points="all"' zeigt die Dichte der Bewertungen
-        fig_ver = px.violin(
-            df,
-            x="verified",
-            y="rating",
-            color="verified",      # Unterschiedliche Farben für 0 und 1
-            box=True,              # Zeichnet eine kleine Box in die Mitte
-            points="all",          # Zeigt alle Datenpunkte mit Jitter (Streuung)
-            color_discrete_map={0: "#EF553B", 1: "#00CC96"} # Rot für Unverified, Grün für Verified
-        )
-
-        # 1. Daten gruppieren und zählen (Wichtig: Spaltennamen 'rating' prüfen)
-        counts = df.groupby(['verified', 'rating']).size().reset_index(name='count')
-
-        # 2. Zahlen als Text-Labels hinzufügen
-        for i, row in counts.iterrows():
-            fig_ver.add_annotation(
-                x=row['verified'],
-                y=row['rating'],
-                text=f"n={row['count']}",
-                showarrow=False,
-                yshift=10, 
-                font=dict(size=12, color="black", family="Arial")
-            )
-
-        # 3. Layout verschönern (Beschriftung der Achsen)
-        fig_ver.update_layout(
-            xaxis=dict(
-                tickmode='array',
-                tickvals=[0, 1],
-                ticktext=['Non-Verified (0)', 'Verified (1)']
-            )
-        )
-
-
-        st.plotly_chart(fig_ver, use_container_width=True)
-
-        # Textbeschreibung
-        st.markdown("""
-        The inclusion of a **'verified'** indicator allows us to distinguish  
-        between authenticated and non-authenticated customer feedback,  
-        reducing potential bias and increasing the reliability of the analysis.
-        """)
-
-
-    # Abstand unten
-    st.markdown("<br>", unsafe_allow_html=True)
-	
-
-
-       # --- 📅 Analysis Period & Timeline ---
-    st.markdown("#### 📅 Analysis Period")
-    if not df_filtered.empty and 'date' in df_filtered.columns:
-        first_date = df_filtered['date'].min()
-        last_date = df_filtered['date'].max()
-        
-        st.markdown(
-            f"""
-            <div style="
-                background-color: #d4edda; 
-                color: #155724; 
-                padding: 15px; 
-                border-radius: 5px; 
-                font-size: 22px; 
-                border: 1px solid #c3e6cb;">
-                ✅ This dataset covers reviews from <b>{first_date.strftime('%d.%m.%Y')}</b> 
-                to <b>{last_date.strftime('%d.%m.%Y')}</b>.
-            </div>
-            """, 
-            unsafe_allow_html=True
-          )
-
-        # 1. Die Zeitachse (als Linie in Form eines kleinen Diagramms)
-        timeline_df = pd.DataFrame({'date': [first_date, last_date], 'label': ['first comment', 'last comment'], 'y': [0, 0]})
-        fig_timeline = px.line(timeline_df, x='date', y='y', markers=True, text='label')
-        fig_timeline.update_traces(line_color='#2E7D32', line_width=4, marker=dict(size=12, 
-        symbol='diamond'), textposition='top center', textfont=dict(size=16, weight='bold'))
-        fig_timeline.update_layout(height=120, margin=dict(l=20, r=20, t=30, b=20), xaxis=dict(showgrid=False, title=""),
-                                   yaxis=dict(showgrid=False, showticklabels=False, title=""), plot_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
-
-
-        # --- ABSTAND EINFÜGEN ---
-        st.write("##") # Erzeugt einen vertikalen Abstand (ca. 30-40px)
-
-        # -KPIs (Total Reviews, Average Rating, Supplier Response Rate) ---
-        with st.container(border=True):
-            st.markdown("""
-            <style>
-            [data-testid="stMetric"] {display: flex; flex-direction: column; align-items: center; text-align: center; }
-            [data-testid="stMetricLabel"] >div {font-size: 22px !important; font-weight: bold !important; justify-content: center !important; text-align: center !important; }
-            [data-testid="stMetricValue"] >div {font-size: 25px !important; font-weight: bold !important; justify-content: center !important; text-align: center !important; }
-            </style>    """, unsafe_allow_html=True)
-
-            avg_rating = df_filtered['rating'].mean()
-            response_rate = df_filtered['supplier_response'].notna().mean() * 100
-
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Total Reviews", len(df_filtered))
-            col2.metric("Average Rating", f"{avg_rating:.2f} / 5.0")
-            col3.metric("Supplier Response Rate", f"{response_rate:.1f}%")
-            #st.markdown("---")
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        # NOCHMAL ABSTAND VOR DER NÄCHSTEN GRAFIK ---
-        st.markdown("<br><br>", unsafe_allow_html=True) # Erzeugt zwei Zeilenumbrüche
-
-
-
-        # --- HIER KOMMT DAS NEUE BALKENDIAGRAMM REIN, Kommentare über das Jahr ---
-    with st.container(border=True): 
-        st.markdown("#### 📊 Number of comments by Year")
-        
-        # Daten vorbereiten (Jahre extrahieren und zählen)
-        df_filtered['Year'] = df_filtered['date'].dt.year.astype(str)
-        yearly_counts = df_filtered['Year'].value_counts().sort_index().reset_index()
-        yearly_counts.columns = ['Year', 'Number of comments']
-
-        # 1. Plotly Bar Chart - Jedes Jahr als eigene Gruppe, aber gleiche Farbe
-        fig_years = px.bar(
-            yearly_counts, 
-            x='Year', 
-            y='Number of comments',
-            text='Number of comments',
-            color='Year', # Wichtig: Damit bekommt jedes Jahr einen eigenen Legenden-Eintrag
-            # Hier erzwingen wir, dass JEDES Jahr die gleiche Farbe bekommt:
-            color_discrete_sequence=['#1E88E5'] * len(yearly_counts), 
-            height=600
-        )
-
-        # 2. Layout-Feineinstellungen
-        fig_years.update_layout(
-            xaxis_type='category', 
-            plot_bgcolor='rgba(0,0,0,0)',
-            showlegend=True, 
-            
-            legend=dict(
-                title="Select Year:", # Geänderter Titel für das Publikum
-                orientation="v",
-                yanchor="top", y=1, 
-                xanchor="left", x=1.02
-            ),
-
-            # --- SCHRIFTGRÖSSEN ---
-            font=dict(size=14),
-            xaxis=dict(title_font=dict(size=20), tickfont=dict(size=14)),
-            yaxis=dict(title_font=dict(size=20), tickfont=dict(size=16), showgrid=True, gridcolor='LightGray'),
-            margin=dict(r=150)
-        )
-
-        fig_years.update_traces(textposition='outside')
-        st.plotly_chart(fig_years, use_container_width=True)
-
-
-    st.markdown("<br>", unsafe_allow_html=True)
-        # --- ENDE DES ABSCHNITTS Review Volume by Year---
-
-    st.markdown("---")
-    
-
-
-
-
-
-    # 6. Analysis Tabs
-    tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis", "📍 Operations & Support"])
-
-    with tab1:
-        st.subheader("Customer Satisfaction Distribution")
-        color_map = {1: "#2E7D32", 2: "#311B92", 3: "#FBC02D", 4: "#81D4FA", 5: "#C62828"}
-        fig = px.histogram(
-            df_filtered,
-            x="rating",
-            color="rating",
-            title="Frequency of Ratings",
-            labels={'rating': 'Star Rating', 'count': 'Number of Comments'},
-            nbins=5,
-            color_discrete_map=color_map,
-            height=600  # <--- HIER: Gesamthöhe des Diagramms einstellen
-        )
-        fig.update_layout(
-         # --- SCHRIFTGRÖSSEN ---
-            font=dict(size=14),     # Allgemeine Schriftgröße (optional)
-            xaxis=dict(
-                title_font=dict(size=20), # Größe der "Year" Beschriftung
-                tickfont=dict(size=14)    # Größe der Jahreszahlen (2012, 2014...)
-                
-            ),
-            yaxis=dict(
-                title_font=dict(size=24), # Größe der "Number of Reviews" Beschriftung
-                tickfont=dict(size=14),   # Größe der Zahlen an der Y-Achse
-                showgrid=True, 
-                gridcolor='LightGray',
-                title = "Count of Star Ratings"
-            )
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-    with tab2:
-        st.subheader("📈 Average rating per company over the years")
-
-        # --- 1. ZENTRALE EINSTELLUNGEN: SCHRIFTGRÖSSEN & LAYOUT ---
-        font_size_axis_title = 20  # Größe der Achsen-Beschriftungen (X & Y)
-        font_size_ticks = 14       # Größe der Zahlen an den Achsen
-        font_size_legend = 14      # Größe der Firmennamen in der Legende
-        font_size_title = 22       # Größe des Diagramm-Titels
-        chart_height = 600
-
-        # --- 2. DATEN VORBEREITEN ---
-        df_time = df_filtered.copy()
-        df_time['year'] = df_time['date'].dt.year
-
-        # Zeitspanne: Erster Kommentar im Datensatz bis HEUTE
-        min_year = int(df_time['year'].min())
-        max_year = pd.Timestamp.now().year
-        all_years = list(range(min_year, max_year + 1))
-
-        # Filter-Slider
-        min_reviews = st.slider(
-            "min number of comments per year:", 
-            min_value=5, max_value=15, value=7
-        )
-
-        # Gruppierung
-        df_grouped = df_time.groupby(['year', 'company']).agg(
-            avg_rating=('rating', 'mean'),
-            review_count=('rating', 'count')
-        ).reset_index()
-
-        # Filter anwenden
-        df_trend = df_grouped[df_grouped['review_count'] >= min_reviews].copy()
-
-        # --- 3. LÜCKEN FÜLLEN (Stellt sicher, dass jedes Jahr auf der X-Achse existiert) ---
-        companies = df_trend['company'].unique()
-        if len(companies) > 0:
-            mux = pd.MultiIndex.from_product([all_years, companies], names=['year', 'company'])
-            df_trend = df_trend.set_index(['year', 'company']).reindex(mux).reset_index()
-
-            # --- 4. DIAGRAMM ERSTELLEN ---
-            fig_trend = px.line(
-                df_trend,
-                x="year",
-                y="avg_rating",
-                color="company",
-                markers=True,
-                title=f"Trends in Customer Satisfaction ({min_year} - {max_year})",
-                labels={'year': 'Year', 'avg_rating': 'Ø Stars', 'company': 'Company'},
-                hover_data={'review_count': True},
-                height=chart_height,
-                color_discrete_sequence=px.colors.qualitative.Safe # Gut unterscheidbare Farben
-            )
-
-            # --- 5. FINETUNING DER OPTIK & SCHRIFTGRÖSSEN ---
-            fig_trend.update_layout(
-                title_font=dict(size=font_size_title),
-                xaxis=dict(
-                    type='linear',
-                    tickmode='linear',
-                    dtick=1,
-                    range=[min_year - 0.1, max_year + 0.1], # Achse fest bis heute
-                    title_font=dict(size=font_size_axis_title),
-                    tickfont=dict(size=font_size_ticks),
-                    showgrid=True,
-                    gridcolor='rgba(200, 200, 200, 0.3)'
-                ),
-                yaxis=dict(
-                    range=[0.8, 5.2], # Skala von 1 bis 5 (mit etwas Puffer)
-                    dtick=1,
-                    title_font=dict(size=font_size_axis_title),
-                    tickfont=dict(size=font_size_ticks),
-                    title="Rating (Ø Stars)",
-                    showgrid=True
-                ),
-                legend=dict(
-                    font=dict(size=font_size_legend),
-                    orientation="v",         # Vertikal
-                    yanchor="top", y=1,      # Oben ausrichten
-                    xanchor="left", x=1.02,  # Rechts neben dem Chart positionieren
-                    title_font=dict(size=font_size_legend + 2)
-                ),
-                margin=dict(l=60, r=150, t=80, b=60), # Platz rechts für Legende reserviert
-                hovermode="x unified",
-                plot_bgcolor='white'
-            )
-
-            # WICHTIG: Linien nicht verbinden, wenn ein Jahr fehlt (kein "Drop to Zero")
-            fig_trend.update_traces(connectgaps=False, line=dict(width=3))
-
-            st.plotly_chart(fig_trend, use_container_width=True)
-        else:
-            st.info("Erhöhe den Filter oder wähle mehr Ratings aus, um Daten zu sehen.")
-
-    with tab3:
-        st.header("📍 Geographic & Support Performance")
-
-        # --- Parameter für die Diagrammhöhe ---
-        chart_height = 500
-
-        # --- Aufteilung 70% zu 30% ---
-        col_a, col_b = st.columns([7, 3]) 
-
-        with col_a:
-            # 1. Daten für Regionen (Top 9 + Others) vorbereiten
-            loc_counts = df_filtered['location'].value_counts()
-            top_9 = loc_counts.head(9)
-            
-            if len(loc_counts) > 9:
-                others_count = loc_counts.iloc[9:].sum()
-                others_series = pd.Series([others_count], index=['Others'])
-                final_loc_data = pd.concat([top_9, others_series])
-            else:
-                final_loc_data = top_9
-
-            # Daten für Plotly in DataFrame umwandeln
-            plot_df = final_loc_data.reset_index()
-            plot_df.columns = ['Region', 'Count']
-
-            # 2. Vertikales Balkendiagramm
-            fig_loc = px.bar(
-                plot_df, 
-                x='Region',  # Länder auf die X-Achse
-                y='Count',   # Anzahl auf die Y-Achse
-                title="Top 9 Regions & Others", 
-                text='Count', # Zahlen über den Balken
-                color='Region', 
-                color_discrete_sequence=px.colors.qualitative.Pastel,
-                height=chart_height
-            )
-        
-            # Layout-Anpassungen für vertikale Optik
-            fig_loc.update_layout(
-                showlegend=False, # Legende aus, da X-Achse beschriftet ist
-                xaxis_title="Region",
-                yaxis_title="Number of Reviews",
-                xaxis={'categoryorder':'total descending'}, # Höchster Balken links
-                margin=dict(t=50, b=50, l=20, r=20)
-            )
-            
-            # Zahlen über den Balken positionieren
-            fig_loc.update_traces(textposition='outside')
-            
-            st.plotly_chart(fig_loc, use_container_width=True)
-
-        with col_b:
-            # 3. Response Status vorbereiten
-            df_filtered['has_response'] = df_filtered['supplier_response'].notna()
-            resp_counts = df_filtered['has_response'].value_counts().rename({True: 'Responded', False: 'Pending'})
-            
-            # 4. Balkendiagramm
-            fig_resp = px.bar(
-                x=resp_counts.index, 
-                y=resp_counts.values, 
-                title="Response Status", 
-                color=resp_counts.index,
-                # Farben exakt wie im Bild
-                color_discrete_map={'Responded': '#2E6AD1', 'Pending': '#89C6FF'},
-                height=chart_height # <--- Dynamische Höhe
-            )
-        
-            fig_resp.update_layout(
-                showlegend=False,
-                xaxis_title=None,
-                yaxis_title="Anzahl",
-                margin=dict(t=50, b=50, l=20, r=20)
-            )
-        
-            # Zahlen über den Balken anzeigen
-            fig_resp.update_traces(texttemplate='%{y}', textposition='outside')
-            
-            st.plotly_chart(fig_resp, use_container_width=True)
-
-
-    # 7. Personalized Footer
-    st.markdown("---")
-    
-    # 1. Großer Dankeschön-Text (Zentriert & Doppelte Größe)
-    st.markdown("""
-        <div style="text-align: center; margin-bottom: 20px;">
-            <span style="font-weight: bold; color: #ff4b4b; font-size: 2.2em;">
-                Thank you for exploring the Autodoc Review Dashboard!
-            </span>
-        </div>
-    """, unsafe_allow_html=True)
-    
-     # 2. Zentrierter Ausblick-Satz mit Verlinkung
-    st.markdown("""
-        <div style="text-align: left; padding: 20px; background-color: #e8f4f8; border-radius: 10px; color: #004085; font-size: 1.1em; border: 1px solid #b8daff; line-height: 1.8;">
-            
-        <span style="font-size: 1.4em; font-weight: bold; display: block; margin-bottom: 12px;">
-            Next Steps will be:
-        </span>
-
-        <div style="margin-bottom: 8px;">
-            <a href="/Preprocessing" target="_self" style="color: black; font-weight: bold; text-decoration: underline;">Preprocessing</a> 
-            → preparing the data for machine learning models
-        </div>
-            
-        <div style="margin-bottom: 8px;">
-            <a href="/Modeling" target="_self" style="color: black; font-weight: bold; text-decoration: underline;">Modeling</a> 
-            → analyzing the data with various machine learning techniques and choosing the best model for our use case.
-        </div>
-            
-        <div style="margin-bottom: 8px;">
-            <a href="/Live_Demo" target="_self" style="color: black; font-weight: bold; text-decoration: underline;">Play with our model</a> 
-            → testing the model with new comments and evaluating the results.
-        </div>
-            
-        </div>""", unsafe_allow_html=True)
-
-
-
-
-    # --- DER FINALE SCHRITT AUF SEITE 1 ---
-    if not df_filtered.empty:
-        # 1. Liste der Spalten, die wir NICHT an Seite 2 übergeben wollen
-        cols_to_exclude = [
-            'domain', 'language', 'sentiment', 
-            'has_negation', 'Year', 'has_response', 
-            'company_site', 'rating_svg' # Falls diese noch im DF sind
-        ]
-        
-        # 2. Wir erstellen die Kopie und löschen nur die Spalten, die auch wirklich existieren
-        df_for_phase2 = df_filtered.drop(columns=[c for c in cols_to_exclude if c in df_filtered.columns])
-        
-        # 3. SPEICHERN FÜR SEITE 2
-        # Seite 2 sucht genau nach diesem Key: 'data_ready'
-        st.session_state['data_ready'] = df_for_phase2.copy()
-
-        # 4. Optisches Feedback
-        st.success(f"✅ Data prepared for Preprocessing!")
-        
-        
-        if st.button("🚀 Proceed to Preprocessing (Phase 2)"):
-            st.switch_page("pages/02_Preprocessing.py")
-    else:
-        st.error("Dataset is empty. Cannot proceed.")
-
-
-
-# Diese Zeilen stehen GANZ LINKS (ohne Einrückung) am Ende der Datei
-else:
+df = load_processed()
+if df.empty:
     st.warning("Data could not be loaded. Please check the source file.")
+    st.stop()
+
+# --- Sidebar filter ---
+st.sidebar.header("Filter Options")
+ratings = sorted(df["rating"].unique())
+selected_rating = st.sidebar.multiselect("Select Rating", options=ratings, default=ratings)
+df_filtered = df[df["rating"].isin(selected_rating)].copy()
+
+BIG_FONT = dict(
+    font=dict(size=14),
+    xaxis=dict(title_font=dict(size=20), tickfont=dict(size=14)),
+    yaxis=dict(title_font=dict(size=20), tickfont=dict(size=14), showgrid=True, gridcolor="LightGray"),
+)
+
+# --- Header ---
+st.title("📊 Phase 1: Data Exploration")
+st.info("🚀 The objective of this part is to gain a first insight into the statistics of the data.")
+st.markdown("""
+The scraper iterates across multiple companies and pages, extracting the following attributes for each review:
+
+- **review_text:** customer comment
+- **rating_svg:** star rating
+- **date:** timestamp of the review
+- **location:** customer country
+- **supplier_response:** company reply
+- **verified:** review verification status
+- **company:** retailer identifier
+
+The initial analytics are presented below — enjoy exploring!
+""")
+st.divider()
+
+# --- Raw data preview ---
+st.subheader("📄 Raw Data Preview")
+st.info("Direct preview of the filtered dataset:")
+technical_cols = ["review_text_clean_advanced", "review_text_clean", "issue_categories",
+                  "review_text_clean_light", "review_length", "sentiment", "has_negation"]
+st.dataframe(df_filtered.drop(columns=technical_cols, errors="ignore").head(76), width="stretch", height=450)
+
+# --- Company distribution ---
+with st.container(border=True):
+    st.markdown("#### 🏢 Company Distribution")
+    company_counts = df_filtered["company"].value_counts().reset_index()
+    company_counts.columns = ["Company Name", "Review Count"]
+    c1, c2 = st.columns([1, 2])
+    c1.dataframe(company_counts, width="stretch", hide_index=True, height=650)
+    fig_comp = px.bar(company_counts, x="Review Count", y="Company Name", orientation="h",
+                      height=650, title="Comments per Company")
+    fig_comp.update_layout(margin=dict(l=0, r=0, t=40, b=0), yaxis={"categoryorder": "total ascending"})
+    c2.plotly_chart(fig_comp, width="stretch")
+
+# --- Rating vs verified ---
+with st.container(border=True):
+    st.markdown("#### 📊 Rating vs Verified")
+    fig_ver = px.violin(df, x="verified", y="rating", color="verified", box=True, points="all",
+                        color_discrete_map={0: "#EF553B", 1: "#00CC96"})
+    counts = df.groupby(["verified", "rating"]).size().reset_index(name="count")
+    for row in counts.itertuples():
+        fig_ver.add_annotation(x=row.verified, y=row.rating, text=f"n={row.count}", showarrow=False,
+                               yshift=10, font=dict(size=12, color="black", family="Arial"))
+    fig_ver.update_layout(xaxis=dict(tickmode="array", tickvals=[0, 1],
+                                     ticktext=["Non-Verified (0)", "Verified (1)"]))
+    st.plotly_chart(fig_ver, width="stretch")
+    st.markdown("""
+    The inclusion of a **'verified'** indicator allows us to distinguish
+    between authenticated and non-authenticated customer feedback,
+    reducing potential bias and increasing the reliability of the analysis.
+    """)
+
+# --- Analysis period & KPIs ---
+st.markdown("#### 📅 Analysis Period")
+if not df_filtered.empty:
+    first_date, last_date = df_filtered["date"].min(), df_filtered["date"].max()
+    st.success(f"✅ This dataset covers reviews from **{first_date:%d.%m.%Y}** to **{last_date:%d.%m.%Y}**.")
+
+    timeline_df = pd.DataFrame({"date": [first_date, last_date],
+                                "label": ["first comment", "last comment"], "y": [0, 0]})
+    fig_timeline = px.line(timeline_df, x="date", y="y", markers=True, text="label")
+    fig_timeline.update_traces(line_color="#2E7D32", line_width=4, marker=dict(size=12, symbol="diamond"),
+                               textposition="top center", textfont=dict(size=16, weight="bold"))
+    fig_timeline.update_layout(height=120, margin=dict(l=20, r=20, t=30, b=20), plot_bgcolor="rgba(0,0,0,0)",
+                               xaxis=dict(showgrid=False, title=""),
+                               yaxis=dict(showgrid=False, showticklabels=False, title=""))
+    st.plotly_chart(fig_timeline, width="stretch", config={"displayModeBar": False})
+
+    with st.container(border=True):
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Reviews", len(df_filtered))
+        col2.metric("Average Rating", f"{df_filtered['rating'].mean():.2f} / 5.0")
+        col3.metric("Supplier Response Rate", f"{df_filtered['supplier_response'].notna().mean() * 100:.1f}%")
+
+# --- Comments per year ---
+with st.container(border=True):
+    st.markdown("#### 📊 Number of comments by Year")
+    yearly_counts = df_filtered["date"].dt.year.astype("Int64").astype(str).value_counts().sort_index().reset_index()
+    yearly_counts.columns = ["Year", "Number of comments"]
+    fig_years = px.bar(yearly_counts, x="Year", y="Number of comments", text="Number of comments", color="Year",
+                       color_discrete_sequence=["#1E88E5"] * len(yearly_counts), height=600)
+    fig_years.update_layout(**BIG_FONT, xaxis_type="category", plot_bgcolor="rgba(0,0,0,0)",
+                            legend=dict(title="Select Year:", yanchor="top", y=1, xanchor="left", x=1.02),
+                            margin=dict(r=150))
+    fig_years.update_traces(textposition="outside")
+    st.plotly_chart(fig_years, width="stretch")
+
+st.divider()
+
+# --- Analysis tabs ---
+tab1, tab2, tab3 = st.tabs(["📈 Performance Trends", "💬 Feedback Analysis", "📍 Operations & Support"])
+
+with tab1:
+    st.subheader("Customer Satisfaction Distribution")
+    fig = px.histogram(df_filtered, x="rating", color="rating", title="Frequency of Ratings", nbins=5, height=600,
+                       labels={"rating": "Star Rating", "count": "Number of Comments"},
+                       color_discrete_map={1: "#2E7D32", 2: "#311B92", 3: "#FBC02D", 4: "#81D4FA", 5: "#C62828"})
+    fig.update_layout(**BIG_FONT)
+    fig.update_yaxes(title="Count of Star Ratings")
+    st.plotly_chart(fig, width="stretch")
+
+with tab2:
+    st.subheader("📈 Average rating per company over the years")
+    min_reviews = st.slider("min number of comments per year:", min_value=5, max_value=15, value=7)
+
+    df_time = df_filtered.assign(year=df_filtered["date"].dt.year)
+    min_year, max_year = int(df_time["year"].min()), pd.Timestamp.now().year
+    df_trend = (df_time.groupby(["year", "company"])
+                .agg(avg_rating=("rating", "mean"), review_count=("rating", "count"))
+                .reset_index())
+    df_trend = df_trend[df_trend["review_count"] >= min_reviews]
+
+    companies = df_trend["company"].unique()
+    if len(companies) > 0:
+        # Every year appears on the x-axis, missing years stay empty instead of dropping to zero
+        full_index = pd.MultiIndex.from_product([range(min_year, max_year + 1), companies], names=["year", "company"])
+        df_trend = df_trend.set_index(["year", "company"]).reindex(full_index).reset_index()
+
+        fig_trend = px.line(df_trend, x="year", y="avg_rating", color="company", markers=True,
+                            title=f"Trends in Customer Satisfaction ({min_year} - {max_year})",
+                            labels={"year": "Year", "avg_rating": "Ø Stars", "company": "Company"},
+                            hover_data={"review_count": True}, height=600,
+                            color_discrete_sequence=px.colors.qualitative.Safe)
+        fig_trend.update_layout(
+            title_font=dict(size=22),
+            xaxis=dict(tickmode="linear", dtick=1, range=[min_year - 0.1, max_year + 0.1],
+                       title_font=dict(size=20), tickfont=dict(size=14), gridcolor="rgba(200, 200, 200, 0.3)"),
+            yaxis=dict(range=[0.8, 5.2], dtick=1, title="Rating (Ø Stars)",
+                       title_font=dict(size=20), tickfont=dict(size=14)),
+            legend=dict(font=dict(size=14), yanchor="top", y=1, xanchor="left", x=1.02),
+            margin=dict(l=60, r=150, t=80, b=60), hovermode="x unified", plot_bgcolor="white",
+        )
+        fig_trend.update_traces(connectgaps=False, line=dict(width=3))
+        st.plotly_chart(fig_trend, width="stretch")
+    else:
+        st.info("Lower the filter or select more ratings to see data.")
+
+with tab3:
+    st.header("📍 Geographic & Support Performance")
+    col_a, col_b = st.columns([7, 3])
+
+    with col_a:
+        loc_counts = df_filtered["location"].value_counts()
+        if len(loc_counts) > 9:
+            loc_counts = pd.concat([loc_counts.head(9), pd.Series({"Others": loc_counts.iloc[9:].sum()})])
+        plot_df = loc_counts.rename_axis("Region").reset_index(name="Count")
+        fig_loc = px.bar(plot_df, x="Region", y="Count", title="Top 9 Regions & Others", text="Count",
+                         color="Region", color_discrete_sequence=px.colors.qualitative.Pastel, height=500)
+        fig_loc.update_layout(showlegend=False, yaxis_title="Number of Reviews",
+                              xaxis={"categoryorder": "total descending"}, margin=dict(t=50, b=50, l=20, r=20))
+        fig_loc.update_traces(textposition="outside")
+        st.plotly_chart(fig_loc, width="stretch")
+
+    with col_b:
+        resp_counts = (df_filtered["supplier_response"].notna().value_counts()
+                       .rename({True: "Responded", False: "Pending"}))
+        fig_resp = px.bar(x=resp_counts.index, y=resp_counts.values, title="Response Status",
+                          color=resp_counts.index, height=500,
+                          color_discrete_map={"Responded": "#2E6AD1", "Pending": "#89C6FF"})
+        fig_resp.update_layout(showlegend=False, xaxis_title=None, yaxis_title="Count",
+                               margin=dict(t=50, b=50, l=20, r=20))
+        fig_resp.update_traces(texttemplate="%{y}", textposition="outside")
+        st.plotly_chart(fig_resp, width="stretch")
+
+# --- Footer ---
+st.divider()
+st.markdown("<h2 style='text-align: center; color: #ff4b4b;'>Thank you for exploring the Autodoc Review Dashboard!</h2>",
+            unsafe_allow_html=True)
+
+with st.container(border=True):
+    st.markdown("#### Next Steps will be:")
+    st.page_link("pages/02_Preprocessing.py", label="**Preprocessing** → preparing the data for machine learning models")
+    st.page_link("pages/04_Modelling.py", label="**Modelling** → analyzing the data with various machine learning "
+                                                "techniques and choosing the best model for our use case.")
+    st.page_link("pages/05_Live_Demo.py", label="**Play with our model** → testing the model with new comments "
+                                                "and evaluating the results.")
